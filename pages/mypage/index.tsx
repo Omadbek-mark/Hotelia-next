@@ -24,6 +24,7 @@ import { updateUserInfo } from '../../libs/auth';
 import AccountLayout from '../../libs/components/hotelia/AccountLayout';
 import { EmptyState } from '../../libs/components/hotelia/ui';
 import Link from 'next/link';
+import MyTrips from '../../libs/components/hotelia/MyTrips';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -115,6 +116,7 @@ const MyPage: NextPage = () => {
 
 	if (!ready) return <div className="h-container h-empty" role="status">Opening your account…</div>;
 	if (!user._id) return <EmptyState title="Sign in to continue" action={<Link className="h-text-link" href={`/account/join?referrer=${encodeURIComponent(router.asPath)}`}>Sign in</Link>} />;
+	if (category === 'myBookings') return <AccountLayout><MyTrips /></AccountLayout>;
 	if (category === 'myProfile') return <AccountLayout><MyProfile /></AccountLayout>;
 	if (device === 'mobile') {
 		return <div>MY PAGE</div>;

@@ -21,6 +21,7 @@ import {
 import PublicLayout from '../../libs/components/hotelia/PublicLayout';
 import PhotoGallery from '../../libs/components/hotelia/PhotoGallery';
 import StayAvailabilityForm from '../../libs/components/hotelia/StayAvailabilityForm';
+import BookingRequestDialog from '../../libs/components/hotelia/BookingRequestDialog';
 import { Button, Chip, EmptyState, Field, Pagination, SiteImage, formatUsd } from '../../libs/components/hotelia/ui';
 import type {
 	AvailableRoom,
@@ -87,6 +88,7 @@ export default function HotelDetail() {
 		[saving, setSaving] = useState(false),
 		[message, setMessage] = useState('');
 	const savePending = useRef(false);
+	const [bookingOpen, setBookingOpen] = useState(false);
 	const reviews = useQuery<{ getComments: Comments }>(GET_HOTEL_REVIEWS, {
 		variables: {
 			input: {
@@ -123,15 +125,29 @@ export default function HotelDetail() {
 		!roomQuery.loading && !roomQuery.error && !parsed.error && parsed.stay
 			? rooms.find((room) => room._id === selectedId && canSelectRoom(room as AvailableRoom, parsed.stay!))
 			: undefined;
+	useEffect(() => {
+		const restored = typeof router.query.selectedRoom === 'string' ? router.query.selectedRoom : '';
+		if (
+			restored &&
+			!roomQuery.loading &&
+			!roomQuery.error &&
+			!parsed.error &&
+			parsed.stay &&
+			rooms.some((room) => room._id === restored && canSelectRoom(room as AvailableRoom, parsed.stay!))
+		)
+			setSelectedId(restored);
+	}, [router.query.selectedRoom, roomQuery.loading, roomQuery.error, available.data, selectionKey]);
+	useEffect(() => {
+		setBookingOpen(false);
+	}, [selectionKey]);
 	const total = roomData?.metaCounter[0]?.total || 0;
 	const estimate =
 		selected && parsed.stay ? estimateStay(selected.roomPrice, parsed.nights, parsed.stay.rooms || 1) : undefined;
-	const update = (values: Record<string, string>, resetPage = true) =>
-		router.push(
-			{ pathname: '/property/detail', query: { ...router.query, ...values, ...(resetPage ? { roomPage: '1' } : {}) } },
-			undefined,
-			{ scroll: false },
-		);
+	const update = (values: Record<string, string>, resetPage = true) => {
+		const query: typeof router.query = { ...router.query, ...values, ...(resetPage ? { roomPage: '1' } : {}) };
+		delete query.selectedRoom;
+		return router.push({ pathname: '/property/detail', query }, undefined, { scroll: false });
+	};
 	const applyStay = async (stay: StayInput) => {
 		const unchanged =
 			!parsed.error &&
@@ -546,6 +562,9 @@ export default function HotelDetail() {
 											</div>
 										)}
 										<p className="h-stay-note">Final price is confirmed when you request your stay.</p>
+										<Button fullWidth color="secondary" onClick={() => setBookingOpen(true)}>
+											Request booking
+										</Button>
 									</>
 								) : (
 									<p>
@@ -558,6 +577,20 @@ export default function HotelDetail() {
 						</div>
 					</aside>
 				</div>
+				{bookingOpen && selected && parsed.stay && (
+					<BookingRequestDialog
+						hotel={hotel}
+						room={selected as AvailableRoom}
+						stay={parsed.stay}
+						open
+						onClose={() => setBookingOpen(false)}
+						onBooked={() => {
+							setSelectedId('');
+							void update({}, false);
+							void available.refetch().catch(() => {});
+						}}
+					/>
+				)}
 			</>
 		);
 	return (
