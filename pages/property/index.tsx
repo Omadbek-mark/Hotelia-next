@@ -78,7 +78,7 @@ export default function HotelCatalog() {
   finally { inFlight.current.delete(hotel._id); setSaving(Array.from(inFlight.current)); }
  };
  const query = hotelSearchQuery(input);
- const stayQuery: Record<string, string> = {}; ['checkIn', 'checkOut', 'guests', 'rooms'].forEach(key => { if (query[key]) stayQuery[key] = query[key]; });
+ const stayQuery: Record<string, string> = {}; ['checkIn', 'checkOut', 'guests', 'rooms', 'roomType'].forEach(key => { if (query[key]) stayQuery[key] = query[key]; });
  const chips = Object.entries(query).filter(([key]) => !['page', 'limit', 'sort'].includes(key));
  const remove = (key: string) => { const next = { ...query }; delete next[key]; if (key === 'checkIn' || key === 'checkOut') { delete next.checkIn; delete next.checkOut; } apply({ ...parseHotelSearch(next).input, page: 1 }).catch(() => setMessage('Could not update search.')); };
  const navigate = (next: HotelsInquiry) => { apply(next).catch(() => setMessage('Could not update search.')); };

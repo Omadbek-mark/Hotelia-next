@@ -107,3 +107,14 @@ export enum Direction {
 	ASC = 'ASC',
 	DESC = 'DESC',
 }
+
+export enum CommentStatus {
+	ACTIVE = 'ACTIVE',
+	DELETE = 'DELETE',
+}
+
+export enum CommentGroup {
+	HOTEL = 'HOTEL',
+	MEMBER = 'MEMBER',
+	ARTICLE = 'ARTICLE',
+}
