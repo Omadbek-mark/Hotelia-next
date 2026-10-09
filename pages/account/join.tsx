@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import { logIn, signUp } from '../../libs/auth';
 import { sweetMixinErrorAlert } from '../../libs/sweetAlert';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { MemberType } from '../../libs/types/hotelia/enums';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -17,7 +18,7 @@ export const getStaticProps = async ({ locale }: any) => ({
 const Join: NextPage = () => {
 	const router = useRouter();
 	const device = useDeviceDetect();
-	const [input, setInput] = useState({ nick: '', password: '', phone: '', type: 'USER' });
+	const [input, setInput] = useState({ nick: '', password: '', email: '', phone: '', type: MemberType.USER });
 	const [loginView, setLoginView] = useState<boolean>(true);
 
 	/** HANDLERS **/
@@ -42,7 +43,6 @@ const Join: NextPage = () => {
 	}, []);
 
 	const doLogin = useCallback(async () => {
-		console.warn(input);
 		try {
 			await logIn(input.nick, input.password);
 			await router.push(`${router.query.referrer ?? '/'}`);
@@ -52,16 +52,15 @@ const Join: NextPage = () => {
 	}, [input]);
 
 	const doSignUp = useCallback(async () => {
-		console.warn(input);
 		try {
-			await signUp(input.nick, input.password, input.phone, input.type);
+			await signUp({ memberNick: input.nick, memberPassword: input.password, memberEmail: input.email,
+				memberType: input.type, ...(input.phone ? { memberPhone: input.phone } : {}) });
 			await router.push(`${router.query.referrer ?? '/'}`);
 		} catch (err: any) {
 			await sweetMixinErrorAlert(err.message);
 		}
 	}, [input]);
 
-	console.log('+input: ', input);
 
 	if (device === 'mobile') {
 		return <div>LOGIN MOBILE</div>;
@@ -97,7 +96,7 @@ const Join: NextPage = () => {
 								<div className={'input-box'}>
 									<span>Password</span>
 									<input
-										type="text"
+										type="password"
 										placeholder={'Enter Password'}
 										onChange={(e) => handleInput('password', e.target.value)}
 										required={true}
@@ -109,7 +108,13 @@ const Join: NextPage = () => {
 								</div>
 								{!loginView && (
 									<div className={'input-box'}>
-										<span>Phone</span>
+										<span>Email</span>
+										<input type="email" placeholder="Enter Email" required onChange={(e) => handleInput('email', e.target.value)} />
+									</div>
+								)}
+								{!loginView && (
+									<div className={'input-box'}>
+										<span>Phone (optional)</span>
 										<input
 											type="text"
 											placeholder={'Enter Phone'}
@@ -145,12 +150,12 @@ const Join: NextPage = () => {
 													control={
 														<Checkbox
 															size="small"
-															name={'AGENT'}
+															name={'HOTEL_OWNER'}
 															onChange={checkUserTypeHandler}
-															checked={input?.type == 'AGENT'}
+															checked={input?.type == 'HOTEL_OWNER'}
 														/>
 													}
-													label="Agent"
+													label="Hotel owner"
 												/>
 											</FormGroup>
 										</div>
@@ -178,7 +183,7 @@ const Join: NextPage = () => {
 								) : (
 									<Button
 										variant="contained"
-										disabled={input.nick == '' || input.password == '' || input.phone == '' || input.type == ''}
+										disabled={input.nick == '' || input.password == '' || input.email == ''}
 										onClick={doSignUp}
 										endIcon={<img src="/img/icons/rightup.svg" alt="" />}
 									>

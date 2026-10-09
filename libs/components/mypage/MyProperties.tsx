@@ -86,7 +86,7 @@ const updatePropertyHandler = async (status: string, id: string) => {
 	}
 };
 
-	if (user?.memberType !== 'AGENT') {
+	if (user?.memberType !== 'HOTEL_OWNER') {
 		router.back();
 	}
 

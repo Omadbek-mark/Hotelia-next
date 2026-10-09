@@ -1,10 +1,11 @@
-import { JwtPayload } from 'jwt-decode';
-
-export interface CustomJwtPayload extends JwtPayload {
+// Compatibility shape for old components; populated from the member API, never JWT claims.
+export interface CustomJwtPayload {
 	_id: string;
 	memberType: string;
 	memberStatus: string;
 	memberAuthType: string;
+	memberEmail?: string;
+	memberHotels?: number;
 	memberPhone: string;
 	memberNick: string;
 	memberFullName?: string;

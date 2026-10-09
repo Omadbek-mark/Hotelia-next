@@ -1,186 +1,97 @@
-import decodeJWT from 'jwt-decode';
 import { initializeApollo } from '../../apollo/client';
-import { userVar } from '../../apollo/store';
-import { CustomJwtPayload } from '../types/customJwtPayload';
-import { sweetMixinErrorAlert } from '../sweetAlert';
-import { LOGIN, SIGN_UP } from '../../apollo/user/mutation';
+import { userVar, anonymousUser } from '../../apollo/store';
+import { GET_SESSION_MEMBER, LOGIN, LOGOUT, SIGN_UP } from '../../apollo/hotelia/auth';
+import type { Member, MemberInput } from '../types/hotelia/contracts';
+import { clearSession, getJwtToken, getValidAccessToken, readAccessClaims, saveSession } from './session';
 
-export function getJwtToken(): any {
-	if (typeof window !== 'undefined') {
-		return localStorage.getItem('accessToken') ?? '';
-	}
+export { getJwtToken } from './session';
+
+// Transitional adapter for the existing pages. New screens use memberHotels directly.
+export function applySessionMember(member: Member): void {
+	userVar({
+		_id: member._id,
+		memberType: member.memberType,
+		memberStatus: member.memberStatus,
+		memberAuthType: member.memberAuthType,
+		memberEmail: member.memberEmail,
+		memberPhone: member.memberPhone || '',
+		memberNick: member.memberNick,
+		memberFullName: member.memberFullName || '',
+		memberImage: member.memberImage || '',
+		memberAddress: member.memberAddress || '',
+		memberDesc: member.memberDesc || '',
+		memberHotels: member.memberHotels,
+		memberProperties: member.memberHotels,
+		memberRank: member.memberRank,
+		memberArticles: member.memberArticles,
+		memberPoints: member.memberPoints,
+		memberLikes: member.memberLikes,
+		memberViews: member.memberViews,
+		memberWarnings: member.memberWarnings,
+		memberBlocks: member.memberBlocks,
+	});
 }
 
-export function setJwtToken(token: string) {
-	localStorage.setItem('accessToken', token);
+async function acceptSession(member?: Member | null): Promise<void> {
+	if (!member?.accessToken || !member.refreshToken) throw new Error('Unable to sign in. Please try again.');
+	saveSession({ accessToken: member.accessToken, refreshToken: member.refreshToken });
+	await initializeApollo().clearStore();
+	if (getJwtToken() !== member.accessToken) return;
+	applySessionMember(member);
+	window.localStorage.setItem('login', String(Date.now()));
 }
 
-export const logIn = async (nick: string, password: string): Promise<void> => {
-	try {
-		const { jwtToken } = await requestJwtToken({ nick, password });
-
-		if (jwtToken) {
-			updateStorage({ jwtToken });
-			updateUserInfo(jwtToken);
-		}
-	} catch (err) {
-		console.warn('login err', err);
-		logOut();
-	}
-};
-
-const requestJwtToken = async ({
-	nick,
-	password,
-}: {
-	nick: string;
-	password: string;
-}): Promise<{ jwtToken: string }> => {
-	const apolloClient = await initializeApollo();
-
-	try {
-		const result = await apolloClient.mutate({
-			mutation: LOGIN,
-			variables: { input: { memberNick: nick, memberPassword: password } },
-			fetchPolicy: 'network-only',
-		});
-
-		console.log('---------- login ----------');
-		const { accessToken } = result?.data?.login;
-
-		return { jwtToken: accessToken };
-	} catch (err: any) {
-		console.log('request token err', err.graphQLErrors);
-		switch (err.graphQLErrors[0].message) {
-			case 'Definer: login and password do not match':
-				await sweetMixinErrorAlert('Please check your password again');
-				break;
-			case 'Definer: user has been blocked!':
-				await sweetMixinErrorAlert('User has been blocked!');
-				break;
-		}
-		throw new Error('token error');
-	}
-};
-
-export const signUp = async (nick: string, password: string, phone: string, type: string): Promise<void> => {
-	try {
-		const { jwtToken } = await requestSignUpJwtToken({ nick, password, phone, type });
-
-		if (jwtToken) {
-			updateStorage({ jwtToken });
-			updateUserInfo(jwtToken);
-		}
-	} catch (err) {
-		console.warn('login err', err);
-		logOut();
-	}
-};
-
-const requestSignUpJwtToken = async ({
-	nick,
-	password,
-	phone,
-	type,
-}: {
-	nick: string;
-	password: string;
-	phone: string;
-	type: string;
-}): Promise<{ jwtToken: string }> => {
-	const apolloClient = await initializeApollo();
-
-	try {
-		const result = await apolloClient.mutate({
-			mutation: SIGN_UP,
-			variables: {
-				input: { memberNick: nick, memberPassword: password, memberPhone: phone, memberType: type },
-			},
-			fetchPolicy: 'network-only',
-		});
-
-		console.log('---------- login ----------');
-		const { accessToken } = result?.data?.signup;
-
-		return { jwtToken: accessToken };
-	} catch (err: any) {
-		console.log('request token err', err.graphQLErrors);
-		switch (err.graphQLErrors[0].message) {
-			case 'Definer: login and password do not match':
-				await sweetMixinErrorAlert('Please check your password again');
-				break;
-			case 'Definer: user has been blocked!':
-				await sweetMixinErrorAlert('User has been blocked!');
-				break;
-		}
-		throw new Error('token error');
-	}
-};
-
-export const updateStorage = ({ jwtToken }: { jwtToken: any }) => {
-	setJwtToken(jwtToken);
-	window.localStorage.setItem('login', Date.now().toString());
-};
-
-export const updateUserInfo = (jwtToken: any) => {
-	if (!jwtToken) return false;
-
-	const claims = decodeJWT<CustomJwtPayload>(jwtToken);
-	userVar({
-		_id: claims._id ?? '',
-		memberType: claims.memberType ?? '',
-		memberStatus: claims.memberStatus ?? '',
-		memberAuthType: claims.memberAuthType,
-		memberPhone: claims.memberPhone ?? '',
-		memberNick: claims.memberNick ?? '',
-		memberFullName: claims.memberFullName ?? '',
-		memberImage:
-			claims.memberImage === null || claims.memberImage === undefined
-				? '/img/profile/defaultUser.svg'
-				: `${claims.memberImage}`,
-		memberAddress: claims.memberAddress ?? '',
-		memberDesc: claims.memberDesc ?? '',
-		memberProperties: claims.memberProperties,
-		memberRank: claims.memberRank,
-		memberArticles: claims.memberArticles,
-		memberPoints: claims.memberPoints,
-		memberLikes: claims.memberLikes,
-		memberViews: claims.memberViews,
-		memberWarnings: claims.memberWarnings,
-		memberBlocks: claims.memberBlocks,
+export async function logIn(nick: string, password: string): Promise<void> {
+	const { data } = await initializeApollo().mutate<{ login: Member }>({
+		mutation: LOGIN,
+		variables: { input: { memberNick: nick, memberPassword: password } },
+		context: { skipAuth: true },
 	});
-};
+	await acceptSession(data?.login);
+}
 
-export const logOut = () => {
-	deleteStorage();
-	deleteUserInfo();
-	window.location.reload();
-};
-
-const deleteStorage = () => {
-	localStorage.removeItem('accessToken');
-	window.localStorage.setItem('logout', Date.now().toString());
-};
-
-const deleteUserInfo = () => {
-	userVar({
-		_id: '',
-		memberType: '',
-		memberStatus: '',
-		memberAuthType: '',
-		memberPhone: '',
-		memberNick: '',
-		memberFullName: '',
-		memberImage: '',
-		memberAddress: '',
-		memberDesc: '',
-		memberProperties: 0,
-		memberRank: 0,
-		memberArticles: 0,
-		memberPoints: 0,
-		memberLikes: 0,
-		memberViews: 0,
-		memberWarnings: 0,
-		memberBlocks: 0,
+export async function signUp(input: MemberInput): Promise<void> {
+	const { data } = await initializeApollo().mutate<{ signup: Member }>({
+		mutation: SIGN_UP, variables: { input }, context: { skipAuth: true },
 	});
-};
+	await acceptSession(data?.signup);
+}
+
+let memberRequest: Promise<boolean> | null = null;
+
+export async function updateUserInfo(_legacyToken?: string): Promise<boolean> {
+	if (typeof window === 'undefined') return false;
+	if (memberRequest) return memberRequest;
+	memberRequest = (async () => {
+		const token = await getValidAccessToken();
+		const claims = readAccessClaims(token);
+		if (!claims) { userVar({ ...anonymousUser }); return false; }
+		try {
+			const { data } = await initializeApollo().query<{ getMember: Member; checkAuth: string }>({
+				query: GET_SESSION_MEMBER, variables: { memberId: claims.sub }, fetchPolicy: 'network-only',
+			});
+			if (getJwtToken() !== token) return false;
+			applySessionMember(data.getMember);
+			return true;
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : '';
+			if (/not authenticated|unauthorized/i.test(message) && getJwtToken() === token) clearSession();
+			return false;
+		}
+	})().catch(() => false).finally(() => { memberRequest = null; });
+	return memberRequest;
+}
+
+export async function logOut(): Promise<void> {
+	let token = getJwtToken();
+	try { token = await getValidAccessToken(); } catch { /* Clear local credentials even when offline. */ }
+	clearSession();
+	userVar({ ...anonymousUser });
+	const client = initializeApollo();
+	await client.clearStore();
+	if (token) {
+		try {
+			await client.mutate({ mutation: LOGOUT, context: { skipAuth: true, headers: { Authorization: `Bearer ${token}` } } });
+		} catch { /* Local logout still works when the server is unavailable. */ }
+	}
+}

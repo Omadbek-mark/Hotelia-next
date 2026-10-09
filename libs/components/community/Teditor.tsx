@@ -2,10 +2,9 @@ import React, { useMemo, useRef, useState } from 'react';
 import { Box, Button, FormControl, MenuItem, Stack, Typography, Select, TextField } from '@mui/material';
 import { BoardArticleCategory } from '../../enums/board-article.enum';
 import { Editor } from '@toast-ui/react-editor';
-import { getJwtToken } from '../../auth';
-import { REACT_APP_API_URL } from '../../config';
+import { uploadImage as uploadArticleImage } from '../../api/upload';
+import { getAssetUrl } from '../../config';
 import { useRouter } from 'next/router';
-import axios from 'axios';
 import { T } from '../../types/common'; // @ts-ignore
 import '@toast-ui/editor/dist/toastui-editor.css'; 
 import { useMutation } from '@apollo/client';
@@ -15,7 +14,6 @@ import { sweetErrorHandling, sweetTopSuccessAlert } from '../../sweetAlert';
 
 const TuiEditor = () => {
 	const editorRef = useRef<Editor>(null),
-		token = getJwtToken(),
 		router = useRouter();
 	const [articleCategory, setArticleCategory] = useState<BoardArticleCategory>(BoardArticleCategory.FREE);
 
@@ -31,45 +29,10 @@ const TuiEditor = () => {
 	}, []);
 
 	/** HANDLERS **/
-	const uploadImage = async (image: any) => {
-		try {
-			const formData = new FormData();
-			formData.append(
-				'operations',
-				JSON.stringify({
-					query: `mutation ImageUploader($file: Upload!, $target: String!) {
-						imageUploader(file: $file, target: $target) 
-				  }`,
-					variables: {
-						file: null,
-						target: 'article',
-					},
-				}),
-			);
-			formData.append(
-				'map',
-				JSON.stringify({
-					'0': ['variables.file'],
-				}),
-			);
-			formData.append('0', image);
-
-			const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL}`, formData, {
-				headers: {
-					'Content-Type': 'multipart/form-data',
-					'apollo-require-preflight': true,
-					Authorization: `Bearer ${token}`,
-				},
-			});
-
-			const responseImage = response.data.data.imageUploader;
-			console.log('=responseImage: ', responseImage);
-			memoizedValues.articleImage = responseImage;
-
-			return `${REACT_APP_API_URL}/${responseImage}`;
-		} catch (err) {
-			console.log('Error, uploadImage:', err);
-		}
+	const uploadImage = async (image: File) => {
+		const path = await uploadArticleImage(image, 'article');
+		memoizedValues.articleImage = path;
+		return getAssetUrl(path);
 	};
 
 	const changeCategoryHandler = (e: any) => {

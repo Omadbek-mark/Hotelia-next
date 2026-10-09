@@ -2,18 +2,17 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Button, Stack, Typography } from '@mui/material';
-import axios from 'axios';
 import { userVar } from '../../../apollo/store';
 import { MemberUpdate } from '../../types/member/member.update';
 import { useMutation, useReactiveVar } from '@apollo/client';
-import { getJwtToken, updateStorage, updateUserInfo } from '../../auth';
-import { UPDATE_MEMBER } from '../../../apollo/user/mutation';
+import { applySessionMember } from '../../auth';
+import { UPDATE_MEMBER } from '../../../apollo/hotelia/auth';
+import { uploadImage as uploadMemberImage } from '../../api/upload';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
 import { Messages, REACT_APP_API_URL } from '../../config';
 
 const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	const device = useDeviceDetect();
-	const token = getJwtToken();
 	const user = useReactiveVar(userVar);
 	const [updateData, setUpdateData] = useState<MemberUpdate>(initialValues);
 
@@ -32,65 +31,28 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	}, [user]);
 
 	/** HANDLERS **/
-	const uploadImage = async (e: any) => {
+	const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		try {
-			const image = e.target.files[0];
-			console.log('+image:', image);
-
-			const formData = new FormData();
-			formData.append(
-				'operations',
-				JSON.stringify({
-					query: `mutation ImageUploader($file: Upload!, $target: String!) {
-						imageUploader(file: $file, target: $target) 
-				  }`,
-					variables: {
-						file: null,
-						target: 'member',
-					},
-				}),
-			);
-			formData.append(
-				'map',
-				JSON.stringify({
-					'0': ['variables.file'],
-				}),
-			);
-			formData.append('0', image);
-
-			const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL}`, formData, {
-				headers: {
-					'Content-Type': 'multipart/form-data',
-					'apollo-require-preflight': true,
-					Authorization: `Bearer ${token}`,
-				},
-			});
-
-			const responseImage = response.data.data.imageUploader;
-			console.log('+responseImage: ', responseImage);
-			updateData.memberImage = responseImage;
-			setUpdateData({ ...updateData });
-
-			return `${REACT_APP_API_URL}/${responseImage}`;
-		} catch (err) {
-			console.log('Error, uploadImage:', err);
+			const image = e.target.files?.[0];
+			if (!image) return;
+			const path = await uploadMemberImage(image, 'member');
+			setUpdateData((previous) => ({ ...previous, memberImage: path }));
+		} catch (error) {
+			void sweetErrorHandling(error);
 		}
 	};
 
 	const updatePropertyHandler = useCallback(async () => {
 		try {
 			if (!user._id) throw new Error(Messages.error2);
-			updateData._id = user._id;
 			const result = await updateMember({
 				variables: {
-					input: updateData,
+					input: { memberNick: updateData.memberNick, memberPhone: updateData.memberPhone,
+						memberAddress: updateData.memberAddress, memberImage: updateData.memberImage },
 				},
 			});
 
-			// @ts-ignore
-			const jwtToken = result.data.updateMember?.accessToken;
-			await updateStorage({ jwtToken });
-			updateUserInfo(result.data.updateMember?.accessToken);
+			applySessionMember(result.data.updateMember);
 			await sweetMixinSuccessAlert('information updated successfully.');
 		} catch (err: any) {
 			sweetErrorHandling(err).then();

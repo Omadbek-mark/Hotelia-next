@@ -34,8 +34,7 @@ const withAdminLayout = (Component: ComponentType) => {
 		/** LIFECYCLES **/
 		useEffect(() => {
 			const jwt = getJwtToken();
-			if (jwt) updateUserInfo(jwt);
-			setLoading(false);
+			updateUserInfo(jwt).finally(() => setLoading(false));
 		}, []);
 
 		useEffect(() => {

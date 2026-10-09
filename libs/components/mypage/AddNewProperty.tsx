@@ -172,7 +172,7 @@ const updatePropertyHandler = useCallback(async () => {
 	}
 }, [insertPropertyData]);
 
-	if (user?.memberType !== 'AGENT') {
+	if (user?.memberType !== 'HOTEL_OWNER') {
 		router.back();
 	}
 

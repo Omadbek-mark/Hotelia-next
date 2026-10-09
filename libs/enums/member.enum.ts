@@ -1,6 +1,6 @@
 export enum MemberType {
 	USER = 'USER',
-	AGENT = 'AGENT',
+	HOTEL_OWNER = 'HOTEL_OWNER',
 	ADMIN = 'ADMIN',
 }
 
