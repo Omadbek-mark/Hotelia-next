@@ -166,6 +166,19 @@ export interface Followers {
 	metaCounter?: TotalCounter[] | null;
 }
 
+// Backend: dto/follow/follow.input.ts
+export interface FollowSearch {
+	followingId?: string;
+	followerId?: string;
+}
+
+// Backend: dto/follow/follow.input.ts
+export interface FollowInquiry {
+	page: number;
+	limit: number;
+	search: FollowSearch;
+}
+
 // Backend: dto/like/like.ts
 export interface MeLiked {
 	memberId: string;

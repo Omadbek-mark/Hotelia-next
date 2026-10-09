@@ -39,6 +39,8 @@ const { ThemeProvider } = require('@mui/material'),
 const { userVar, anonymousUser } = require('../../apollo/store.ts');
 const BookingDialog = require('../../libs/components/hotelia/BookingRequestDialog.tsx').default;
 const MyTrips = require('../../libs/components/hotelia/MyTrips.tsx').default;
+const MemberProfile = require('../../libs/components/hotelia/MemberProfile.tsx').default;
+const Connections = require('../../libs/components/hotelia/Connections.tsx').default;
 const StayCollection = require('../../libs/components/hotelia/StayCollection.tsx').default;
 const PublicLayout = require('../../libs/components/hotelia/PublicLayout.tsx').default;
 const AccountLayout = require('../../libs/components/hotelia/AccountLayout.tsx').default;
@@ -93,7 +95,13 @@ afterEach(async () => {
 	host?.remove();
 	userVar({ ...anonymousUser });
 });
-async function mount(component, handler, query = { category: 'myBookings' }, push = async () => true) {
+async function mount(
+	component,
+	handler,
+	query = { category: 'myBookings' },
+	push = async () => true,
+	pathname = '/mypage',
+) {
 	userVar({ ...anonymousUser, _id: member, memberNick: 'Traveler', memberType: 'USER' });
 	const operations = [];
 	client = new ApolloClient({
@@ -120,8 +128,8 @@ async function mount(component, handler, query = { category: 'myBookings' }, pus
 	const router = {
 		isReady: true,
 		query,
-		pathname: '/mypage',
-		asPath: '/mypage?' + new URLSearchParams(query),
+		pathname,
+		asPath: pathname + '?' + new URLSearchParams(query),
 		push,
 		events: { on() {}, off() {} },
 	};
@@ -163,6 +171,10 @@ async function savePreview(name) {
 		await new Promise((resolve) => setTimeout(resolve, 300));
 	});
 	const root = document.body.cloneNode(true);
+	root.querySelectorAll('img').forEach((element) => {
+		const src = element.getAttribute('src');
+		if (src?.startsWith('/')) element.setAttribute('src', 'http://localhost:3015' + src);
+	});
 	root.querySelectorAll('input,textarea').forEach((element, index) => {
 		const source = document.body.querySelectorAll('input,textarea')[index];
 		if (element.tagName === 'TEXTAREA') {
@@ -191,7 +203,7 @@ async function savePreview(name) {
 		.join('\n');
 	fs.writeFileSync(
 		directory + '/' + name + '.html',
-		`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotelia UI test preview</title><link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"><style>${css} ${mui} body{margin:0;background:#fcf9f4}.fixture-label{position:fixed;top:0;left:0;right:0;z-index:1600;padding:8px;background:#1a2e26;color:white;text-align:center;font:12px Arial}</style></head><body><div class="fixture-label">UI test preview · Sample data · No bookings created</div>${root.innerHTML}</body></html>`,
+		`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotelia UI test preview</title><link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"><style>${css} ${mui} body{margin:0;background:#fcf9f4}.fixture-label{position:fixed;top:0;left:0;right:0;z-index:1600;padding:8px;background:#1a2e26;color:white;text-align:center;font:12px Arial}</style></head><body><div class="fixture-label">UI test preview · Sample data · No live records created</div>${root.innerHTML}</body></html>`,
 	);
 }
 
@@ -465,4 +477,167 @@ test('collection invalid page skips API, and failed save keeps the saved hotel v
 	assert.match(document.body.textContent, /Could not update saved stays/);
 	assert.ok(document.querySelector('[aria-label="Unsave Seoul Courtyard"]'));
 	assert.equal(document.querySelectorAll('.h-hotel-card').length, 1);
+});
+
+const socialHost = {
+	__typename: 'Member',
+	_id: hotelId,
+	memberNick: 'matt',
+	memberFullName: 'Matt',
+	memberImage: '/img/profile/defaultUser.svg',
+	memberDesc: 'Thoughtful stays and warm welcomes.',
+	memberType: 'HOTEL_OWNER',
+	memberStatus: 'ACTIVE',
+	memberHotels: 1,
+	memberArticles: 0,
+	memberFollowers: 4,
+	memberFollowings: 2,
+	createdAt: '2025-02-01T00:00:00.000Z',
+	meFollowed: [],
+};
+const publicPage = (child) => React.createElement(PublicLayout, {}, child);
+test('host profile follows/unfollows once and refreshes authoritative follow status and counters', async () => {
+	let following = false;
+	const operations = await mount(
+		publicPage(React.createElement(MemberProfile, { host: true })),
+		(operation) => {
+			if (operation.operationName === 'PublicMember')
+				return {
+					getMember: {
+						...socialHost,
+						memberFollowers: following ? 5 : 4,
+						meFollowed: following ? [{ followerId: member, followingId: hotelId, myFollowing: true }] : [],
+					},
+				};
+			if (operation.operationName === 'DiscoveryHotels')
+				return { getHotels: { list: [collectionHotels[0]], metaCounter: [{ total: 1 }] } };
+			if (operation.operationName === 'FollowHoteliaMember') {
+				following = true;
+				return { subscribe: { _id: 'f'.repeat(24), followerId: member, followingId: hotelId } };
+			}
+			assert.equal(operation.operationName, 'UnfollowHoteliaMember');
+			following = false;
+			return { unsubscribe: { _id: 'f'.repeat(24), followerId: member, followingId: hotelId } };
+		},
+		{ agentId: hotelId },
+		undefined,
+		'/agent/detail',
+	);
+	await settle();
+	await savePreview('host-profile-ui-test');
+	await act(async () => {
+		const action = button('Follow');
+		action.click();
+		action.click();
+	});
+	await settle();
+	await settle();
+	assert.equal(operations.filter((op) => op.operationName === 'FollowHoteliaMember').length, 1);
+	assert.equal(button('Following').getAttribute('aria-pressed'), 'true');
+	assert.match(document.querySelector('.h-profile-stats').textContent, /5Followers/);
+	await click('Following');
+	await settle();
+	assert.equal(operations.filter((op) => op.operationName === 'UnfollowHoteliaMember').length, 1);
+	assert.match(document.querySelector('.h-profile-stats').textContent, /4Followers/);
+	assert.ok(button('Follow'));
+});
+
+test('anonymous profile follow redirects with referrer, and own profile never offers self-follow', async () => {
+	const pushed = [];
+	const handler = (operation) =>
+		operation.operationName === 'PublicMember'
+			? { getMember: { ...socialHost, memberType: 'USER', memberArticles: 1 } }
+			: {
+					getBoardArticles: {
+						list: [
+							{
+								_id: 'e'.repeat(24),
+								articleTitle: 'Quiet mornings in Seoul',
+								articleImage: collectionHotels[0].hotelImages[0],
+								createdAt: '2026-10-01T00:00:00.000Z',
+							},
+						],
+						metaCounter: [{ total: 1 }],
+					},
+			  };
+	const operations = await mount(
+		publicPage(React.createElement(MemberProfile)),
+		handler,
+		{ memberId: hotelId },
+		async (value) => {
+			pushed.push(value);
+			return true;
+		},
+		'/member',
+	);
+	await settle();
+	await savePreview('member-profile-ui-test');
+	await act(async () => userVar({ ...anonymousUser }));
+	await settle();
+	await click('Follow');
+	assert.deepEqual(pushed[0], { pathname: '/account/join', query: { referrer: '/member?memberId=' + hotelId } });
+	assert.equal(operations.filter((op) => op.operationName.includes('HoteliaMember')).length, 0);
+	await act(async () => userVar({ ...anonymousUser, _id: hotelId, memberNick: 'matt', memberType: 'USER' }));
+	await settle();
+	assert.equal(
+		[...document.querySelectorAll('button')].some((element) => element.textContent === 'Follow'),
+		false,
+	);
+	assert.match(document.body.textContent, /Edit profile/);
+});
+
+test('connections use returned member IDs and viewer-specific follow records; malformed pages skip fetching', async () => {
+	const operations = await mount(
+		publicPage(
+			React.createElement(
+				AccountLayout,
+				{},
+				React.createElement(Connections, { memberId: hotelId, kind: 'followers', account: true }),
+			),
+		),
+		(operation) => {
+			assert.equal(operation.operationName, 'MemberFollowers');
+			assert.deepEqual(operation.variables.input, { page: 2, limit: 6, search: { followingId: hotelId } });
+			return {
+				getMemberFollowers: {
+					list: [
+						{
+							_id: 'e'.repeat(24),
+							followerId: roomId,
+							followingId: hotelId,
+							followerData: {
+								_id: roomId,
+								memberNick: 'Clara',
+								memberImage: '/img/profile/defaultUser.svg',
+								memberDesc: 'Slow travel and quiet courtyards.',
+							},
+							meFollowed: [{ followerId: member, followingId: roomId, myFollowing: true }],
+						},
+					],
+					metaCounter: [{ total: 7 }],
+				},
+			};
+		},
+		{ memberId: hotelId, category: 'followers', networkPage: '2' },
+		undefined,
+		'/member',
+	);
+	await settle();
+	await savePreview('connections-ui-test');
+	assert.ok(document.querySelector('a[href="/member?memberId=' + roomId + '"]'));
+	assert.ok(button('Following'));
+	assert.equal(operations.length, 1);
+	await act(async () => root.unmount());
+	client.stop();
+	host.remove();
+	root = undefined;
+	const invalid = await mount(
+		React.createElement(Connections, { memberId: hotelId, kind: 'followers' }),
+		() => {
+			throw Error('Must not fetch');
+		},
+		{ networkPage: '0' },
+	);
+	assert.equal(invalid.length, 0);
+	assert.match(document.body.textContent, /Check your page/);
 });
