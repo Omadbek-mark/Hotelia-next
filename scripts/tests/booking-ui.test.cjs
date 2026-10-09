@@ -189,6 +189,13 @@ async function savePreview(name) {
 			if (source.checked) element.setAttribute('checked', '');
 		}
 	});
+	root.querySelectorAll('select').forEach((element, index) => {
+		const source = document.body.querySelectorAll('select')[index];
+		Array.from(element.options).forEach((option) => {
+			if (option.value === source.value) option.setAttribute('selected', '');
+			else option.removeAttribute('selected');
+		});
+	});
 	const css = fs
 		.readdirSync('.next/static/css')
 		.filter((file) => file.endsWith('.css'))
@@ -640,4 +647,250 @@ test('connections use returned member IDs and viewer-specific follow records; ma
 	);
 	assert.equal(invalid.length, 0);
 	assert.match(document.body.textContent, /Check your page/);
+});
+
+const Journal = require('../../libs/components/hotelia/Journal.tsx').default;
+const JournalDetail = require('../../libs/components/hotelia/JournalDetail.tsx').default;
+const ArticleEditor = require('../../libs/components/hotelia/ArticleEditor.tsx').default;
+const { articleInput, storyText } = require('../../libs/journal/model.ts');
+const journalArticle = {
+	__typename: 'BoardArticle',
+	_id: 'e'.repeat(24),
+	memberId: member,
+	articleCategory: 'TRAVEL_STORY',
+	articleTitle: 'Morning light in Bukchon',
+	articleContent:
+		'Rain on the courtyard tiles. Warm tea by the window. A quiet morning in Seoul, with nowhere else to be.',
+	articleImage: 'http://localhost:3021/uploads/hotel/e7526934-e627-42c5-b892-7adacc81f977.jpg',
+	articleViews: 142,
+	articleLikes: 12,
+	articleComments: 1,
+	createdAt: '2026-10-01T00:00:00Z',
+	meLiked: [{ __typename: 'MeLiked', myFavorite: false }],
+	memberData: {
+		__typename: 'MemberPublic',
+		_id: member,
+		memberNick: 'Traveler',
+		memberImage: '/img/profile/defaultUser.svg',
+		memberDesc: 'Collecting quiet places and small moments.',
+	},
+};
+const journalResponse = {
+	getBoardArticles: {
+		__typename: 'BoardArticles',
+		list: [
+			journalArticle,
+			{
+				...journalArticle,
+				_id: 'f'.repeat(24),
+				articleCategory: 'DESTINATION_GUIDE',
+				articleTitle: 'A slower side of Seoul',
+			},
+		],
+		metaCounter: [{ __typename: 'TotalCounter', total: 2 }],
+	},
+};
+test('journal validates backend limits and renders historical HTML as inert text', () => {
+	assert.throws(() => articleInput('Hi', 'story', '', 'FREE'));
+	assert.throws(() => articleInput('Title', 'x'.repeat(251), '', 'FREE'));
+	assert.throws(() => articleInput('Title', 'Story', '', 'RECOMMEND'));
+	assert.equal(articleInput(' Title ', ' Story ', '', 'TRAVEL_TIPS').articleContent, 'Story');
+	assert.equal(storyText('<p>Warm &amp; quiet</p><script>alert(1)</script><iframe>bad</iframe>'), 'Warm & quiet');
+});
+test('journal listing and My Articles use backend categories and scoped ownership', async () => {
+	const ops = await mount(
+		publicPage(React.createElement(AccountLayout, {}, React.createElement(Journal, { own: true }))),
+		() => journalResponse,
+		{
+			category: 'myArticles',
+		},
+	);
+	await settle();
+	assert.equal(ops[0].variables.input.search.memberId, member);
+	assert.match(document.body.textContent, /Morning light in Bukchon/);
+	assert.ok(document.querySelector('a[href*="category=writeArticle&articleId="]'));
+	await savePreview('my-articles-ui-test');
+	await click('Remove');
+	await click('Keep story');
+});
+test('journal public listing provides category search and story links', async () => {
+	const ops = await mount(
+		publicPage(React.createElement(Journal)),
+		() => journalResponse,
+		{},
+		async () => true,
+		'/community',
+	);
+	await settle();
+	assert.equal(ops[0].variables.input.search.memberId, undefined);
+	assert.equal(
+		document.querySelector('a[href*="articleId="]').getAttribute('href'),
+		'/community/detail?articleId=' + journalArticle._id,
+	);
+	await savePreview('journal-ui-test');
+});
+test('journal editor preserves category and guards double save with server fields', async () => {
+	let saves = 0,
+		release;
+	const ops = await mount(
+		publicPage(React.createElement(AccountLayout, {}, React.createElement(ArticleEditor))),
+		(op) => {
+			if (op.operationName === 'JournalArticle') return { getBoardArticle: journalArticle };
+			saves++;
+			return new Promise((r) => {
+				release = () => r({ updateBoardArticle: { _id: journalArticle._id } });
+			});
+		},
+		{ category: 'writeArticle', articleId: journalArticle._id },
+	);
+	await settle();
+	assert.ok(document.querySelector('select').disabled);
+	await savePreview('article-editor-ui-test');
+	await act(async () => {
+		button('Save changes').click();
+		button('Save changes').click();
+	});
+	await settle();
+	assert.equal(saves, 1);
+	const input = ops.find((o) => o.operationName === 'UpdateJournal').variables.input;
+	assert.equal(input._id, journalArticle._id);
+	assert.equal(input.articleCategory, undefined);
+	assert.equal(input.memberId, undefined);
+	await act(async () => release());
+	await settle();
+});
+test('journal editor blocks editing another member story', async () => {
+	await mount(
+		publicPage(React.createElement(AccountLayout, {}, React.createElement(ArticleEditor))),
+		() => ({ getBoardArticle: { ...journalArticle, memberId: hotelId } }),
+		{ category: 'writeArticle', articleId: journalArticle._id },
+	);
+	await settle();
+	assert.match(document.body.textContent, /cannot be edited/);
+	assert.equal(document.querySelector('textarea'), null);
+});
+test('journal detail refreshes likes and deletes own comment without resending content', async () => {
+	let liked = false,
+		deleted = false;
+	const ops = await mount(
+		publicPage(React.createElement(JournalDetail)),
+		(op) => {
+			if (op.operationName === 'JournalArticle')
+				return {
+					getBoardArticle: { ...journalArticle, articleLikes: liked ? 13 : 12, meLiked: [{ myFavorite: liked }] },
+				};
+			if (op.operationName === 'JournalComments')
+				return {
+					getComments: {
+						list: deleted
+							? []
+							: [
+									{
+										_id: '1'.repeat(24),
+										memberId: member,
+										commentContent: 'Such a quiet place.',
+										createdAt: '2026-10-02T00:00:00Z',
+										memberData: { _id: member, memberNick: 'Traveler', memberImage: '' },
+									},
+							  ],
+						metaCounter: [{ total: deleted ? 0 : 1 }],
+					},
+				};
+			if (op.operationName === 'LikeJournal') {
+				liked = true;
+				return { likeTargetBoardArticle: { _id: journalArticle._id, articleLikes: 13 } };
+			}
+			if (op.operationName === 'UpdateJournalComment') {
+				deleted = true;
+				return { updateComment: { _id: '1'.repeat(24) } };
+			}
+			throw new Error(op.operationName);
+		},
+		{ articleId: journalArticle._id },
+		async () => true,
+		'/community/detail',
+	);
+	await settle();
+	await savePreview('journal-detail-ui-test');
+	await click('♡ Like · 12');
+	assert.equal(button('♥ Liked · 13').getAttribute('aria-pressed'), 'true');
+	await click('Remove comment');
+	await act(async () =>
+		[...document.querySelectorAll('[role="dialog"] button')].find((b) => b.textContent === 'Remove comment').click(),
+	);
+	await settle();
+	const input = ops.find((o) => o.operationName === 'UpdateJournalComment').variables.input;
+	assert.deepEqual(input, { _id: '1'.repeat(24), commentStatus: 'DELETE' });
+	assert.match(document.body.textContent, /No comments yet/);
+});
+async function fillJournal(label, value) {
+	const field = [...document.querySelectorAll('input,textarea')].find(
+		(el) => document.querySelector(`label[for="${el.id}"]`)?.textContent === label,
+	);
+	assert.ok(field, label);
+	await act(async () => require('react-dom/test-utils').Simulate.change(field, { target: { value } }));
+}
+test('journal publishing trims content, blocks double submit and navigates to returned ID', async () => {
+	let release,
+		count = 0,
+		target;
+	const ops = await mount(
+		publicPage(React.createElement(AccountLayout, {}, React.createElement(ArticleEditor))),
+		() => {
+			count++;
+			return new Promise((r) => (release = () => r({ createBoardArticle: { _id: journalArticle._id } })));
+		},
+		{ category: 'writeArticle' },
+		async (href) => {
+			target = href;
+			return true;
+		},
+	);
+	await click('Publish story');
+	assert.match(document.body.textContent, /3–50/);
+	assert.equal(count, 0);
+	await fillJournal('Story title', ' A quiet courtyard ');
+	await fillJournal('Story', ' Warm tea by the window. ');
+	await act(async () => {
+		button('Publish story').click();
+		button('Publish story').click();
+	});
+	await settle();
+	assert.equal(count, 1);
+	assert.equal(ops[0].variables.input.articleContent, 'Warm tea by the window.');
+	assert.equal(ops[0].variables.input.articleCategory, 'FREE');
+	await act(async () => release());
+	await settle();
+	assert.equal(target, '/community/detail?articleId=' + journalArticle._id);
+});
+test('journal publisher prevents blind retry after ambiguous failure', async () => {
+	await mount(
+		publicPage(React.createElement(AccountLayout, {}, React.createElement(ArticleEditor))),
+		() => {
+			throw new Error('lost response');
+		},
+		{ category: 'writeArticle' },
+	);
+	await fillJournal('Story title', 'A quiet courtyard');
+	await fillJournal('Story', 'Warm tea by the window.');
+	await click('Publish story');
+	assert.ok(button('Publish story').disabled);
+	assert.match(document.body.textContent, /Check My Articles/);
+});
+test('journal comment creation trims text and omits booking-only fields', async () => {
+	const JournalComments = require('../../libs/components/hotelia/JournalComments.tsx').default;
+	const ops = await mount(
+		publicPage(React.createElement(JournalComments, { articleId: journalArticle._id, onChange: async () => {} })),
+		(op) =>
+			op.operationName === 'JournalComments'
+				? { getComments: { list: [], metaCounter: [{ total: 0 }] } }
+				: { createComment: { _id: '2'.repeat(24) } },
+	);
+	await fillJournal('Your observation', ' Good morning! ');
+	await click('Post comment');
+	assert.deepEqual(ops.find((o) => o.operationName === 'JournalComment').variables.input, {
+		commentGroup: 'ARTICLE',
+		commentRefId: journalArticle._id,
+		commentContent: 'Good morning!',
+	});
 });

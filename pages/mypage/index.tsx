@@ -9,9 +9,9 @@ import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import MyProperties from '../../libs/components/mypage/MyProperties';
 import AddProperty from '../../libs/components/mypage/AddNewProperty';
 import MyProfile from '../../libs/components/mypage/MyProfile';
-import MyArticles from '../../libs/components/mypage/MyArticles';
+import Journal from '../../libs/components/hotelia/Journal';
 import MyMenu from '../../libs/components/mypage/MyMenu';
-import WriteArticle from '../../libs/components/mypage/WriteArticle';
+import ArticleEditor from '../../libs/components/hotelia/ArticleEditor';
 import { userVar } from '../../apollo/store';
 import { updateUserInfo } from '../../libs/auth';
 import AccountLayout from '../../libs/components/hotelia/AccountLayout';
@@ -80,6 +80,10 @@ function MyPage() {
 				<MyProfile />
 			</AccountLayout>
 		);
+	if (category === 'myArticles' || category === 'writeArticle')
+		return (
+			<AccountLayout>{category === 'myArticles' ? <Journal own key={user._id} /> : <ArticleEditor />}</AccountLayout>
+		);
 	if (device === 'mobile') return <div>MY PAGE</div>;
 	return (
 		<div id="my-page" style={{ position: 'relative' }}>
@@ -93,8 +97,6 @@ function MyPage() {
 							<Stack className="list-config">
 								{category === 'addProperty' && <AddProperty />}
 								{category === 'myProperties' && <MyProperties />}
-								{category === 'myArticles' && <MyArticles />}
-								{category === 'writeArticle' && <WriteArticle />}
 							</Stack>
 						</Stack>
 					</Stack>
