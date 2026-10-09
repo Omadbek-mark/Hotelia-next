@@ -1,20 +1,19 @@
 import type { AppProps } from 'next/app';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { light } from '../scss/MaterialTheme';
+import React, { useEffect } from 'react';
+import { hoteliaTheme } from '../libs/components/hotelia/theme';
 import { ApolloProvider } from '@apollo/client';
 import { useApollo } from '../apollo/client';
 import { appWithTranslation } from 'next-i18next';
 import '../scss/app.scss';
 import '../scss/pc/main.scss';
 import '../scss/mobile/main.scss';
+import '../scss/hotelia.scss';
 import { updateUserInfo } from '../libs/auth';
 import { anonymousUser, userVar } from '../apollo/store';
 
 const App = ({ Component, pageProps }: AppProps) => {
-	// @ts-ignore
-	const [theme, setTheme] = useState(createTheme(light));
 	const client = useApollo(pageProps.initialApolloState);
 	useEffect(() => {
 		const onLogout = () => { userVar({ ...anonymousUser }); void client.clearStore(); };
@@ -33,7 +32,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 
 	return (
 		<ApolloProvider client={client}>
-			<ThemeProvider theme={theme}>
+			<ThemeProvider theme={hoteliaTheme}>
 				<CssBaseline />
 				<Component {...pageProps} />
 			</ThemeProvider>

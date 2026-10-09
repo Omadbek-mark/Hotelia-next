@@ -8,7 +8,9 @@ Boshlang‘ich holat: `develop`, `3e0bc16`, Next.js Pages Router, React, TypeScr
 
 ## Ishlash tartibi
 
-Holat: 1-bosqichning texnik asosi bajarildi; keyingi bosqich — dizayn tizimi va layoutlar. Batafsil kontrakt xaritasi: `docs/backend-contract-map.md`.
+Holat: 1-bosqichning texnik asosi va 2-bosqichning dizayn tizimi/layoutlari bajarildi; keyingi bosqich — account ekranlari. Batafsil kontrakt xaritasi: `docs/backend-contract-map.md`.
+
+2-bosqich tekshiruvlari: TypeScript va production build o‘tdi; brauzerda yangi public header/footer, 390px mobil menu drawer va anonymous admin access holati tekshirildi. Eski sahifa kontenti keyingi feature bosqichlarida almashtiriladi. Owner shell shu bosqichda komponent sifatida tayyorlandi, inventory sahifalariga 11-bosqichda ulanadi.
 
 - Har bosqichda UI va unga tegishli API birga tugallanadi.
 - Desktop va mobil ko‘rinishlar bir bosqichda amalga oshiriladi.
