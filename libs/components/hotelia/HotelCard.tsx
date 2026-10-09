@@ -4,7 +4,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import type { Hotel } from '../../types/hotelia/contracts';
+import type { HotelCardData } from '../../../apollo/hotelia/discovery';
 import { Chip, formatUsd, SiteImage } from './ui';
 
 const labels: Record<string, string> = {
@@ -13,7 +13,7 @@ const labels: Record<string, string> = {
 };
 
 export default function HotelCard({ hotel, onFavorite, saving = false }: {
-	hotel: Hotel; onFavorite?: (hotel: Hotel) => void; saving?: boolean;
+	hotel: HotelCardData; onFavorite?: (hotel: HotelCardData) => void; saving?: boolean;
 }) {
 	const href = `/property/detail?id=${hotel._id}`;
 	return <article className="h-card h-hotel-card">

@@ -8,7 +8,7 @@ Boshlang‘ich holat: `develop`, `3e0bc16`, Next.js Pages Router, React, TypeScr
 
 ## Ishlash tartibi
 
-Holat: 1–3-bosqichlar amalga oshirildi. Foydalanuvchi tekshiruvini kutish uchun ish shu yerda to‘xtatildi. Keyingi bosqich — Home; faqat foydalanuvchi davom ettirish buyrug‘ini bergandan keyin boshlanadi. Batafsil kontrakt xaritasi: `docs/backend-contract-map.md`.
+Holat: 1–4-bosqichlar amalga oshirildi. Home bosqichi yakunlandi; foydalanuvchi tekshiruvini kutish uchun ish shu yerda to‘xtatildi. Keyingi bosqich — hotel katalogi; faqat foydalanuvchi davom ettirish buyrug‘ini bergandan keyin boshlanadi. Batafsil kontrakt xaritasi: `docs/backend-contract-map.md`.
 
 2-bosqich tekshiruvlari: TypeScript va production build o‘tdi; brauzerda yangi public header/footer, 390px mobil menu drawer va anonymous admin access holati tekshirildi. Eski sahifa kontenti keyingi feature bosqichlarida almashtiriladi. Owner shell shu bosqichda komponent sifatida tayyorlandi, inventory sahifalariga 11-bosqichda ulanadi.
 
@@ -16,7 +16,11 @@ Holat: 1–3-bosqichlar amalga oshirildi. Foydalanuvchi tekshiruvini kutish uchu
 
 3-bosqich tekshiruvlari: TypeScript va production build o‘tdi; 9 session testi o‘tdi; brauzerda desktop/mobile login/signup, role tanlovi, native required/min/max cheklovlari, password visibility va anonymous profile gate tekshirildi. Auth/upload so‘rovlari haqiqiy backend sxemasiga mos. Haqiqiy account bilan muvaffaqiyatli login/signup, avatar upload va profile save hali bajarilmagan; user tekshiruvida tasdiqlanadi. Tekshiruv uchun yangi account yoki bron yaratilmagan.
 
-Preview: `http://localhost:3016/account/join`. Hali qayta qurilmagan Home/catalog va boshqa sahifalar eski kontentni ko‘rsatadi.
+4-bosqich: Home’dagi eski property, advertisement va event bloklari Open Horizons hero, ixcham destination/date/occupancy qidiruvi, Featured stays, Curated destinations, Loved by travelers, journal CTA va host kartalariga almashtirildi. Hero/destination suratlari Stitch previewidan; hotel va host ma’lumotlari haqiqiy API’dan. Featured — RATING, popular — MOST_POPULAR, hosts — memberRank/DESC. Har kolleksiya loading/empty/error/retry holatiga ega. API’da startingPrice null bo‘lsa narx o‘ylab topilmaydi.
+
+4-bosqich tekshiruvlari: TypeScript va production build o‘tdi; real API hotel kolleksiyasida 3 hotel, host kolleksiyasida 2 host qaytdi. Brauzerda shu ma’lumotlar ko‘rindi. 390px, 768px va desktop ko‘rinishlarda overflow tekshirildi; occupancy stepper, yetishmayotgan sana xabari va destination/checkIn/checkOut/guests/rooms URL parametrlari tekshirildi. Numeric backend Direction enumining GraphQL wire qiymatlari generator orqali ASC/DESC stringlariga moslashtirildi. Native date control qiymatlari yuborishda FormData orqali olinadi.
+
+Preview: `http://localhost:3016/`. Katalog, hotel detail va host detail kontenti hali eski; Home’dagi link/qidiruv ularni ochadi. Bu sahifalar tegishli keyingi bosqichlarda qayta quriladi. Search URL kontrakti 5-bosqich katalogi uchun tayyor.
 
 - Har bosqichda UI va unga tegishli API birga tugallanadi.
 - Desktop va mobil ko‘rinishlar bir bosqichda amalga oshiriladi.

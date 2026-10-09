@@ -12,7 +12,11 @@ for (const name of ['member', 'hotel', 'room', 'booking', 'like', 'common']) {
 	const file = path.join(source, 'enums', `${name}.enum.ts`);
 	const tree = parse(file);
 	for (const node of tree.statements) {
-		if (ts.isEnumDeclaration(node) && node.name.text !== 'Message') enums.push(node.getText(tree));
+		if (ts.isEnumDeclaration(node) && node.name.text !== 'Message') {
+			// GraphQL sends enum names, even when Nest/Mongoose uses numeric values internally.
+			const numeric = node.members.some((member) => member.initializer && (ts.isNumericLiteral(member.initializer) || ts.isPrefixUnaryExpression(member.initializer)));
+			enums.push(numeric ? `export enum ${node.name.text} {\n${node.members.map((member) => `\t${member.name.getText(tree)} = '${member.name.getText(tree)}',`).join('\n')}\n}` : node.getText(tree));
+		}
 	}
 }
 const enumNames = enums.map((text) => text.match(/enum (\w+)/)[1]);
