@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
 import { Stack } from '@mui/material';
@@ -20,6 +20,10 @@ import { LIKE_TARGET_MEMBER, SUBSCRIBE, UNSUBSCRIBE } from '../../apollo/user/mu
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import MemberFollowings from '../../libs/components/member/MemberFollowings';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { updateUserInfo } from '../../libs/auth';
+import AccountLayout from '../../libs/components/hotelia/AccountLayout';
+import { EmptyState } from '../../libs/components/hotelia/ui';
+import Link from 'next/link';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -32,6 +36,7 @@ const MyPage: NextPage = () => {
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
 	const category: any = router.query?.category ?? 'myProfile';
+	const [ready, setReady] = useState(false);
 
 	/** APOLLO REQUESTS **/
 	const [subscribe] = useMutation(SUBSCRIBE);
@@ -40,8 +45,10 @@ const MyPage: NextPage = () => {
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		if (!user._id) router.push('/').then();
-	}, [user]);
+		let active = true;
+		void updateUserInfo().finally(() => { if (active) setReady(true); });
+		return () => { active = false; };
+	}, []);
 
 	/** HANDLERS **/
 	const subscribeHandler = async (id: string, refetch: any, query: any) => {
@@ -106,6 +113,9 @@ const MyPage: NextPage = () => {
 		}
 	};
 
+	if (!ready) return <div className="h-container h-empty" role="status">Opening your account…</div>;
+	if (!user._id) return <EmptyState title="Sign in to continue" action={<Link className="h-text-link" href={`/account/join?referrer=${encodeURIComponent(router.asPath)}`}>Sign in</Link>} />;
+	if (category === 'myProfile') return <AccountLayout><MyProfile /></AccountLayout>;
 	if (device === 'mobile') {
 		return <div>MY PAGE</div>;
 	} else {

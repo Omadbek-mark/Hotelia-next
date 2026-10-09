@@ -1,177 +1,48 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { NextPage } from 'next';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { Button, Stack, Typography } from '@mui/material';
-import { userVar } from '../../../apollo/store';
-import { MemberUpdate } from '../../types/member/member.update';
+import React, { FormEvent, useEffect, useState } from 'react';
+import { Alert } from '@mui/material';
 import { useMutation, useReactiveVar } from '@apollo/client';
+import { userVar } from '../../../apollo/store';
 import { applySessionMember } from '../../auth';
 import { UPDATE_MEMBER } from '../../../apollo/hotelia/auth';
-import { uploadImage as uploadMemberImage } from '../../api/upload';
-import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
-import { Messages, REACT_APP_API_URL } from '../../config';
+import type { Member, MemberUpdate } from '../../types/hotelia/contracts';
+import { uploadImage } from '../../api/upload';
+import { Button, Chip, Field, SiteImage } from '../hotelia/ui';
 
-const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
-	const device = useDeviceDetect();
+export default function MyProfile(_props: any) {
 	const user = useReactiveVar(userVar);
-	const [updateData, setUpdateData] = useState<MemberUpdate>(initialValues);
-
-	/** APOLLO REQUESTS **/
-	const [updateMember] = useMutation(UPDATE_MEMBER);
-
-	/** LIFECYCLES **/
-	useEffect(() => {
-		setUpdateData({
-			...updateData,
-			memberNick: user.memberNick,
-			memberPhone: user.memberPhone,
-			memberAddress: user.memberAddress,
-			memberImage: user.memberImage,
-		});
-	}, [user]);
-
-	/** HANDLERS **/
-	const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+	const [save, { loading }] = useMutation<{ updateMember: Member }, { input: MemberUpdate }>(UPDATE_MEMBER);
+	const [photoUploading, setPhotoUploading] = useState(false);
+	const [feedback, setFeedback] = useState({ error: false, message: '' });
+	const [input, setInput] = useState({ memberNick: '', memberEmail: '', memberPhone: '', memberFullName: '', memberAddress: '', memberDesc: '', memberImage: '' });
+	useEffect(() => { setInput({ memberNick: user.memberNick, memberEmail: user.memberEmail || '', memberPhone: user.memberPhone,
+		memberFullName: user.memberFullName || '', memberAddress: user.memberAddress || '', memberDesc: user.memberDesc || '', memberImage: user.memberImage || '' }); }, [user]);
+	const change = (key: keyof typeof input, value: string) => setInput((previous) => ({ ...previous, [key]: value }));
+	const submit = async (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault(); if (loading || photoUploading) return; setFeedback({ error: false, message: '' });
 		try {
-			const image = e.target.files?.[0];
-			if (!image) return;
-			const path = await uploadMemberImage(image, 'member');
-			setUpdateData((previous) => ({ ...previous, memberImage: path }));
-		} catch (error) {
-			void sweetErrorHandling(error);
-		}
+			const { data } = await save({ variables: { input: { ...input, memberFullName: input.memberFullName || undefined } } });
+			if (!data) throw new Error('No profile response');
+			applySessionMember(data.updateMember); setFeedback({ error: false, message: 'Profile updated.' });
+		} catch { setFeedback({ error: true, message: 'Could not save your profile. Check your details and try again.' }); }
 	};
-
-	const updatePropertyHandler = useCallback(async () => {
-		try {
-			if (!user._id) throw new Error(Messages.error2);
-			const result = await updateMember({
-				variables: {
-					input: { memberNick: updateData.memberNick, memberPhone: updateData.memberPhone,
-						memberAddress: updateData.memberAddress, memberImage: updateData.memberImage },
-				},
-			});
-
-			applySessionMember(result.data.updateMember);
-			await sweetMixinSuccessAlert('information updated successfully.');
-		} catch (err: any) {
-			sweetErrorHandling(err).then();
-		}
-	}, [updateData]);
-
-	const doDisabledCheck = () => {
-		if (
-			updateData.memberNick === '' ||
-			updateData.memberPhone === '' ||
-			updateData.memberAddress === '' ||
-			updateData.memberImage === ''
-		) {
-			return true;
-		}
-	};
-
-	console.log('+updateData', updateData);
-
-	if (device === 'mobile') {
-		return <>MY PROFILE PAGE MOBILE</>;
-	} else
-		return (
-			<div id="my-profile-page">
-				<Stack className="main-title-box">
-					<Stack className="right-box">
-						<Typography className="main-title">My Profile</Typography>
-						<Typography className="sub-title">We are glad to see you again!</Typography>
-					</Stack>
-				</Stack>
-				<Stack className="top-box">
-					<Stack className="photo-box">
-						<Typography className="title">Photo</Typography>
-						<Stack className="image-big-box">
-							<Stack className="image-box">
-								<img
-									src={
-										updateData?.memberImage
-											? `${REACT_APP_API_URL}/${updateData?.memberImage}`
-											: `/img/profile/defaultUser.svg`
-									}
-									alt=""
-								/>
-							</Stack>
-							<Stack className="upload-big-box">
-								<input
-									type="file"
-									hidden
-									id="hidden-input"
-									onChange={uploadImage}
-									accept="image/jpg, image/jpeg, image/png"
-								/>
-								<label htmlFor="hidden-input" className="labeler">
-									<Typography>Upload Profile Image</Typography>
-								</label>
-								<Typography className="upload-text">A photo must be in JPG, JPEG or PNG format!</Typography>
-							</Stack>
-						</Stack>
-					</Stack>
-					<Stack className="small-input-box">
-						<Stack className="input-box">
-							<Typography className="title">Username</Typography>
-							<input
-								type="text"
-								placeholder="Your username"
-								value={updateData.memberNick}
-								onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberNick: value })}
-							/>
-						</Stack>
-						<Stack className="input-box">
-							<Typography className="title">Phone</Typography>
-							<input
-								type="text"
-								placeholder="Your Phone"
-								value={updateData.memberPhone}
-								onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberPhone: value })}
-							/>
-						</Stack>
-					</Stack>
-					<Stack className="address-box">
-						<Typography className="title">Address</Typography>
-						<input
-							type="text"
-							placeholder="Your address"
-							value={updateData.memberAddress}
-							onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberAddress: value })}
-						/>
-					</Stack>
-					<Stack className="about-me-box">
-						<Button className="update-button" onClick={updatePropertyHandler} disabled={doDisabledCheck()}>
-							<Typography>Update Profile</Typography>
-							<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 13 13" fill="none">
-								<g clipPath="url(#clip0_7065_6985)">
-									<path
-										d="M12.6389 0H4.69446C4.49486 0 4.33334 0.161518 4.33334 0.361122C4.33334 0.560727 4.49486 0.722245 4.69446 0.722245H11.7672L0.105803 12.3836C-0.0352676 12.5247 -0.0352676 12.7532 0.105803 12.8942C0.176321 12.9647 0.268743 13 0.361131 13C0.453519 13 0.545907 12.9647 0.616459 12.8942L12.2778 1.23287V8.30558C12.2778 8.50518 12.4393 8.6667 12.6389 8.6667C12.8385 8.6667 13 8.50518 13 8.30558V0.361122C13 0.161518 12.8385 0 12.6389 0Z"
-										fill="white"
-									/>
-								</g>
-								<defs>
-									<clipPath id="clip0_7065_6985">
-										<rect width="13" height="13" fill="white" />
-									</clipPath>
-								</defs>
-							</svg>
-						</Button>
-					</Stack>
-				</Stack>
-			</div>
-		);
-};
-
-MyProfile.defaultProps = {
-	initialValues: {
-		_id: '',
-		memberImage: '',
-		memberNick: '',
-		memberPhone: '',
-		memberAddress: '',
-	},
-};
-
-export default MyProfile;
+	return <section className="h-profile"><div className="h-page-heading"><span className="h-eyebrow">Your account</span><h1>My profile</h1></div>
+		<form onSubmit={submit} aria-busy={loading || photoUploading}>
+			<div className="h-profile-photo"><SiteImage src={input.memberImage} alt="Your profile" />
+				<div><label className="h-upload-label">{photoUploading ? 'Uploading…' : 'Change photo'}<input type="file" accept="image/jpeg,image/png" disabled={loading || photoUploading} onChange={async (event) => {
+					const file = event.target.files?.[0]; if (!file) return; event.target.value = ''; setPhotoUploading(true);
+					try { change('memberImage', await uploadImage(file, 'member')); } catch { setFeedback({ error: true, message: 'Choose a JPG or PNG image under 15 MB.' }); }
+					finally { setPhotoUploading(false); }
+				}} /></label><p>JPG or PNG · up to 15 MB</p></div>
+				<Chip>{user.memberType === 'HOTEL_OWNER' ? 'Hotel owner' : user.memberType === 'ADMIN' ? 'Admin' : 'Traveler'}</Chip>
+			</div><div className="h-form-grid">
+				<Field label="Nickname" value={input.memberNick} onChange={(event) => change('memberNick', event.target.value)} required inputProps={{ minLength: 3, maxLength: 12 }} />
+				<Field label="Full name" value={input.memberFullName} onChange={(event) => change('memberFullName', event.target.value)} inputProps={{ minLength: 3, maxLength: 100 }} />
+				<Field label="Email" type="email" autoComplete="email" value={input.memberEmail} onChange={(event) => change('memberEmail', event.target.value)} required />
+				<Field label="Phone" type="tel" autoComplete="tel" value={input.memberPhone} onChange={(event) => change('memberPhone', event.target.value)} />
+			</div><Field label="Address" autoComplete="street-address" value={input.memberAddress} onChange={(event) => change('memberAddress', event.target.value)} />
+			<Field label="About you" multiline rows={3} value={input.memberDesc} onChange={(event) => change('memberDesc', event.target.value)} />
+			{feedback.message && <Alert severity={feedback.error ? 'error' : 'success'} className="h-form-feedback">{feedback.message}</Alert>}
+			<Button type="submit" color="secondary" disabled={loading || photoUploading}>{loading ? 'Saving…' : 'Save changes'}</Button>
+		</form>
+	</section>;
+}

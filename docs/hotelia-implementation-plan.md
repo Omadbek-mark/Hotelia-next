@@ -8,9 +8,15 @@ Boshlang‘ich holat: `develop`, `3e0bc16`, Next.js Pages Router, React, TypeScr
 
 ## Ishlash tartibi
 
-Holat: 1-bosqichning texnik asosi va 2-bosqichning dizayn tizimi/layoutlari bajarildi; keyingi bosqich — account ekranlari. Batafsil kontrakt xaritasi: `docs/backend-contract-map.md`.
+Holat: 1–3-bosqichlar amalga oshirildi. Foydalanuvchi tekshiruvini kutish uchun ish shu yerda to‘xtatildi. Keyingi bosqich — Home; faqat foydalanuvchi davom ettirish buyrug‘ini bergandan keyin boshlanadi. Batafsil kontrakt xaritasi: `docs/backend-contract-map.md`.
 
 2-bosqich tekshiruvlari: TypeScript va production build o‘tdi; brauzerda yangi public header/footer, 390px mobil menu drawer va anonymous admin access holati tekshirildi. Eski sahifa kontenti keyingi feature bosqichlarida almashtiriladi. Owner shell shu bosqichda komponent sifatida tayyorlandi, inventory sahifalariga 11-bosqichda ulanadi.
+
+3-bosqich: Stitch asosidagi login/signup, nickname/email/password formasi, optional phone, USER/HOTEL_OWNER tanlovi, password visibility, pending/error holatlari va ichki referrer qaytish oqimi qurildi. My Profile formasi email, ism, phone, address, biography va avatar upload bilan yangilandi. Session tiklanishini kutadigan account gate erta redirect muammosini bartaraf etdi.
+
+3-bosqich tekshiruvlari: TypeScript va production build o‘tdi; 9 session testi o‘tdi; brauzerda desktop/mobile login/signup, role tanlovi, native required/min/max cheklovlari, password visibility va anonymous profile gate tekshirildi. Auth/upload so‘rovlari haqiqiy backend sxemasiga mos. Haqiqiy account bilan muvaffaqiyatli login/signup, avatar upload va profile save hali bajarilmagan; user tekshiruvida tasdiqlanadi. Tekshiruv uchun yangi account yoki bron yaratilmagan.
+
+Preview: `http://localhost:3016/account/join`. Hali qayta qurilmagan Home/catalog va boshqa sahifalar eski kontentni ko‘rsatadi.
 
 - Har bosqichda UI va unga tegishli API birga tugallanadi.
 - Desktop va mobil ko‘rinishlar bir bosqichda amalga oshiriladi.

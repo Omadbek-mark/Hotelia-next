@@ -1,222 +1,58 @@
-import React, { useCallback, useState } from 'react';
-import { NextPage } from 'next';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
-import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
-import { Box, Button, Checkbox, FormControlLabel, FormGroup, Stack } from '@mui/material';
+import React, { FormEvent, useState } from 'react';
 import { useRouter } from 'next/router';
+import { Alert, IconButton, InputAdornment } from '@mui/material';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import PublicLayout from '../../libs/components/hotelia/PublicLayout';
+import { Button, Field, SiteImage } from '../../libs/components/hotelia/ui';
 import { logIn, signUp } from '../../libs/auth';
-import { sweetMixinErrorAlert } from '../../libs/sweetAlert';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { MemberType } from '../../libs/types/hotelia/enums';
+import assets from '../../libs/components/hotelia/design-assets.json';
 
-export const getStaticProps = async ({ locale }: any) => ({
-	props: {
-		...(await serverSideTranslations(locale, ['common'])),
-	},
-});
-
-const Join: NextPage = () => {
+export default function Join() {
 	const router = useRouter();
-	const device = useDeviceDetect();
+	const [mode, setMode] = useState<'login' | 'signup'>('login');
+	const [showPassword, setShowPassword] = useState(false);
+	const [pending, setPending] = useState(false);
+	const [error, setError] = useState('');
 	const [input, setInput] = useState({ nick: '', password: '', email: '', phone: '', type: MemberType.USER });
-	const [loginView, setLoginView] = useState<boolean>(true);
-
-	/** HANDLERS **/
-	const viewChangeHandler = (state: boolean) => {
-		setLoginView(state);
-	};
-
-	const checkUserTypeHandler = (e: any) => {
-		const checked = e.target.checked;
-		if (checked) {
-			const value = e.target.name;
-			handleInput('type', value);
-		} else {
-			handleInput('type', 'USER');
-		}
-	};
-
-	const handleInput = useCallback((name: any, value: any) => {
-		setInput((prev) => {
-			return { ...prev, [name]: value };
-		});
-	}, []);
-
-	const doLogin = useCallback(async () => {
+	const signup = mode === 'signup';
+	const change = (key: keyof typeof input, value: string) => setInput((previous) => ({ ...previous, [key]: value }));
+	const submit = async (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault(); if (pending) return; setPending(true); setError('');
 		try {
-			await logIn(input.nick, input.password);
-			await router.push(`${router.query.referrer ?? '/'}`);
-		} catch (err: any) {
-			await sweetMixinErrorAlert(err.message);
-		}
-	}, [input]);
-
-	const doSignUp = useCallback(async () => {
-		try {
-			await signUp({ memberNick: input.nick, memberPassword: input.password, memberEmail: input.email,
-				memberType: input.type, ...(input.phone ? { memberPhone: input.phone } : {}) });
-			await router.push(`${router.query.referrer ?? '/'}`);
-		} catch (err: any) {
-			await sweetMixinErrorAlert(err.message);
-		}
-	}, [input]);
-
-
-	if (device === 'mobile') {
-		return <div>LOGIN MOBILE</div>;
-	} else {
-		return (
-			<Stack className={'join-page'}>
-				<Stack className={'container'}>
-					<Stack className={'main'}>
-						<Stack className={'left'}>
-							{/* @ts-ignore */}
-							<Box className={'logo'}>
-								<img src="/img/logo/logoText.svg" alt="" />
-								<span>Nestar</span>
-							</Box>
-							<Box className={'info'}>
-								<span>{loginView ? 'login' : 'signup'}</span>
-								<p>{loginView ? 'Login' : 'Sign'} in with this account across the following sites.</p>
-							</Box>
-							<Box className={'input-wrap'}>
-								<div className={'input-box'}>
-									<span>Nickname</span>
-									<input
-										type="text"
-										placeholder={'Enter Nickname'}
-										onChange={(e) => handleInput('nick', e.target.value)}
-										required={true}
-										onKeyDown={(event) => {
-											if (event.key == 'Enter' && loginView) doLogin();
-											if (event.key == 'Enter' && !loginView) doSignUp();
-										}}
-									/>
-								</div>
-								<div className={'input-box'}>
-									<span>Password</span>
-									<input
-										type="password"
-										placeholder={'Enter Password'}
-										onChange={(e) => handleInput('password', e.target.value)}
-										required={true}
-										onKeyDown={(event) => {
-											if (event.key == 'Enter' && loginView) doLogin();
-											if (event.key == 'Enter' && !loginView) doSignUp();
-										}}
-									/>
-								</div>
-								{!loginView && (
-									<div className={'input-box'}>
-										<span>Email</span>
-										<input type="email" placeholder="Enter Email" required onChange={(e) => handleInput('email', e.target.value)} />
-									</div>
-								)}
-								{!loginView && (
-									<div className={'input-box'}>
-										<span>Phone (optional)</span>
-										<input
-											type="text"
-											placeholder={'Enter Phone'}
-											onChange={(e) => handleInput('phone', e.target.value)}
-											required={true}
-											onKeyDown={(event) => {
-												if (event.key == 'Enter') doSignUp();
-											}}
-										/>
-									</div>
-								)}
-							</Box>
-							<Box className={'register'}>
-								{!loginView && (
-									<div className={'type-option'}>
-										<span className={'text'}>I want to be registered as:</span>
-										<div>
-											<FormGroup>
-												<FormControlLabel
-													control={
-														<Checkbox
-															size="small"
-															name={'USER'}
-															onChange={checkUserTypeHandler}
-															checked={input?.type == 'USER'}
-														/>
-													}
-													label="User"
-												/>
-											</FormGroup>
-											<FormGroup>
-												<FormControlLabel
-													control={
-														<Checkbox
-															size="small"
-															name={'HOTEL_OWNER'}
-															onChange={checkUserTypeHandler}
-															checked={input?.type == 'HOTEL_OWNER'}
-														/>
-													}
-													label="Hotel owner"
-												/>
-											</FormGroup>
-										</div>
-									</div>
-								)}
-
-								{loginView && (
-									<div className={'remember-info'}>
-										<FormGroup>
-											<FormControlLabel control={<Checkbox defaultChecked size="small" />} label="Remember me" />
-										</FormGroup>
-										<a>Lost your password?</a>
-									</div>
-								)}
-
-								{loginView ? (
-									<Button
-										variant="contained"
-										endIcon={<img src="/img/icons/rightup.svg" alt="" />}
-										disabled={input.nick == '' || input.password == ''}
-										onClick={doLogin}
-									>
-										LOGIN
-									</Button>
-								) : (
-									<Button
-										variant="contained"
-										disabled={input.nick == '' || input.password == '' || input.email == ''}
-										onClick={doSignUp}
-										endIcon={<img src="/img/icons/rightup.svg" alt="" />}
-									>
-										SIGNUP
-									</Button>
-								)}
-							</Box>
-							<Box className={'ask-info'}>
-								{loginView ? (
-									<p>
-										Not registered yet?
-										<b
-											onClick={() => {
-												viewChangeHandler(false);
-											}}
-										>
-											SIGNUP
-										</b>
-									</p>
-								) : (
-									<p>
-										Have account?
-										<b onClick={() => viewChangeHandler(true)}> LOGIN</b>
-									</p>
-								)}
-							</Box>
-						</Stack>
-						<Stack className={'right'}></Stack>
-					</Stack>
-				</Stack>
-			</Stack>
-		);
-	}
-};
-
-export default withLayoutBasic(Join);
+			if (signup) await signUp({ memberNick: input.nick.trim(), memberPassword: input.password,
+				memberEmail: input.email.trim(), memberType: input.type, ...(input.phone.trim() ? { memberPhone: input.phone.trim() } : {}) });
+			else await logIn(input.nick.trim(), input.password);
+			const referrer = router.query.referrer;
+			await router.push(typeof referrer === 'string' && referrer.startsWith('/') && !referrer.startsWith('//') && !referrer.includes('\\') ? referrer : '/');
+		} catch (err) {
+			const message = err instanceof Error ? err.message : '';
+			setError(/match|password|not authenticated/i.test(message) ? 'Check your nickname and password.' :
+				/exist|duplicate/i.test(message) ? 'That nickname or email is already registered.' :
+				'Unable to continue. Check your details and try again.');
+		} finally { setPending(false); }
+	};
+	return <PublicLayout title={signup ? 'Join' : 'Sign in'}><section className="h-auth h-container">
+		<div className="h-auth-form"><span className="h-eyebrow">Your next chapter</span><h1>{signup ? 'Make yourself at home.' : 'Welcome back.'}</h1>
+			<p>{signup ? 'One account. More places to discover.' : 'Your stays, saved and ready.'}</p>
+			<div className="h-auth-tabs" aria-label="Account options"><button type="button" aria-pressed={!signup} disabled={pending} onClick={() => { setMode('login'); setError(''); }}>Sign in</button>
+				<button type="button" aria-pressed={signup} disabled={pending} onClick={() => { setMode('signup'); setError(''); }}>Join Hotelia</button></div>
+			<form onSubmit={submit} aria-busy={pending}>
+				<Field label="Nickname" value={input.nick} onChange={(event) => change('nick', event.target.value)} required autoComplete="username" inputProps={{ minLength: 3, maxLength: 12 }} disabled={pending} />
+				{signup && <Field label="Email" type="email" value={input.email} onChange={(event) => change('email', event.target.value)} required autoComplete="email" disabled={pending} />}
+				<Field label="Password" type={showPassword ? 'text' : 'password'} value={input.password} onChange={(event) => change('password', event.target.value)}
+					required autoComplete={signup ? 'new-password' : 'current-password'} inputProps={{ minLength: 5, maxLength: 12 }} disabled={pending}
+					InputProps={{ endAdornment: <InputAdornment position="end"><IconButton aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword(!showPassword)} edge="end">{showPassword ? <VisibilityOffOutlinedIcon /> : <VisibilityOutlinedIcon />}</IconButton></InputAdornment> }} />
+				{signup && <><Field label="Phone (optional)" type="tel" value={input.phone} autoComplete="tel" disabled={pending} onChange={(event) => change('phone', event.target.value)} />
+					<fieldset className="h-role-options" disabled={pending}><legend>I’m here to</legend>
+						<label><input type="radio" name="account-type" value={MemberType.USER} checked={input.type === MemberType.USER} onChange={() => change('type', MemberType.USER)} />Explore stays</label>
+						<label><input type="radio" name="account-type" value={MemberType.HOTEL_OWNER} checked={input.type === MemberType.HOTEL_OWNER} onChange={() => change('type', MemberType.HOTEL_OWNER)} />Host guests</label>
+					</fieldset></>}
+				{error && <Alert severity="error" className="h-form-feedback">{error}</Alert>}
+				<Button color="secondary" type="submit" fullWidth disabled={pending} endIcon={<ArrowForwardIcon />}>{pending ? 'Please wait…' : signup ? 'Create account' : 'Sign in'}</Button>
+			</form>
+		</div><div className="h-auth-photo"><SiteImage src={assets.account} alt="A quiet architectural retreat" eager /><div><span className="h-eyebrow">Open Horizons</span><h2>Some places<br />stay with you.</h2></div></div>
+	</section></PublicLayout>;
+}
