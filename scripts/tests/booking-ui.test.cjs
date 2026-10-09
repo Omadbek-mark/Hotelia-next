@@ -39,6 +39,9 @@ const { ThemeProvider } = require('@mui/material'),
 const { userVar, anonymousUser } = require('../../apollo/store.ts');
 const BookingDialog = require('../../libs/components/hotelia/BookingRequestDialog.tsx').default;
 const MyTrips = require('../../libs/components/hotelia/MyTrips.tsx').default;
+const StayCollection = require('../../libs/components/hotelia/StayCollection.tsx').default;
+const PublicLayout = require('../../libs/components/hotelia/PublicLayout.tsx').default;
+const AccountLayout = require('../../libs/components/hotelia/AccountLayout.tsx').default;
 const member = 'c'.repeat(24),
 	hotelId = 'a'.repeat(24),
 	roomId = 'b'.repeat(24);
@@ -90,7 +93,7 @@ afterEach(async () => {
 	host?.remove();
 	userVar({ ...anonymousUser });
 });
-async function mount(component, handler) {
+async function mount(component, handler, query = { category: 'myBookings' }, push = async () => true) {
 	userVar({ ...anonymousUser, _id: member, memberNick: 'Traveler', memberType: 'USER' });
 	const operations = [];
 	client = new ApolloClient({
@@ -116,10 +119,10 @@ async function mount(component, handler) {
 	root = createRoot(host);
 	const router = {
 		isReady: true,
-		query: { category: 'myBookings' },
+		query,
 		pathname: '/mypage',
-		asPath: '/mypage?category=myBookings',
-		push: async () => true,
+		asPath: '/mypage?' + new URLSearchParams(query),
+		push,
 		events: { on() {}, off() {} },
 	};
 	await act(async () => {
@@ -345,4 +348,121 @@ test('existing completed-stay review is read instead of offering another submiss
 	assert.match(document.body.textContent, /Reviewed/);
 	assert.ok(![...document.querySelectorAll('button')].some((el) => el.textContent === 'Publish review'));
 	assert.equal(operations.filter((op) => op.operationName === 'ReviewCompletedStay').length, 0);
+});
+
+const collectionHotels = ['Seoul Courtyard', 'Busan Ocean', 'Tashkent Garden'].map((name, index) => ({
+	__typename: 'Hotel',
+	_id: String(index + 1).repeat(24),
+	hotelName: name,
+	hotelCity: ['Seoul', 'Busan', 'Tashkent'][index],
+	hotelCountry: index === 2 ? 'Uzbekistan' : 'South Korea',
+	hotelImages: ['http://localhost:3021/uploads/hotel/e7526934-e627-42c5-b892-7adacc81f977.jpg'],
+	hotelAmenities: ['WIFI', 'BREAKFAST'],
+	hotelRating: 0,
+	hotelReviews: 0,
+	startingPrice: null,
+	isFavorite: true,
+}));
+const collectionPage = (kind) =>
+	React.createElement(
+		PublicLayout,
+		{},
+		React.createElement(AccountLayout, {}, React.createElement(StayCollection, { kind })),
+	);
+
+test('saved stays remove once, refresh membership/count and retain other hotel cache fields', async () => {
+	let removed = false;
+	const operations = await mount(
+		collectionPage('saved'),
+		(operation) => {
+			if (operation.operationName === 'SavedStays')
+				return {
+					getFavorites: {
+						list: removed ? collectionHotels.slice(1) : collectionHotels,
+						metaCounter: [{ total: removed ? 2 : 3 }],
+					},
+				};
+			assert.equal(operation.operationName, 'UnsaveDetailHotel');
+			removed = true;
+			return { unfavoriteHotel: { hotelId: collectionHotels[0]._id, isFavorite: false, hotelLikes: 0 } };
+		},
+		{ category: 'myFavorites', collectionPage: '1' },
+	);
+	await settle();
+	assert.match(document.body.textContent, /3 stays/);
+	await savePreview('saved-stays-ui-test');
+	await act(async () => {
+		const action = document.querySelector('[aria-label="Unsave Seoul Courtyard"]');
+		action.click();
+		action.click();
+	});
+	await settle();
+	assert.equal(operations.filter((op) => op.operationName === 'UnsaveDetailHotel').length, 1);
+	assert.match(document.body.textContent, /2 stays/);
+	assert.equal(document.querySelectorAll('.h-hotel-card').length, 2);
+	const cached = client.cache.extract()['Hotel:' + collectionHotels[0]._id];
+	assert.equal(cached.isFavorite, false);
+	assert.equal(cached.hotelName, 'Seoul Courtyard');
+});
+
+test('recent views save a hotel without removing history and invalidate saved collection pages', async () => {
+	const operations = await mount(
+		collectionPage('viewed'),
+		(operation) => {
+			if (operation.operationName === 'ViewedStays')
+				return {
+					getVisited: {
+						list: collectionHotels.map((hotel) => ({ ...hotel, isFavorite: false })),
+						metaCounter: [{ total: 3 }],
+					},
+				};
+			assert.equal(operation.operationName, 'SaveDetailHotel');
+			return { favoriteHotel: { hotelId: collectionHotels[0]._id, isFavorite: true, hotelLikes: 1 } };
+		},
+		{ category: 'recentlyVisited' },
+	);
+	await settle();
+	await savePreview('viewed-stays-ui-test');
+	const { GET_SAVED_STAYS } = require('../../apollo/hotelia/collections.ts');
+	client.cache.writeQuery({
+		query: GET_SAVED_STAYS,
+		variables: { input: { page: 2, limit: 6 } },
+		data: { getFavorites: { list: [], metaCounter: [{ total: 6 }] } },
+	});
+	await act(async () => document.querySelector('[aria-label="Save Seoul Courtyard"]').click());
+	await settle();
+	assert.ok(document.querySelector('[aria-label="Unsave Seoul Courtyard"]'));
+	assert.equal(document.querySelectorAll('.h-hotel-card').length, 3);
+	assert.equal(operations.filter((op) => op.operationName === 'ViewedStays').length, 1);
+	assert.equal(client.cache.readQuery({ query: GET_SAVED_STAYS, variables: { input: { page: 2, limit: 6 } } }), null);
+});
+
+test('collection invalid page skips API, and failed save keeps the saved hotel visible', async () => {
+	await mount(
+		collectionPage('saved'),
+		() => {
+			throw Error('Must not fetch');
+		},
+		{ category: 'myFavorites', collectionPage: ['1', '2'] },
+	);
+	assert.match(document.body.textContent, /Check your page/);
+	await act(async () => root.unmount());
+	client.stop();
+	host.remove();
+	root = undefined;
+	await mount(
+		collectionPage('saved'),
+		(operation) => {
+			if (operation.operationName === 'SavedStays')
+				return { getFavorites: { list: [collectionHotels[0]], metaCounter: [{ total: 1 }] } };
+			throw Error('Unavailable');
+		},
+		{ category: 'myFavorites' },
+	);
+	await settle();
+	await act(async () => document.querySelector('[aria-label="Unsave Seoul Courtyard"]').click());
+	await settle();
+	assert.match(document.body.textContent, /Could not update saved stays/);
+	assert.ok(document.querySelector('[aria-label="Unsave Seoul Courtyard"]'));
+	assert.equal(document.querySelectorAll('.h-hotel-card').length, 1);
 });

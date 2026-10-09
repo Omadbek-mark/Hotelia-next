@@ -172,6 +172,11 @@
   nav a[aria-current=page] { background: #e0e7df; color: var(--h-forest); font-weight: 600; }
 }
 .h-account-content { min-width: 0; }
+.h-collection-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; h1 { font-family: var(--h-heading); color: var(--h-forest); font-size: 52px; font-weight: 400; line-height: 1.1; margin: 12px 0; } p { color: var(--h-muted); margin: 0; } }
+.h-collection-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 24px 0; p { margin: 0; color: var(--h-muted); } }
+.h-collection-grid { gap: 20px; .h-card-title-row { flex-wrap: wrap; h3 a { font-family: inherit; } } .h-card-body { padding: 20px; } }
+@media (max-width: 1100px) { .h-collection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .h-collection-heading { align-items: flex-start; flex-direction: column; gap: 20px; h1 { font-size: 40px; } } .h-collection-grid { grid-template-columns: 1fr; } }
 .h-profile { max-width: 760px;
   > form { background: var(--h-paper); padding: 32px; border-radius: 8px; border: 1px solid var(--h-line); }
 }

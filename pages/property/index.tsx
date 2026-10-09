@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
+import { syncFavoriteCache } from '../../apollo/hotelia/collections';
 import { useRouter } from 'next/router';
 import { gql, useApolloClient, useQuery, useReactiveVar } from '@apollo/client';
 import { Alert, Checkbox, Drawer, FormControlLabel, IconButton, MenuItem } from '@mui/material';
@@ -73,7 +74,7 @@ export default function HotelCatalog() {
    const result = await client.mutate({ mutation: hotel.isFavorite ? UNFAVORITE : FAVORITE, variables: { hotelId: hotel._id } });
    const saved = result.data?.[hotel.isFavorite ? 'unfavoriteHotel' : 'favoriteHotel'];
    if (!saved) throw Error('Missing favorite result');
-   client.cache.modify({ id: client.cache.identify({ __typename: 'Hotel', _id: hotel._id }), fields: { isFavorite: () => saved.isFavorite, hotelLikes: () => saved.hotelLikes } });
+   syncFavoriteCache(client.cache, saved);
   } catch { setMessage('Could not update your saved stays. Please try again.'); }
   finally { inFlight.current.delete(hotel._id); setSaving(Array.from(inFlight.current)); }
  };

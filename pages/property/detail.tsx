@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
+import { syncFavoriteCache } from '../../apollo/hotelia/collections';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useApolloClient, useQuery, useReactiveVar } from '@apollo/client';
@@ -185,10 +186,7 @@ export default function HotelDetail() {
 			});
 			const saved = result.data?.[hotel.isFavorite ? 'unfavoriteHotel' : 'favoriteHotel'];
 			if (!saved) throw Error('No result');
-			client.cache.modify({
-				id: client.cache.identify({ __typename: 'Hotel', _id: hotelId }),
-				fields: { isFavorite: () => saved.isFavorite, hotelLikes: () => saved.hotelLikes },
-			});
+			syncFavoriteCache(client.cache, saved);
 		} catch {
 			setMessage('Could not update your saved stays. Try again.');
 		} finally {

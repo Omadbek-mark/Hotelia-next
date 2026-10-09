@@ -29,7 +29,7 @@ export default function PublicLayout({ children, title = 'Open Horizons', legacy
 	const [open, setOpen] = useState(false);
 	useEffect(() => { setOpen(false); }, [router.asPath]);
 	const navigation = <>{links.map(({ label, href }) => <Link key={label} href={href}
-		aria-current={router.asPath.split('#')[0] === href || (href !== '/' && !href.includes('?') && router.pathname.startsWith(href)) ? 'page' : undefined}>{label}</Link>)}</>;
+		aria-current={router.asPath.split('#')[0] === href || (href.includes('?category=') && router.pathname === '/mypage' && router.query.category === href.split('?category=')[1]) || (href !== '/' && !href.includes('?') && router.pathname.startsWith(href)) ? 'page' : undefined}>{label}</Link>)}</>;
 	return <div className="h-site">
 		<Head><title>{title} · Hotelia</title><meta name="description" content="Find your next stay with Hotelia. Explore hotels, compare rooms and request a booking." /></Head>
 		<a className="h-skip-link" href="#hotelia-main">Skip to content</a>

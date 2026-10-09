@@ -196,6 +196,12 @@ export interface FavoritesInquiry {
 	limit?: number;
 }
 
+// Backend: dto/view/visited.inquiry.ts
+export interface VisitedInquiry {
+	page?: number;
+	limit?: number;
+}
+
 // Backend: dto/hotel/hotel.input.ts
 export interface HotelInput {
 	hotelName: string;

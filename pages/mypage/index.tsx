@@ -5,8 +5,6 @@ import { Stack } from '@mui/material';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import MyProperties from '../../libs/components/mypage/MyProperties';
-import MyFavorites from '../../libs/components/mypage/MyFavorites';
-import RecentlyVisited from '../../libs/components/mypage/RecentlyVisited';
 import AddProperty from '../../libs/components/mypage/AddNewProperty';
 import MyProfile from '../../libs/components/mypage/MyProfile';
 import MyArticles from '../../libs/components/mypage/MyArticles';
@@ -25,6 +23,7 @@ import AccountLayout from '../../libs/components/hotelia/AccountLayout';
 import { EmptyState } from '../../libs/components/hotelia/ui';
 import Link from 'next/link';
 import MyTrips from '../../libs/components/hotelia/MyTrips';
+import StayCollection from '../../libs/components/hotelia/StayCollection';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -117,6 +116,7 @@ const MyPage: NextPage = () => {
 	if (!ready) return <div className="h-container h-empty" role="status">Opening your account…</div>;
 	if (!user._id) return <EmptyState title="Sign in to continue" action={<Link className="h-text-link" href={`/account/join?referrer=${encodeURIComponent(router.asPath)}`}>Sign in</Link>} />;
 	if (category === 'myBookings') return <AccountLayout><MyTrips /></AccountLayout>;
+	if (category === 'myFavorites' || category === 'recentlyVisited') return <AccountLayout><StayCollection key={category} kind={category === 'myFavorites' ? 'saved' : 'viewed'} /></AccountLayout>;
 	if (category === 'myProfile') return <AccountLayout><MyProfile /></AccountLayout>;
 	if (device === 'mobile') {
 		return <div>MY PAGE</div>;
@@ -133,8 +133,6 @@ const MyPage: NextPage = () => {
 								<Stack className={'list-config'}>
 									{category === 'addProperty' && <AddProperty />}
 									{category === 'myProperties' && <MyProperties />}
-									{category === 'myFavorites' && <MyFavorites />}
-									{category === 'recentlyVisited' && <RecentlyVisited />}
 									{category === 'myArticles' && <MyArticles />}
 									{category === 'writeArticle' && <WriteArticle />}
 									{category === 'myProfile' && <MyProfile />}

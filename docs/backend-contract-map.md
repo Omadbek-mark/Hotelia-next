@@ -10,7 +10,7 @@
 - Login/signup use backend member fields and token pairs; profile updates no longer expect a new access token. Signup includes required email and optional phone.
 - Existing AGENT role checks now use HOTEL_OWNER. Old components temporarily receive `memberProperties = memberHotels` through a documented adapter.
 - Shared image upload helper uses backend targets (`member`, `hotel`, `room`, `article`), multipart preflight, current authentication and backend file/count limits. Profile and article uploads use it.
-- `scripts/sync-backend-contracts.cjs` generates 52 browser interfaces and 15 enums from GraphQL-decorated backend DTOs. Private fields such as passwords/session hashes are excluded. IDs and timestamps are strings on the wire.
+- `scripts/sync-backend-contracts.cjs` generates 60 browser interfaces and 17 enums from GraphQL-decorated backend DTOs. Private fields such as passwords/session hashes are excluded. IDs and timestamps are strings on the wire.
 
 ## Migration by feature
 
@@ -37,3 +37,9 @@ Existing property screens and old public/admin query modules are replaced featur
 - `npx tsc --noEmit`: pass.
 - `npm run build`: pass.
 - Running API at localhost:3021: GraphQL schema validates login, signup, session member, logout, update member, refresh token, single and multiple image uploader operations. This is schema validation; no accounts or bookings were created for verification.
+
+## Saved and recently viewed
+
+- Saved stays use authenticated `getFavorites(FavoritesInquiry)` with `favoriteHotel` / `unfavoriteHotel`. Normalized hotel favorite status and all saved collection page caches are updated/invalidated together.
+- Recently viewed uses authenticated `getVisited(VisitedInquiry)` added in stage 8. It reads the existing member HOTEL view records, joins ACTIVE hotels before count/pagination, and orders by updatedAt descending with an ID tie breaker. Repeat hotel visits refresh the view timestamp without incrementing unique hotelViews. Other view groups keep their existing behavior.
+- `VisitedInquiry` validates page 1–1000000 and limit 1–100; the member identity comes exclusively from the session. No frontend local history or fabricated timestamps are used. There is no clear-history operation.
