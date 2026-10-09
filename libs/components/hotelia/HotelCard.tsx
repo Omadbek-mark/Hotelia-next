@@ -12,10 +12,10 @@ const labels: Record<string, string> = {
 	SPA: 'Spa', AIR_CONDITIONING: 'Air conditioning', RESTAURANT: 'Restaurant',
 };
 
-export default function HotelCard({ hotel, onFavorite, saving = false }: {
-	hotel: HotelCardData; onFavorite?: (hotel: HotelCardData) => void; saving?: boolean;
+export default function HotelCard({ hotel, onFavorite, saving = false, stayQuery = {} }: {
+	hotel: HotelCardData; onFavorite?: (hotel: HotelCardData) => void; saving?: boolean; stayQuery?: Record<string, string>;
 }) {
-	const href = `/property/detail?id=${hotel._id}`;
+	const href = { pathname: '/property/detail', query: { ...stayQuery, id: hotel._id } };
 	return <article className="h-card h-hotel-card">
 		<div className="h-card-photo">
 			<Link href={href} aria-label={`View ${hotel.hotelName}`}><SiteImage src={hotel.hotelImages[0]} alt={hotel.hotelName} /></Link>

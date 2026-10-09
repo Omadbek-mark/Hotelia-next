@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Alert, IconButton, Popover } from '@mui/material';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
@@ -8,13 +8,14 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Button } from './ui';
+import type { HotelSearch } from '../../types/hotelia/contracts';
 
 function today() {
 	const date = new Date();
 	return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
-export default function SearchBar() {
+export default function SearchBar({ initialSearch, onSearch }: { initialSearch?: HotelSearch; onSearch?: (search: HotelSearch) => Promise<unknown> }) {
 	const router = useRouter();
 	const [destination, setDestination] = useState('');
 	const [checkIn, setCheckIn] = useState('');
@@ -24,6 +25,7 @@ export default function SearchBar() {
 	const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
 	const [error, setError] = useState('');
 	const [pending, setPending] = useState(false);
+	useEffect(() => { setDestination(initialSearch?.destination || ''); setCheckIn(initialSearch?.checkIn || ''); setCheckOut(initialSearch?.checkOut || ''); setGuests(initialSearch?.guests || 2); setRooms(initialSearch?.rooms || 1); }, [initialSearch]);
 	const submit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault(); if (pending) return;
 		// Native date controls may commit their change on blur. Read the submitted values directly.
@@ -33,8 +35,8 @@ export default function SearchBar() {
 		if (!!arrival !== !!departure) { setError('Choose both arrival and departure dates.'); return; }
 		if (arrival && (arrival < today() || departure <= arrival)) { setError('Choose a departure after your arrival.'); return; }
 		setError(''); setPending(true);
-		try { await router.push({ pathname: '/property', query: { ...(destination.trim() ? { destination: destination.trim() } : {}),
-			...(arrival ? { checkIn: arrival, checkOut: departure } : {}), guests, rooms } }); }
+		const search: HotelSearch = { ...(destination.trim() ? { destination: destination.trim() } : {}), ...(arrival ? { checkIn: arrival, checkOut: departure } : {}), guests, rooms };
+		try { if (onSearch) await onSearch(search); else await router.push({ pathname: '/property', query: { ...search } }); }
 		catch { setError('Could not open search. Please try again.'); }
 		finally { setPending(false); }
 	};

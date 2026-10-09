@@ -8,7 +8,7 @@ Boshlang‘ich holat: `develop`, `3e0bc16`, Next.js Pages Router, React, TypeScr
 
 ## Ishlash tartibi
 
-Holat: 1–4-bosqichlar amalga oshirildi. Home bosqichi yakunlandi; foydalanuvchi tekshiruvini kutish uchun ish shu yerda to‘xtatildi. Keyingi bosqich — hotel katalogi; faqat foydalanuvchi davom ettirish buyrug‘ini bergandan keyin boshlanadi. Batafsil kontrakt xaritasi: `docs/backend-contract-map.md`.
+Holat: 1–5-bosqichlar amalga oshirildi. Hotel katalogi yakunlandi; foydalanuvchi tekshiruvini kutish uchun ish shu yerda to‘xtatildi. Keyingi bosqich — hotel tafsiloti va xonalar; faqat foydalanuvchi davom ettirish buyrug‘ini bergandan keyin boshlanadi. Batafsil kontrakt xaritasi: `docs/backend-contract-map.md`.
 
 2-bosqich tekshiruvlari: TypeScript va production build o‘tdi; brauzerda yangi public header/footer, 390px mobil menu drawer va anonymous admin access holati tekshirildi. Eski sahifa kontenti keyingi feature bosqichlarida almashtiriladi. Owner shell shu bosqichda komponent sifatida tayyorlandi, inventory sahifalariga 11-bosqichda ulanadi.
 
@@ -20,7 +20,11 @@ Holat: 1–4-bosqichlar amalga oshirildi. Home bosqichi yakunlandi; foydalanuvch
 
 4-bosqich tekshiruvlari: TypeScript va production build o‘tdi; real API hotel kolleksiyasida 3 hotel, host kolleksiyasida 2 host qaytdi. Brauzerda shu ma’lumotlar ko‘rindi. 390px, 768px va desktop ko‘rinishlarda overflow tekshirildi; occupancy stepper, yetishmayotgan sana xabari va destination/checkIn/checkOut/guests/rooms URL parametrlari tekshirildi. Numeric backend Direction enumining GraphQL wire qiymatlari generator orqali ASC/DESC stringlariga moslashtirildi. Native date control qiymatlari yuborishda FormData orqali olinadi.
 
-Preview: `http://localhost:3016/`. Katalog, hotel detail va host detail kontenti hali eski; Home’dagi link/qidiruv ularni ochadi. Bu sahifalar tegishli keyingi bosqichlarda qayta quriladi. Search URL kontrakti 5-bosqich katalogi uchun tayyor.
+5-bosqich: `/property` eski real-estate katalogidan Open Horizons hotel katalogiga almashtirildi. URL destination, text, stay dates, guests/rooms, hotel/room type, USD budget, rating, amenities, host, sort va pagination holatini saqlaydi. Backendga noto‘g‘ri sana, enum, takroriy scalar yoki narx oralig‘i yuborilmaydi. Desktop filter paneli, mobile drawer, active filter chips, reset/clear, loading/empty/error/retry va pagination mavjud. Home search parametrlari formaga tiklanadi; catalog search boshqa filterlarni saqlaydi. Hotel linklari stay tanlovini detail sahifasiga uzatadi. Favorite/unfavorite backend mutationlari ulandi; muvaffaqiyatli javob Apollo normalized hotel cache’ini yangilaydi, pending holati takroriy amalni bloklaydi. Anonymous save sign-in va referrer oqimiga olib boradi.
+
+5-bosqich tekshiruvlari: TypeScript, production build va 5 URL kontrakt testi o‘tdi. Brauzerda haqiqiy API’dagi 3 hotel, text+Wi-Fi filteridan Seoul natijasi, Pool filteridan Busan natijasi, saralashda filterlarni saqlash, limit=1 bilan 2-sahifadagi Tashkent natijasi, anonymous save gate, stay parametrlarini tiklash, empty natija, API unavailable/retry va invalid price recovery tekshirildi. Desktop 1905px, tablet 753px va mobile 375px kontent kengliklarida overflow yo‘q; mobile filter drawer apply’dan so‘ng yopiladi. Login qilingan account bilan favorite/unfavorite muvaffaqiyatli yozish hali amalda tekshirilmagan. API’da startingPrice null va ayrim hotel fotosi mavjud emas; narx o‘ylab topilmaydi, yuklanmagan foto placeholder bilan ko‘rsatiladi.
+
+Preview: `http://localhost:3015/property`. Backend: `http://localhost:3021/graphql`. Hotel detail va host detail kontenti hali eski; tegishli 6- va 9-bosqichlarda yangilanadi. 6-bosqich boshlanmadi.
 
 - Har bosqichda UI va unga tegishli API birga tugallanadi.
 - Desktop va mobil ko‘rinishlar bir bosqichda amalga oshiriladi.
