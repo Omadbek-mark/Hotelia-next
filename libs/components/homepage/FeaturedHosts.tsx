@@ -17,7 +17,12 @@ export default function Hosts() {
 	});
 	return (
 		<section className="h-section h-container">
-			<SectionHeading eyebrow="People behind the places" title="Meet your hosts" href="/agent" action="All hosts" />
+			<SectionHeading
+				eyebrow="People behind the places"
+				title="Meet your hosts"
+				href="/hotel-owner"
+				action="All hosts"
+			/>
 			{loading ? (
 				<div className="h-host-grid">
 					{Array.from({ length: 4 }, (_, i) => (
@@ -42,7 +47,7 @@ export default function Hosts() {
 			) : data?.getHotelOwners.list.length ? (
 				<div className="h-host-grid">
 					{data.getHotelOwners.list.map((host) => (
-						<Link className="h-host-card" href={`/agent/detail?agentId=${host._id}`} key={host._id}>
+						<Link className="h-host-card" href={`/hotel-owner/detail?ownerId=${host._id}`} key={host._id}>
 							<SiteImage
 								src={host.memberImage || '/img/profile/defaultUser.svg'}
 								alt={host.memberFullName || host.memberNick}

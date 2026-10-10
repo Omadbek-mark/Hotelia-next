@@ -125,7 +125,7 @@ export default function DashboardLayout({
 						</IconButton>
 						<span>{title}</span>
 					</div>
-					<Link href="/mypage?category=myProfile">{user.memberNick}</Link>
+					<Link href="/account?category=myProfile">{user.memberNick}</Link>
 				</header>
 				<main className="h-dashboard-main">{children}</main>
 			</div>
@@ -143,10 +143,10 @@ export const ownerNavigation: DashboardNavItem[] = [
 
 export const adminNavigation: DashboardNavItem[] = [
 	{ label: 'Overview', href: '/_admin' },
-	{ label: 'Hotels', href: '/_admin/properties' },
+	{ label: 'Hotels', href: '/_admin/hotels' },
 	{ label: 'Members', href: '/_admin/users' },
-	{ label: 'Journal', href: '/_admin/community' },
-	{ label: 'FAQ', href: '/_admin/cs/faq' },
-	{ label: 'Notices', href: '/_admin/cs/notice' },
-	{ label: 'Inquiries', href: '/_admin/cs/inquiry' },
+	{ label: 'Journal', href: '/_admin/journal' },
+	{ label: 'FAQ', href: '/_admin/support/faq' },
+	{ label: 'Notices', href: '/_admin/support/notice' },
+	{ label: 'Inquiries', href: '/_admin/support/inquiry' },
 ];

@@ -37,7 +37,7 @@ export default function BookingRequestDialog({
 	member.current = user._id;
 	const parsed = parseRoomSelection(
 		{
-			id: hotel._id,
+			hotelId: hotel._id,
 			checkIn: stay.checkIn,
 			checkOut: stay.checkOut,
 			guests: String(stay.guests),
@@ -161,7 +161,7 @@ export default function BookingRequestDialog({
 				<div className="h-dialog-actions">
 					{receipt ? (
 						<>
-							<Button fullWidth onClick={() => router.push('/mypage?category=myBookings')}>
+							<Button fullWidth onClick={() => router.push('/account?category=myBookings')}>
 								View My Trips
 							</Button>
 							<Button fullWidth variant="text" onClick={close}>

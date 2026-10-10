@@ -43,7 +43,7 @@ export default function HotelCatalog() {
 	}, [user._id, router.isReady, parsed.error, refetch]);
 	const total = data?.getHotels.metaCounter[0]?.total || 0;
 	const apply = (next: HotelsInquiry) =>
-		router.push({ pathname: '/property', query: hotelSearchQuery(next) }, undefined, { scroll: false });
+		router.push({ pathname: '/hotel', query: hotelSearchQuery(next) }, undefined, { scroll: false });
 	const changeSearch = (search: HotelSearch) => {
 		const next = { ...input.search };
 		['destination', 'checkIn', 'checkOut', 'guests', 'rooms'].forEach((key) => delete next[key as keyof HotelSearch]);

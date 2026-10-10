@@ -38,13 +38,13 @@ export default function JournalDetail() {
 				<EmptyState
 					title="Story unavailable"
 					description="It may have been withdrawn."
-					action={<Button href="/community">Back to Journal</Button>}
+					action={<Button href="/journal">Back to Journal</Button>}
 				/>
 			</div>
 		);
 	return (
 		<article className="h-container h-journal-detail">
-			<Link className="h-text-link" href="/community">
+			<Link className="h-text-link" href="/journal">
 				← Journal
 			</Link>
 			<header>
@@ -99,7 +99,7 @@ export default function JournalDetail() {
 						{article.meLiked?.[0]?.myFavorite ? '♥ Liked' : '♡ Like'} · {article.articleLikes}
 					</Button>
 					{article.memberId === user._id && (
-						<Button variant="text" href={`/mypage?category=writeArticle&articleId=${article._id}`}>
+						<Button variant="text" href={`/account?category=writeArticle&articleId=${article._id}`}>
 							Edit story
 						</Button>
 					)}

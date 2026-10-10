@@ -15,17 +15,17 @@ const {
 	canSelectRoom,
 	estimateStay,
 } = require('../../libs/booking/room-selection.ts');
-const id = 'a'.repeat(24);
+const hotelId = 'a'.repeat(24);
 test('without dates, only inventory inquiry is created', () => {
-	const result = parseRoomSelection({ id });
+	const result = parseRoomSelection({ hotelId });
 	assert.equal(result.error, undefined);
 	assert.equal(result.availableInput, undefined);
-	assert.deepEqual(result.roomInput, { hotelId: id, page: 1, limit: 6, sort: 'PRICE_ASC' });
+	assert.deepEqual(result.roomInput, { hotelId, page: 1, limit: 6, sort: 'PRICE_ASC' });
 });
 test('stay inquiry receives capacity, quantity and room filter', () => {
 	const result = parseRoomSelection(
 		{
-			id,
+			hotelId,
 			checkIn: '2026-11-01',
 			checkOut: '2026-11-04',
 			guests: '5',
@@ -40,7 +40,7 @@ test('stay inquiry receives capacity, quantity and room filter', () => {
 	assert.equal(result.error, undefined);
 	assert.equal(result.nights, 3);
 	assert.deepEqual(result.availableInput, {
-		hotelId: id,
+		hotelId: hotelId,
 		page: 2,
 		limit: 6,
 		sort: 'PRICE_DESC',
@@ -53,14 +53,14 @@ test('stay inquiry receives capacity, quantity and room filter', () => {
 });
 test('invalid hotel IDs, dates, occupancy and room ordering are rejected', () => {
 	for (const query of [
-		{ id: 'bad' },
-		{ id: [id, id] },
-		{ id, checkIn: '2026-11-01' },
-		{ id, guests: '0' },
-		{ id, rooms: '-1' },
-		{ id, roomPage: '0' },
-		{ id, roomSort: 'RATING' },
-		{ id, roomType: 'VILLA' },
+		{ hotelId: 'bad' },
+		{ hotelId: [hotelId, hotelId] },
+		{ hotelId, checkIn: '2026-11-01' },
+		{ hotelId, guests: '0' },
+		{ hotelId, rooms: '-1' },
+		{ hotelId, roomPage: '0' },
+		{ hotelId, roomSort: 'RATING' },
+		{ hotelId, roomType: 'VILLA' },
 	])
 		assert.ok(parseRoomSelection(query).error, JSON.stringify(query));
 });
@@ -68,7 +68,7 @@ test('arrival uses the hotel timezone rather than the browser date', () => {
 	const now = new Date('2026-10-09T18:00:00Z');
 	assert.equal(hotelLocalToday('Asia/Seoul', now), '2026-10-10');
 	assert.equal(hotelLocalToday('America/Los_Angeles', now), '2026-10-09');
-	const query = { id, checkIn: '2026-10-09', checkOut: '2026-10-11' };
+	const query = { hotelId, checkIn: '2026-10-09', checkOut: '2026-10-11' };
 	assert.ok(parseRoomSelection(query, 'Asia/Seoul', now).error);
 	assert.equal(parseRoomSelection(query, 'America/Los_Angeles', now).error, undefined);
 });

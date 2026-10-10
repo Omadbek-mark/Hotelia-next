@@ -17,7 +17,7 @@ Configure `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_API_GRAPHQL_URL` for the Hoteli
 The folder boundaries follow `nestar-next`: route entry points in `pages`, feature components in `libs/components`, shared hooks, domain types/enums, Apollo operations and SCSS. Hotelia keeps its own design and backend contracts.
 
 - `pages/`: routes and Next.js data-loading exports; page implementations live in their feature folders.
-- `libs/components/homepage`, `property`, `agent`, `member`, `mypage`, `community`, `account`, `owner`: feature screens and components.
+- `libs/components/homepage`, `hotel`, `member`, `journal`, `account`, `owner`: feature screens and components.
 - `libs/components/layout`, `common`: shared layouts and UI primitives.
 - `libs/hooks`: viewer refresh and owner cache refresh hooks.
 - `libs/auth`, `api`, `booking`, `search`, `social`, `journal`, `owner`: session, uploads, validation and domain helpers.
@@ -27,7 +27,7 @@ The folder boundaries follow `nestar-next`: route entry points in `pages`, featu
 - `libs/config/design-assets.json`: design photography references.
 - `public/`: assets used by Hotelia and locale namespaces.
 
-The existing `/property`, `/agent`, `/community` URLs remain compatible. They represent Hotelia stays, hosts and journal pages. The inherited real-estate components and API operations have been removed.
+Canonical routes are `/hotel`, `/hotel-owner`, `/journal` and `/account`. Legacy bookmarks redirect to these routes. They represent Hotelia stays, hosts and journal pages. The inherited real-estate components and API operations have been removed.
 
 Support and administration routes are explicit placeholders for implementation stages 12 and 13. They do not execute inherited Nestar API operations; administration retains its ADMIN role gate.
 

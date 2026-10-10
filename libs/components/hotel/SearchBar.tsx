@@ -66,7 +66,7 @@ export default function SearchBar({
 		};
 		try {
 			if (onSearch) await onSearch(search);
-			else await router.push({ pathname: '/property', query: { ...search } });
+			else await router.push({ pathname: '/hotel', query: { ...search } });
 		} catch {
 			setError('Could not open search. Please try again.');
 		} finally {

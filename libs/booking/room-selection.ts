@@ -22,7 +22,7 @@ export function parseRoomSelection(query: SearchQuery, timezone?: string, now = 
 		roomType: query.roomType,
 		page: query.roomPage,
 	});
-	const hotelId = typeof query.id === 'string' && /^[a-f\d]{24}$/i.test(query.id) ? query.id : '';
+	const hotelId = typeof query.hotelId === 'string' && /^[a-f\d]{24}$/i.test(query.hotelId) ? query.hotelId : '';
 	const rawSort = query.roomSort;
 	const sort =
 		typeof rawSort === 'string' && Object.values(RoomSort).includes(rawSort as RoomSort)

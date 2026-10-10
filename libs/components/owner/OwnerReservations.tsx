@@ -101,9 +101,7 @@ export default function OwnerReservations({ compact = false }: { compact?: boole
 					<span className="h-eyebrow">Guest stays</span>
 					<h2>{compact ? 'Incoming reservations' : 'Reservations'}</h2>
 					{!compact && (
-						<p>
-							{filters.hotelId ? hotel.data?.getOwnerHotel.hotelName || 'Selected property' : 'Across your properties'}
-						</p>
+						<p>{filters.hotelId ? hotel.data?.getOwnerHotel.hotelName || 'Selected hotel' : 'Across your hotels'}</p>
 					)}
 				</div>
 				{compact ? (

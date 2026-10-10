@@ -7,7 +7,7 @@ export default function SupportPage() {
 				<EmptyState
 					title="Hotelia help center"
 					description="FAQs, notices and inquiries are planned for the support stage."
-					action={<Button href="/mypage?category=myBookings">My trips</Button>}
+					action={<Button href="/account?category=myBookings">My trips</Button>}
 				/>
 			</section>
 		</PublicLayout>

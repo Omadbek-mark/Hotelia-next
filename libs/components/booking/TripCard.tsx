@@ -87,7 +87,7 @@ export default function TripCard({
 								Write review
 							</Button>
 						))}
-					<Link href={{ pathname: '/property/detail', query: { id: booking.hotelId } }} className="h-text-link">
+					<Link href={{ pathname: '/hotel/detail', query: { hotelId: booking.hotelId } }} className="h-text-link">
 						View hotel ↗
 					</Link>
 				</div>

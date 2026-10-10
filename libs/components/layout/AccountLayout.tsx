@@ -9,7 +9,7 @@ const navigation = [
 	['Saved stays', 'myFavorites'],
 	['Recently viewed', 'recentlyVisited'],
 	['My profile', 'myProfile'],
-	['My articles', 'myArticles'],
+	['My journal', 'myArticles'],
 	['Followers', 'followers'],
 	['Following', 'followings'],
 ];
@@ -24,7 +24,7 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
 					{navigation.map(([label, category]) => (
 						<Link
 							key={category}
-							href={`/mypage?category=${category}`}
+							href={`/account?category=${category}`}
 							aria-current={(router.query.category || 'myProfile') === category ? 'page' : undefined}
 						>
 							{label}

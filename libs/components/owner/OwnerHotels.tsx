@@ -30,7 +30,7 @@ export function OwnerHotels({ compact = false, choose = false }: { compact?: boo
 		<section className="h-owner-section">
 			<div className="h-owner-section-heading">
 				<div>
-					<span className="h-eyebrow">Registered properties</span>
+					<span className="h-eyebrow">Registered hotels</span>
 					<h2>{choose ? 'Choose a hotel' : 'My hotel listings'}</h2>
 				</div>
 				<Button href={compact ? '/owner?tab=hotels' : '/owner/hotel'}>

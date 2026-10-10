@@ -54,10 +54,10 @@ function EditorForm({ article }: { article?: BoardArticle }) {
 				: await publish({ variables: { input } });
 			const id = article ? article._id : response.data?.createBoardArticle?._id;
 			if (!id) throw new Error();
-			await router.push(`/community/detail?articleId=${id}`);
+			await router.push(`/journal/detail?articleId=${id}`);
 		} catch {
 			setUncertain(true);
-			setError('Your changes could not be confirmed. Check My Articles before submitting again.');
+			setError('Your changes could not be confirmed. Check My journal before submitting again.');
 		} finally {
 			lock.current = false;
 			setBusy(false);
@@ -146,8 +146,8 @@ function EditorForm({ article }: { article?: BoardArticle }) {
 					/>
 					{error && <p role="alert">{error}</p>}
 					<div className="h-journal-actions">
-						<Button variant="text" href="/mypage?category=myArticles">
-							My Articles
+						<Button variant="text" href="/account?category=myArticles">
+							My journal
 						</Button>
 						<Button disabled={busy || uncertain} onClick={submit}>
 							{article ? 'Save changes' : 'Publish story'}
@@ -182,7 +182,7 @@ export default function ArticleEditor() {
 		return (
 			<EmptyState
 				title="This story cannot be edited"
-				description="Open one of your published stories from My Articles."
+				description="Open one of your published stories from My journal."
 			/>
 		);
 	return <EditorForm key={`${user._id}:${id || 'new'}`} article={result.data?.getBoardArticle} />;

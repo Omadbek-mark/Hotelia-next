@@ -12,7 +12,7 @@ import { Direction, HotelSort, MemberStatus, MemberType } from '../../enums';
 import FollowButton from '../common/FollowButton';
 import HotelCard from '../common/HotelCard';
 import { Button, CardSkeletons, Chip, EmptyState, Pagination, SiteImage } from '../common/ui';
-import Connections from '../mypage/Connections';
+import Connections from '../account/Connections';
 
 function ProfileHotels({ memberId }: { memberId: string }) {
 	const router = useRouter(),
@@ -30,7 +30,7 @@ function ProfileHotels({ memberId }: { memberId: string }) {
 					<span className="h-eyebrow">Places with a personal touch</span>
 					<h2>Hosted stays.</h2>
 				</div>
-				<Link className="h-text-link" href={{ pathname: '/property', query: { ownerId: memberId } }}>
+				<Link className="h-text-link" href={{ pathname: '/hotel', query: { ownerId: memberId } }}>
 					All stays ↗
 				</Link>
 			</div>
@@ -144,7 +144,7 @@ function ProfileJournal({ memberId }: { memberId: string }) {
 						<Link
 							key={article._id}
 							className="h-profile-story"
-							href={{ pathname: '/community/detail', query: { articleId: article._id } }}
+							href={{ pathname: '/journal/detail', query: { articleId: article._id } }}
 						>
 							<SiteImage src={article.articleImage} alt={article.articleTitle} />
 							<div>
@@ -179,7 +179,7 @@ function ProfileJournal({ memberId }: { memberId: string }) {
 export default function MemberProfile({ host = false }: { host?: boolean }) {
 	const router = useRouter(),
 		user = useReactiveVar(userVar),
-		id = host ? router.query.agentId : router.query.memberId;
+		id = host ? router.query.ownerId : router.query.memberId;
 	const valid = isMemberId(id);
 	const { data, loading, error, refetch } = useQuery<{ getMember: PublicProfile }>(GET_PUBLIC_PROFILE, {
 		variables: { memberId: valid ? id : '' },
@@ -213,7 +213,7 @@ export default function MemberProfile({ host = false }: { host?: boolean }) {
 								Try again
 							</Button>
 						) : (
-							<Button href="/agent">Meet hosts</Button>
+							<Button href="/hotel-owner">Meet hosts</Button>
 						)
 					}
 				/>
@@ -229,7 +229,7 @@ export default function MemberProfile({ host = false }: { host?: boolean }) {
 			<Head>
 				<title>{name} · Hotelia</title>
 			</Head>
-			<Link className="h-text-link h-profile-back" href="/agent">
+			<Link className="h-text-link h-profile-back" href="/hotel-owner">
 				← Meet our hosts
 			</Link>
 			<section className={`h-profile-hero ${host ? 'h-profile-hero--host' : ''}`}>
@@ -267,7 +267,7 @@ export default function MemberProfile({ host = false }: { host?: boolean }) {
 					<div className="h-social-actions">
 						<FollowButton memberId={member._id} following={isFollowing(member.meFollowed, user._id, member._id)} />
 						{member._id === user._id && (
-							<Button href="/mypage?category=myProfile" variant="outlined">
+							<Button href="/account?category=myProfile" variant="outlined">
 								Edit profile
 							</Button>
 						)}
@@ -293,7 +293,7 @@ export default function MemberProfile({ host = false }: { host?: boolean }) {
 					))}
 				</nav>
 			)}
-			{category === 'hotels' || category === 'properties' ? (
+			{category === 'hotels' ? (
 				member.memberType === MemberType.HOTEL_OWNER ? (
 					<ProfileHotels memberId={member._id} />
 				) : (

@@ -132,7 +132,7 @@ export default function MyTrips() {
 		total = data?.getMyBookings.metaCounter[0]?.total || 0;
 	const navigate = (values: Record<string, string>) =>
 		router
-			.push({ pathname: '/mypage', query: { ...router.query, category: 'myBookings', ...values } }, undefined, {
+			.push({ pathname: '/account', query: { ...router.query, category: 'myBookings', ...values } }, undefined, {
 				scroll: false,
 			})
 			.catch(() => setMessage('Could not update your trips. Try again.'));
@@ -149,7 +149,7 @@ export default function MyTrips() {
 					<span className="h-eyebrow">Your travel journal</span>
 					<h1>My trips.</h1>
 				</div>
-				<Button href="/property" variant="outlined">
+				<Button href="/hotel" variant="outlined">
 					Find a stay ↗
 				</Button>
 			</div>
@@ -196,7 +196,7 @@ export default function MyTrips() {
 					title={parsed.input.bookingStatus ? 'No trips with this status' : 'Your next chapter awaits'}
 					description="Find a stay you’ll remember."
 					action={
-						<Button href="/property" color="secondary">
+						<Button href="/hotel" color="secondary">
 							Explore stays
 						</Button>
 					}

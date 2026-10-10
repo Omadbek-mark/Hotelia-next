@@ -1,5 +1,5 @@
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import JournalDetail from '../../libs/components/community/JournalDetail';
+import JournalDetail from '../../libs/components/journal/JournalDetail';
 import PublicLayout from '../../libs/components/layout/PublicLayout';
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },

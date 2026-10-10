@@ -13,11 +13,11 @@ import { MemberType } from '../../enums';
 
 const links = [
 	{ label: 'Home', href: '/' },
-	{ label: 'Stays', href: '/property' },
-	{ label: 'Hosts', href: '/agent' },
-	{ label: 'Journal', href: '/community' },
-	{ label: 'Saved', href: '/mypage?category=myFavorites' },
-	{ label: 'Trips', href: '/mypage?category=myBookings' },
+	{ label: 'Stays', href: '/hotel' },
+	{ label: 'Hosts', href: '/hotel-owner' },
+	{ label: 'Journal', href: '/journal' },
+	{ label: 'Saved', href: '/account?category=myFavorites' },
+	{ label: 'Trips', href: '/account?category=myBookings' },
 ];
 
 export function Brand() {
@@ -45,7 +45,7 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 					aria-current={
 						router.asPath.split('#')[0] === href ||
 						(href.includes('?category=') &&
-							router.pathname === '/mypage' &&
+							router.pathname === '/account' &&
 							router.query.category === href.split('?category=')[1]) ||
 						(href !== '/' && !href.includes('?') && router.pathname.startsWith(href))
 							? 'page'
@@ -86,7 +86,7 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 								Admin
 							</Link>
 						)}
-						<Link className="h-account-link" href={user._id ? '/mypage?category=myProfile' : '/account/join'}>
+						<Link className="h-account-link" href={user._id ? '/account?category=myProfile' : '/account/join'}>
 							<span>{user._id ? user.memberNick : 'Account'}</span>
 							<PersonOutlineIcon fontSize="small" />
 						</Link>
@@ -106,7 +106,7 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 					</div>
 					<nav aria-label="Mobile navigation">
 						{navigation}
-						<Link href="/cs">Help</Link>
+						<Link href="/support">Help</Link>
 						{user.memberType === MemberType.HOTEL_OWNER && <Link href="/owner">Host dashboard</Link>}
 						{user.memberType === MemberType.ADMIN && <Link href="/_admin">Admin dashboard</Link>}
 					</nav>
@@ -130,11 +130,11 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 				<div className="h-container h-footer-inner">
 					<Brand />
 					<nav aria-label="Footer navigation">
-						<Link href="/property">Stays</Link>
-						<Link href="/agent">Hosts</Link>
-						<Link href="/community">Journal</Link>
+						<Link href="/hotel">Stays</Link>
+						<Link href="/hotel-owner">Hosts</Link>
+						<Link href="/journal">Journal</Link>
 						<Link href="/about">About</Link>
-						<Link href="/cs">Help</Link>
+						<Link href="/support">Help</Link>
 					</nav>
 					<small>© {new Date().getFullYear()} Hotelia</small>
 				</div>

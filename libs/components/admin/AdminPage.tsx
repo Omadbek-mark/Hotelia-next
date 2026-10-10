@@ -8,7 +8,7 @@ function AdminPage() {
 		<EmptyState
 			title="Hotelia administration"
 			description={`The ${
-				section === '_admin' ? 'overview' : section === 'properties' ? 'hotels' : section
+				section === '_admin' ? 'overview' : section
 			} workspace is planned for the administration stage.`}
 		/>
 	);

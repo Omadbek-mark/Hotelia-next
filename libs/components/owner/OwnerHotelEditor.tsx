@@ -85,7 +85,7 @@ function HotelForm({ hotel }: { hotel?: Hotel }) {
 			</Button>
 			<header className="h-owner-heading">
 				<div>
-					<span className="h-eyebrow">Property setup</span>
+					<span className="h-eyebrow">Hotel setup</span>
 					<h1>{hotel ? 'Edit hotel' : 'Add a new hotel'}</h1>
 					<p>A distinctive stay, down to the details.</p>
 				</div>
@@ -101,7 +101,7 @@ function HotelForm({ hotel }: { hotel?: Hotel }) {
 			>
 				<div className="h-owner-editor-grid">
 					<div className="h-owner-form-panel">
-						<span className="h-eyebrow">01 · Property basics</span>
+						<span className="h-eyebrow">01 · Hotel basics</span>
 						{field('hotelName', 'Hotel name', 100)}
 						{field('hotelDescription', 'Description', 5000, true)}
 						<SelectField

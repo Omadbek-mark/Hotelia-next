@@ -36,7 +36,7 @@ export default function StayCollection({ kind }: { kind: 'saved' | 'viewed' }) {
 	const [saving, setSaving] = useState<string[]>([]),
 		[message, setMessage] = useState('');
 	const navigate = (next: number) =>
-		router.push({ pathname: '/mypage', query: { category, collectionPage: String(next) } }, undefined, {
+		router.push({ pathname: '/account', query: { category, collectionPage: String(next) } }, undefined, {
 			scroll: false,
 		});
 	const refresh = () => {
@@ -82,7 +82,7 @@ export default function StayCollection({ kind }: { kind: 'saved' | 'viewed' }) {
 					<h1>{title}.</h1>
 					<p>{savedPage ? 'Keep the places that stay with you.' : 'Stays you’ve explored, latest first.'}</p>
 				</div>
-				<Button variant="outlined" href="/property">
+				<Button variant="outlined" href="/hotel">
 					Explore stays ↗
 				</Button>
 			</div>
@@ -137,7 +137,7 @@ export default function StayCollection({ kind }: { kind: 'saved' | 'viewed' }) {
 								First page
 							</Button>
 						) : (
-							<Button href="/property" color="secondary">
+							<Button href="/hotel" color="secondary">
 								Find a stay
 							</Button>
 						)

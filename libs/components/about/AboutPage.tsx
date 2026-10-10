@@ -6,7 +6,7 @@ export default function AboutPage() {
 			<section className="h-section h-container">
 				<SectionHeading eyebrow="Open Horizons" title="Some places stay with you." />
 				<p>Discover hotels, meet their hosts and plan your next stay.</p>
-				<Button href="/property">Explore stays</Button>
+				<Button href="/hotel">Explore stays</Button>
 			</section>
 		</PublicLayout>
 	);

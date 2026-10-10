@@ -20,7 +20,7 @@ export function JournalCard({
 }) {
 	return (
 		<article className="h-journal-card">
-			<Link href={`/community/detail?articleId=${article._id}`}>
+			<Link href={`/journal/detail?articleId=${article._id}`}>
 				<SiteImage src={article.articleImage} alt={article.articleTitle} />
 				<div className="h-journal-card-copy">
 					<span className="h-eyebrow">{categories[article.articleCategory]}</span>
@@ -39,7 +39,7 @@ export function JournalCard({
 					<span>
 						{article.articleViews} reads · {article.articleLikes} likes · {article.articleComments} comments
 					</span>
-					<Button variant="text" href={`/mypage?category=writeArticle&articleId=${article._id}`}>
+					<Button variant="text" href={`/account?category=writeArticle&articleId=${article._id}`}>
 						Edit
 					</Button>
 					<Button variant="text" onClick={onDelete}>
@@ -93,10 +93,10 @@ export default function Journal({ own = false }: { own?: boolean }) {
 			<header className="h-journal-heading">
 				<div>
 					<span className="h-eyebrow">{own ? 'Author desk' : 'Dispatches & observations'}</span>
-					<h1>{own ? 'My Articles' : 'The Hotelia Journal'}</h1>
+					<h1>{own ? 'My journal' : 'The Hotelia Journal'}</h1>
 					<p>{own ? 'Your published stories, all in one place.' : 'Quiet places. Fresh perspectives.'}</p>
 				</div>
-				<Button href="/mypage?category=writeArticle">Write a story ↗</Button>
+				<Button href="/account?category=writeArticle">Write a story ↗</Button>
 			</header>
 			<div className="h-journal-toolbar">
 				<nav aria-label="Journal categories">
@@ -136,7 +136,7 @@ export default function Journal({ own = false }: { own?: boolean }) {
 			{!valid ? (
 				<EmptyState
 					title="Invalid journal filters"
-					action={<Button href={own ? '/mypage?category=myArticles' : '/community'}>Reset filters</Button>}
+					action={<Button href={own ? '/account?category=myArticles' : '/journal'}>Reset filters</Button>}
 				/>
 			) : result.loading ? (
 				<CardSkeletons />

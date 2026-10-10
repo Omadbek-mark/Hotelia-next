@@ -15,7 +15,7 @@ export default function HotelSection({ title, eyebrow, sort }: { title: string; 
 	);
 	return (
 		<section className="h-section h-container">
-			<SectionHeading eyebrow={eyebrow} title={title} href={`/property?sort=${sort}`} action="All stays" />
+			<SectionHeading eyebrow={eyebrow} title={title} href={`/hotel?sort=${sort}`} action="All stays" />
 			{loading ? (
 				<CardSkeletons />
 			) : error ? (

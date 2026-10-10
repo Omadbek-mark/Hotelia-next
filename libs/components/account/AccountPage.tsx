@@ -5,8 +5,8 @@ import { useEffect, useState } from 'react';
 import { userVar } from '../../../apollo/store';
 import { updateUserInfo } from '../../auth/index';
 import { EmptyState } from '../common/ui';
-import ArticleEditor from '../community/ArticleEditor';
-import Journal from '../community/Journal';
+import ArticleEditor from '../journal/ArticleEditor';
+import Journal from '../journal/Journal';
 import AccountLayout from '../layout/AccountLayout';
 import withLayoutBasic from '../layout/LayoutBasic';
 import Connections from './Connections';
@@ -73,15 +73,15 @@ function MyPage() {
 		return (
 			<AccountLayout>{category === 'myArticles' ? <Journal own key={user._id} /> : <ArticleEditor />}</AccountLayout>
 		);
-	if (['myProperties', 'addProperty', 'ownerBookings'].includes(String(category)))
+	if (['myHotels', 'addHotel', 'ownerBookings'].includes(String(category)))
 		return <OwnerRedirect category={String(category)} />;
-	return <EmptyState title="Page unavailable" action={<Link href="/mypage?category=myProfile">My profile</Link>} />;
+	return <EmptyState title="Page unavailable" action={<Link href="/account?category=myProfile">My profile</Link>} />;
 }
 function OwnerRedirect({ category }: { category: string }) {
 	const router = useRouter();
 	useEffect(() => {
 		void router.replace(
-			category === 'addProperty'
+			category === 'addHotel'
 				? '/owner/hotel'
 				: category === 'ownerBookings'
 				? '/owner?tab=bookings'

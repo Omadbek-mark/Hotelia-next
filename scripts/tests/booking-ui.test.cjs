@@ -38,10 +38,10 @@ const { ThemeProvider } = require('@mui/material'),
 	{ hoteliaTheme } = require('../../scss/MaterialTheme/index.ts');
 const { userVar, anonymousUser } = require('../../apollo/store.ts');
 const BookingDialog = require('../../libs/components/booking/BookingRequestDialog.tsx').default;
-const MyTrips = require('../../libs/components/mypage/MyTrips.tsx').default;
+const MyTrips = require('../../libs/components/account/MyTrips.tsx').default;
 const MemberProfile = require('../../libs/components/member/MemberProfile.tsx').default;
-const Connections = require('../../libs/components/mypage/Connections.tsx').default;
-const StayCollection = require('../../libs/components/mypage/StayCollection.tsx').default;
+const Connections = require('../../libs/components/account/Connections.tsx').default;
+const StayCollection = require('../../libs/components/account/StayCollection.tsx').default;
 const PublicLayout = require('../../libs/components/layout/PublicLayout.tsx').default;
 const AccountLayout = require('../../libs/components/layout/AccountLayout.tsx').default;
 const member = 'c'.repeat(24),
@@ -100,7 +100,7 @@ async function mount(
 	handler,
 	query = { category: 'myBookings' },
 	push = async () => true,
-	pathname = '/mypage',
+	pathname = '/account',
 	role = 'USER',
 ) {
 	userVar({ ...anonymousUser, _id: member, memberNick: 'Traveler', memberType: role });
@@ -198,9 +198,9 @@ async function savePreview(name) {
 		});
 	});
 	const css = fs
-		.readdirSync('.next/static/css')
+		.readdirSync('.next/static/supports')
 		.filter((file) => file.endsWith('.css'))
-		.map((file) => fs.readFileSync('.next/static/css/' + file, 'utf8'))
+		.map((file) => fs.readFileSync('.next/static/supports/' + file, 'utf8'))
 		.join('\n');
 	const mui = Array.from(document.styleSheets)
 		.map((sheet) =>
@@ -211,7 +211,7 @@ async function savePreview(name) {
 		.join('\n');
 	fs.writeFileSync(
 		directory + '/' + name + '.html',
-		`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotelia UI test preview</title><link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"><style>${css} ${mui} body{margin:0;background:#fcf9f4}.fixture-label{position:fixed;top:0;left:0;right:0;z-index:1600;padding:8px;background:#1a2e26;color:white;text-align:center;font:12px Arial}</style></head><body><div class="fixture-label">UI test preview · Sample data · No live records created</div>${root.innerHTML}</body></html>`,
+		`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotelia UI test preview</title><link href="https://fonts.googleapis.com/supports2?family=Newsreader:wght@400;500;600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"><style>${css} ${mui} body{margin:0;background:#fcf9f4}.fixture-label{position:fixed;top:0;left:0;right:0;z-index:1600;padding:8px;background:#1a2e26;color:white;text-align:center;font:12px Arial}</style></head><body><div class="fixture-label">UI test preview · Sample data · No live records created</div>${root.innerHTML}</body></html>`,
 	);
 }
 
@@ -527,9 +527,9 @@ test('host profile follows/unfollows once and refreshes authoritative follow sta
 			following = false;
 			return { unsubscribe: { _id: 'f'.repeat(24), followerId: member, followingId: hotelId } };
 		},
-		{ agentId: hotelId },
+		{ ownerId: hotelId },
 		undefined,
-		'/agent/detail',
+		'/hotel-owner/detail',
 	);
 	await settle();
 	await savePreview('host-profile-ui-test');
@@ -650,9 +650,9 @@ test('connections use returned member IDs and viewer-specific follow records; ma
 	assert.match(document.body.textContent, /Check your page/);
 });
 
-const Journal = require('../../libs/components/community/Journal.tsx').default;
-const JournalDetail = require('../../libs/components/community/JournalDetail.tsx').default;
-const ArticleEditor = require('../../libs/components/community/ArticleEditor.tsx').default;
+const Journal = require('../../libs/components/journal/Journal.tsx').default;
+const JournalDetail = require('../../libs/components/journal/JournalDetail.tsx').default;
+const ArticleEditor = require('../../libs/components/journal/ArticleEditor.tsx').default;
 const { articleInput, storyText } = require('../../libs/journal/model.ts');
 const journalArticle = {
 	__typename: 'BoardArticle',
@@ -698,7 +698,7 @@ test('journal validates backend limits and renders historical HTML as inert text
 	assert.equal(articleInput(' Title ', ' Story ', '', 'TRAVEL_TIPS').articleContent, 'Story');
 	assert.equal(storyText('<p>Warm &amp; quiet</p><script>alert(1)</script><iframe>bad</iframe>'), 'Warm & quiet');
 });
-test('journal listing and My Articles use backend categories and scoped ownership', async () => {
+test('journal listing and My journal use backend categories and scoped ownership', async () => {
 	const ops = await mount(
 		publicPage(React.createElement(AccountLayout, {}, React.createElement(Journal, { own: true }))),
 		() => journalResponse,
@@ -720,13 +720,13 @@ test('journal public listing provides category search and story links', async ()
 		() => journalResponse,
 		{},
 		async () => true,
-		'/community',
+		'/journal',
 	);
 	await settle();
 	assert.equal(ops[0].variables.input.search.memberId, undefined);
 	assert.equal(
 		document.querySelector('a[href*="articleId="]').getAttribute('href'),
-		'/community/detail?articleId=' + journalArticle._id,
+		'/journal/detail?articleId=' + journalArticle._id,
 	);
 	await savePreview('journal-ui-test');
 });
@@ -809,7 +809,7 @@ test('journal detail refreshes likes and deletes own comment without resending c
 		},
 		{ articleId: journalArticle._id },
 		async () => true,
-		'/community/detail',
+		'/journal/detail',
 	);
 	await settle();
 	await savePreview('journal-detail-ui-test');
@@ -862,7 +862,7 @@ test('journal publishing trims content, blocks double submit and navigates to re
 	assert.equal(ops[0].variables.input.articleCategory, 'FREE');
 	await act(async () => release());
 	await settle();
-	assert.equal(target, '/community/detail?articleId=' + journalArticle._id);
+	assert.equal(target, '/journal/detail?articleId=' + journalArticle._id);
 });
 test('journal publisher prevents blind retry after ambiguous failure', async () => {
 	await mount(
@@ -876,10 +876,10 @@ test('journal publisher prevents blind retry after ambiguous failure', async () 
 	await fillJournal('Story', 'Warm tea by the window.');
 	await click('Publish story');
 	assert.ok(button('Publish story').disabled);
-	assert.match(document.body.textContent, /Check My Articles/);
+	assert.match(document.body.textContent, /Check My journal/);
 });
 test('journal comment creation trims text and omits booking-only fields', async () => {
-	const JournalComments = require('../../libs/components/community/JournalComments.tsx').default;
+	const JournalComments = require('../../libs/components/journal/JournalComments.tsx').default;
 	const ops = await mount(
 		publicPage(React.createElement(JournalComments, { articleId: journalArticle._id, onChange: async () => {} })),
 		(op) =>
@@ -1327,4 +1327,32 @@ test('owner creates a room under the selected hotel with validated numeric field
 	assert.equal(input.roomPrice, 149.5);
 	assert.equal(input.roomStatus, undefined);
 	assert.equal(input._id, undefined);
+});
+
+test('hotel availability form applies stay dates with the canonical hotelId', async () => {
+	const Availability = require('../../libs/components/hotel/StayAvailabilityForm.tsx').default;
+	const selectedStay = { checkIn: '2099-11-01', checkOut: '2099-11-04', guests: 3, rooms: 2 };
+	let applied;
+	await mount(
+		React.createElement(Availability, {
+			hotelId,
+			timezone: 'Asia/Seoul',
+			stay: selectedStay,
+			onApply: async (value) => {
+				applied = value;
+			},
+		}),
+		() => {
+			throw Error('No query expected');
+		},
+	);
+	const originalFormData = global.FormData;
+	global.FormData = dom.window.FormData;
+	try {
+		await act(async () => require('react-dom/test-utils').Simulate.submit(document.querySelector('form')));
+		assert.deepEqual(applied, selectedStay);
+		assert.doesNotMatch(document.body.textContent, /Choose a valid hotel/);
+	} finally {
+		global.FormData = originalFormData;
+	}
 });

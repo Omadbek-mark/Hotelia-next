@@ -50,7 +50,8 @@ export default function HotelDetail() {
 	const router = useRouter(),
 		client = useApolloClient(),
 		user = useReactiveVar(userVar);
-	const hotelId = typeof router.query.id === 'string' && /^[a-f\d]{24}$/i.test(router.query.id) ? router.query.id : '';
+	const hotelId =
+		typeof router.query.hotelId === 'string' && /^[a-f\d]{24}$/i.test(router.query.hotelId) ? router.query.hotelId : '';
 	const hotelQuery = useQuery<{ getHotel: Hotel }>(GET_HOTEL_DETAIL, {
 		variables: { hotelId },
 		skip: !router.isReady || !hotelId,
@@ -139,7 +140,7 @@ export default function HotelDetail() {
 	const update = (values: Record<string, string>, resetPage = true) => {
 		const query: typeof router.query = { ...router.query, ...values, ...(resetPage ? { roomPage: '1' } : {}) };
 		delete query.selectedRoom;
-		return router.push({ pathname: '/property/detail', query }, undefined, { scroll: false });
+		return router.push({ pathname: '/hotel/detail', query }, undefined, { scroll: false });
 	};
 	const applyStay = async (stay: StayInput) => {
 		const unchanged =
@@ -200,7 +201,7 @@ export default function HotelDetail() {
 				error
 				title="Choose a hotel"
 				description="Open a stay from the hotel catalog."
-				action={<Button href="/property">Explore stays</Button>}
+				action={<Button href="/hotel">Explore stays</Button>}
 			/>
 		);
 	else if (hotelQuery.error || !hotel)
@@ -212,7 +213,7 @@ export default function HotelDetail() {
 				action={
 					<>
 						<Button onClick={() => hotelQuery.refetch().catch(() => {})}>Try again</Button>
-						<Button href="/property" variant="text">
+						<Button href="/hotel" variant="text">
 							Explore stays
 						</Button>
 					</>
@@ -223,9 +224,9 @@ export default function HotelDetail() {
 		content = (
 			<>
 				<nav className="h-detail-breadcrumb" aria-label="Breadcrumb">
-					<Link href="/property">Stays</Link>
+					<Link href="/hotel">Stays</Link>
 					<span>›</span>
-					<Link href={{ pathname: '/property', query: { destination: hotel.hotelCity } }}>{hotel.hotelCity}</Link>
+					<Link href={{ pathname: '/hotel', query: { destination: hotel.hotelCity } }}>{hotel.hotelCity}</Link>
 					<span>›</span>
 					<span>{hotel.hotelName}</span>
 				</nav>
@@ -265,7 +266,7 @@ export default function HotelDetail() {
 				<div className="h-detail-columns">
 					<div className="h-detail-content">
 						<section className="h-detail-section h-detail-about">
-							<span className="h-eyebrow">The property</span>
+							<span className="h-eyebrow">The hotel</span>
 							<h2>A little closer.</h2>
 							<p>{hotel.hotelDescription}</p>
 						</section>
@@ -297,7 +298,10 @@ export default function HotelDetail() {
 									<h3>{hotel.memberData.memberNick}</h3>
 									{hotel.memberData.memberDesc && <p>{hotel.memberData.memberDesc}</p>}
 								</div>
-								<Link className="h-text-link" href={{ pathname: '/agent/detail', query: { agentId: hotel.ownerId } }}>
+								<Link
+									className="h-text-link"
+									href={{ pathname: '/hotel-owner/detail', query: { ownerId: hotel.ownerId } }}
+								>
 									View host ↗
 								</Link>
 							</section>
@@ -350,7 +354,7 @@ export default function HotelDetail() {
 										<Button
 											variant="outlined"
 											onClick={() =>
-												router.push({ pathname: '/property/detail', query: { id: hotelId } }).catch(() => {})
+												router.push({ pathname: '/hotel/detail', query: { hotelId: hotelId } }).catch(() => {})
 											}
 										>
 											Reset stay
@@ -378,7 +382,7 @@ export default function HotelDetail() {
 											: 'This hotel has no published rooms yet.'
 									}
 									action={
-										<Button href="/property" variant="outlined">
+										<Button href="/hotel" variant="outlined">
 											Explore stays
 										</Button>
 									}

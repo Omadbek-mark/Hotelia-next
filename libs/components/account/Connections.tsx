@@ -46,7 +46,7 @@ export default function Connections({
 		  );
 	const total = collection?.metaCounter?.[0]?.total || 0;
 	const href = (category: string, next = '1') =>
-		socialHref(account ? '/mypage' : '/member', { ...(account ? {} : { memberId }), category, networkPage: next });
+		socialHref(account ? '/account' : '/member', { ...(account ? {} : { memberId }), category, networkPage: next });
 	const Heading = account ? 'h1' : 'h2';
 	return (
 		<section className="h-connections">
@@ -105,7 +105,9 @@ export default function Connections({
 					title={
 						page > 1 ? 'No connections on this page' : followers ? 'A growing circle' : 'Meet your next inspiration'
 					}
-					action={<Button href={page > 1 ? href(kind) : '/agent'}>{page > 1 ? 'First page' : 'Meet hosts'}</Button>}
+					action={
+						<Button href={page > 1 ? href(kind) : '/hotel-owner'}>{page > 1 ? 'First page' : 'Meet hosts'}</Button>
+					}
 				/>
 			) : (
 				<div className="h-connection-list">

@@ -29,7 +29,7 @@ export default function HotelCard({
 	saving?: boolean;
 	stayQuery?: Record<string, string>;
 }) {
-	const href = { pathname: '/property/detail', query: { ...stayQuery, id: hotel._id } };
+	const href = { pathname: '/hotel/detail', query: { ...stayQuery, hotelId: hotel._id } };
 	return (
 		<article className="h-card h-hotel-card">
 			<div className="h-card-photo">

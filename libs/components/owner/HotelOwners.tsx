@@ -30,7 +30,7 @@ function HostFeature({ host, index }: { host: PublicProfile; index: number }) {
 					alt={host.memberFullName || host.memberNick}
 				/>
 				<h2>
-					<Link href={`/agent/detail?agentId=${host._id}`}>{host.memberFullName || host.memberNick}</Link>
+					<Link href={`/hotel-owner/detail?ownerId=${host._id}`}>{host.memberFullName || host.memberNick}</Link>
 				</h2>
 				{host.memberDesc && <p className="h-clamped-bio">{host.memberDesc}</p>}
 				<div className="h-host-counts">
@@ -38,7 +38,7 @@ function HostFeature({ host, index }: { host: PublicProfile; index: number }) {
 					<span>{host.memberFollowers} followers</span>
 				</div>
 				<div className="h-social-actions">
-					<Link className="h-text-link" href={`/agent/detail?agentId=${host._id}`}>
+					<Link className="h-text-link" href={`/hotel-owner/detail?ownerId=${host._id}`}>
 						Meet your host ↗
 					</Link>
 					<FollowButton memberId={host._id} following={isFollowing(host.meFollowed, user._id, host._id)} />
@@ -62,7 +62,7 @@ function HostFeature({ host, index }: { host: PublicProfile; index: number }) {
 						}
 					/>
 				) : hotel ? (
-					<Link href={`/property/detail?id=${hotel._id}`}>
+					<Link href={`/hotel/detail?hotelId=${hotel._id}`}>
 						<SiteImage src={hotel.hotelImages[0]} alt={hotel.hotelName} />
 						<div>
 							<span className="h-eyebrow">
@@ -80,7 +80,7 @@ function HostFeature({ host, index }: { host: PublicProfile; index: number }) {
 	);
 }
 
-export default function Hosts() {
+export default function HotelOwners() {
 	const router = useRouter(),
 		parsed = parseHostQuery(router.query),
 		input = parsed.input;
@@ -96,7 +96,7 @@ export default function Hosts() {
 	const navigate = (values: Record<string, string>) =>
 		router.push(
 			{
-				pathname: '/agent',
+				pathname: '/hotel-owner',
 				query: { text: input.search.text || '', sort: input.sort || 'memberRank', page: String(input.page), ...values },
 			},
 			undefined,
@@ -147,7 +147,7 @@ export default function Hosts() {
 				{loading ? 'Meeting your hosts…' : `${total} ${total === 1 ? 'host' : 'hosts'}`}
 			</p>
 			{parsed.error ? (
-				<EmptyState error title="Check your host search" action={<Button href="/agent">Start fresh</Button>} />
+				<EmptyState error title="Check your host search" action={<Button href="/hotel-owner">Start fresh</Button>} />
 			) : loading || !router.isReady ? (
 				<Skeleton variant="rectangular" height={360} />
 			) : error ? (
@@ -168,7 +168,7 @@ export default function Hosts() {
 				<EmptyState
 					title="No hosts found"
 					description="Try another nickname."
-					action={<Button href="/agent">All hosts</Button>}
+					action={<Button href="/hotel-owner">All hosts</Button>}
 				/>
 			) : (
 				<div className="h-host-features">

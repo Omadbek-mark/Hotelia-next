@@ -38,7 +38,7 @@ export default function StayAvailabilityForm({
 		const fields = new FormData(event.currentTarget);
 		const parsed = parseRoomSelection(
 			{
-				id: hotelId,
+				hotelId,
 				checkIn: String(fields.get('checkIn') || ''),
 				checkOut: String(fields.get('checkOut') || ''),
 				guests: String(fields.get('guests') || ''),

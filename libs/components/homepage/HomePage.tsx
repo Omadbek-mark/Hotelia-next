@@ -4,7 +4,7 @@ import assets from '../../config/design-assets.json';
 import { HotelSort } from '../../enums';
 import { SectionHeading, SiteImage } from '../common/ui';
 import PublicLayout from '../layout/PublicLayout';
-import SearchBar from '../property/SearchBar';
+import SearchBar from '../hotel/SearchBar';
 import Hosts from './FeaturedHosts';
 import HotelSection from './HotelSection';
 
@@ -46,7 +46,7 @@ export default function Home() {
 								<Link
 									key={destination.city}
 									className="h-destination-card"
-									href={`/property?destination=${destination.city}`}
+									href={`/hotel?destination=${destination.city}`}
 								>
 									<SiteImage src={assets.destinations[index]} alt={destination.label} />
 									<div>
@@ -71,7 +71,7 @@ export default function Home() {
 					</div>
 					<div>
 						<p>Find somewhere that feels like you.</p>
-						<Link className="h-text-link" href="/community">
+						<Link className="h-text-link" href="/journal">
 							Explore the journal <ArrowForwardIcon fontSize="small" />
 						</Link>
 					</div>
