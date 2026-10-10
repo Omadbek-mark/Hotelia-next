@@ -8,7 +8,7 @@ Boshlang‘ich holat: `develop`, `3e0bc16`, Next.js Pages Router, React, TypeScr
 
 ## Ishlash tartibi
 
-Holat: 1–12-bosqichlar amalga oshirildi. Support va system ekranlari yakunlandi; foydalanuvchi tekshiruvini kutamiz. Keyingi bosqich — 13. Admin; faqat davom ettirish buyrug‘idan so‘ng boshlanadi. Kontrakt xaritasi: `docs/backend-contract-map.md`.
+Holat: 1–13-bosqichlar amalga oshirildi. Admin ekranlari yakunlandi; foydalanuvchi tekshiruvini kutamiz. Keyingi bosqich — 14. Yakuniy tekshiruv; faqat davom ettirish buyrug‘idan so‘ng boshlanadi. Kontrakt xaritasi: `docs/backend-contract-map.md`.
 
 2-bosqich tekshiruvlari: TypeScript va production build o‘tdi; brauzerda yangi public header/footer, 390px mobil menu drawer va anonymous admin access holati tekshirildi. Eski sahifa kontenti keyingi feature bosqichlarida almashtiriladi. Owner shell shu bosqichda komponent sifatida tayyorlandi, inventory sahifalariga 11-bosqichda ulanadi.
 
@@ -133,3 +133,18 @@ Mavjud notifications API authenticated receiver scope bilan ulandi. Header unrea
 Tekshiruv: 70 frontend test, 11 support/notification backend test, TypeScript va ikkala production build o‘tdi. 6 GraphQL operation live schema bilan validatsiyadan o‘tdi. Actual komponentlardan 4 support ekranining fixture previewlari saqlandi; private previewlar sample data bilan. Real inquiry yoki notification read yozuvi yaratilmagan. Stage 13 boshlanmadi.
 
 Brauzer tekshiruvi: live FAQ search/topic/accordion, public notices empty state, anonymous inquiry/notification gates, About va 404 recovery tekshirildi. Support fixture ekranlari desktop, 768px tablet va 390px mobile’da horizontal overflow bermadi. Galereyada `support-{faq,notices,inquiries-page,notifications-page}-ui-test.html`; screenshotlar `preview-support-{faq,notices,inquiries,notifications}-{desktop,mobile}.png`. Live About va 404 screenshotlari ham saqlandi. Frontend `http://localhost:3015/support` da ochiq. 12-bosqich tugadi; foydalanuvchi tekshiruvi va davom ettirish buyrug‘ini kutamiz.
+
+
+### 13-bosqich — Hotelia administration
+
+Admin route entry pointlari alohida overview, hotel, room, booking, member, journal va support komponentlariga ulandi. Mavjud active ADMIN session gate query komponentlarini auth tiklangach mount qiladi. Full sidebar va mobil drawer mavjud. Status/search/role/category/page filterlari URLda saqlanadi; invalid scalar/enum/page/hotelId APIga yuborilmaydi. Loading, empty, retry va serverdan pagination mavjud.
+
+Overview real admin list counterlarini, so‘nggi bronlar va javob kutayotgan inquirylarni ko‘rsatadi. Audit log, chart, revenue yoki vaqt bo‘yicha growth raqamlari o‘ylab topilmaydi. Hotel va room faqat ACTIVE/PAUSED o‘tishlari bilan moderatsiya qilinadi; archived inventory uchun mutatsiya tugmalari yo‘q. Bronlar backenddagi PENDING/CONFIRMED holatida admin cancel bilan boshqariladi; completed/cancelled holatlarida amal yo‘q. Hotel qatoridan shu hotel rooms/reservations ro‘yxatiga o‘tish mumkin.
+
+Member listing nickname/status/role bo‘yicha ishlaydi; status BLOCK/ACTIVE, role USER/HOTEL_OWNER amallari confirmation’dan so‘ng yuboriladi. UI self/admin account boshqaruvini va hotelga ega owner downgrade’ini cheklaydi; ADMIN promotion yoki permanent account removal yo‘q. Journal ACTIVE hikoyalarini soft archive qilish mavjud; backend restore kontrakti yo‘qligi dialogda aniq ko‘rsatiladi. Parollar, tokens, email, telefon yoki boshqa keraksiz private profile maydonlari admin list so‘rovlariga kiritilmagan.
+
+Support backendga 4 ADMIN-only operation qo‘shildi: getSupportByAdmin, createSupportByAdmin, updateSupportByAdmin, replySupportByAdmin. FAQ/ANNOUNCEMENT/TERMS draft, publish, archive va restore; private INQUIRY uchun faqat reply. Public editor private inquiry category yoki member ownership’ini o‘zgartira olmaydi. AdminSupportNotice memberId va noticeRevision faqat admin schema’da chiqadi; public SupportNotice’da yo‘q. Atomic revision compare-and-swap eski tahrir/javobning yangisini bosib ketishini bloklaydi; historical missing revision 0 deb olinadi. Create UUID retry dedupe scoped per actor; active editor’dagi ambiguous retry unchanged payload bilan ishlaydi. Navigation/reload’dan keyingi retry persistence da’vo qilinmaydi. Reply faqat memberning Your messages ekranida ko‘rinadi; email yoki external xabar yuborilmaydi.
+
+Tekshiruv: 91 frontend test, 197 backend test (7 API/auth suite), TypeScript va ikkala production build o‘tdi. 15 admin GraphQL operation live schema bilan validatsiyadan o‘tdi. 84 interfaces va 24 enums generator orqali sinxronlandi. Barcha 9 admin ekranining actual component fixture HTML previewlari desktop/mobilda tekshirildi; 768px tablet ham tekshirildi. Real admin mutations yoki real recordlar yaratilmagan. Login qilingan ADMIN bilan live write smoke test bajarilmagan; izolyatsiyalangan UI/API testlari mutation payload, role guards, confirmations, double submit, refresh va stale revision’larni qamrab oladi.
+
+Live app: http://localhost:3015/_admin (ADMIN session required). Galereya: http://localhost:8861/admin-stage-13.html. Fixture fayllar: admin-{overview,hotels,members,journal,rooms,reservations,faq,notices,inquiries}-ui-test.html; notice/reply editor previewlari ham mavjud. Screenshotlar preview-admin-{screen}-{desktop,mobile}.png. 13-bosqich tugadi; 14-bosqich foydalanuvchi tekshiruvi va davom ettirish buyrug‘idan keyin boshlanadi.

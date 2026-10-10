@@ -17,19 +17,19 @@ Configure `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_API_GRAPHQL_URL` for the Hoteli
 The folder boundaries follow `nestar-next`: route entry points in `pages`, feature components in `libs/components`, shared hooks, domain types/enums, Apollo operations and SCSS. Hotelia keeps its own design and backend contracts.
 
 - `pages/`: routes and Next.js data-loading exports; page implementations live in their feature folders.
-- `libs/components/homepage`, `hotel`, `member`, `journal`, `account`, `owner`: feature screens and components.
+- `libs/components/homepage`, `hotel`, `member`, `journal`, `account`, `owner`, `support`, `admin`: feature screens and components.
 - `libs/components/layout`, `common`: shared layouts and UI primitives.
 - `libs/hooks`: viewer refresh and owner cache refresh hooks.
-- `libs/auth`, `api`, `booking`, `search`, `social`, `journal`, `owner`: session, uploads, validation and domain helpers.
+- `libs/auth`, `api`, `booking`, `search`, `social`, `journal`, `owner`, `admin`: session, uploads, validation and domain helpers.
 - `libs/types/<domain>` and `libs/enums`: generated Hotelia API contracts. `libs/types/contracts.ts` and `libs/enums/index.ts` are export barrels.
-- `apollo/user`, `apollo/owner`: GraphQL operations; `client.ts` configures authenticated transport and `store.ts` holds session state.
+- `apollo/user`, `apollo/owner`, `apollo/admin`: GraphQL operations; `client.ts` configures authenticated transport and `store.ts` holds session state.
 - `scss/`: responsive styles split by feature, imported in order by `main.scss` through `app.scss`.
 - `libs/config/design-assets.json`: design photography references.
 - `public/`: assets used by Hotelia and locale namespaces.
 
 Canonical routes are `/hotel`, `/hotel-owner`, `/journal` and `/account`. Legacy bookmarks redirect to these routes. They represent Hotelia stays, hosts and journal pages. The inherited real-estate components and API operations have been removed.
 
-Support includes quick answers, published FAQs/notices, private inquiries and notifications. Administration still awaits stage 13 and retains its ADMIN role gate.
+Support includes quick answers, published FAQs/notices, private inquiries and notifications. Administration includes overview, hotel/room moderation, reservations, members, journal and support publishing/replies behind the ADMIN role gate.
 
 ## Validate
 

@@ -51,7 +51,7 @@ export default function DashboardLayout({
 				Opening dashboard…
 			</div>
 		);
-	if (!user._id || user.memberType !== role)
+	if (!user._id || user.memberType !== role || user.memberStatus !== 'ACTIVE')
 		return (
 			<div className="h-site">
 				<EmptyState
@@ -144,6 +144,8 @@ export const ownerNavigation: DashboardNavItem[] = [
 export const adminNavigation: DashboardNavItem[] = [
 	{ label: 'Overview', href: '/_admin' },
 	{ label: 'Hotels', href: '/_admin/hotels' },
+	{ label: 'Rooms', href: '/_admin/rooms' },
+	{ label: 'Reservations', href: '/_admin/bookings' },
 	{ label: 'Members', href: '/_admin/users' },
 	{ label: 'Journal', href: '/_admin/journal' },
 	{ label: 'FAQ', href: '/_admin/support/faq' },

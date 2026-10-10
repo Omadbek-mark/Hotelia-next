@@ -104,7 +104,7 @@ async function mount(
 	role = 'USER',
 	unreadCount = 0,
 ) {
-	userVar({ ...anonymousUser, _id: member, memberNick: 'Traveler', memberType: role });
+	userVar({ ...anonymousUser, _id: member, memberNick: 'Traveler', memberType: role, memberStatus: 'ACTIVE' });
 	const operations = [];
 	client = new ApolloClient({
 		cache: new InMemoryCache(),
@@ -216,7 +216,7 @@ async function savePreview(name) {
 		.join('\n');
 	fs.writeFileSync(
 		directory + '/' + name + '.html',
-		`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotelia UI test preview</title><link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"><style>${css} ${mui} body{margin:0;background:#fcf9f4}.fixture-label{position:fixed;top:0;left:0;right:0;z-index:1600;padding:8px;background:#1a2e26;color:white;text-align:center;font:12px Arial}</style></head><body><div class="fixture-label">UI test preview · Sample data · No live records created</div>${root.innerHTML}</body></html>`,
+		`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotelia UI test preview</title><link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"><style>${css} ${mui} body{margin:0;background:#fcf9f4}.fixture-label{position:fixed;bottom:0;left:0;right:0;z-index:1600;padding:8px;background:#1a2e26;color:white;text-align:center;font:12px Arial}</style></head><body><div class="fixture-label">UI test preview · Sample data · No live records created</div>${root.innerHTML}</body></html>`,
 	);
 }
 
@@ -1650,4 +1650,352 @@ test('support notifications page exposes an unread badge and reservation navigat
 		'/account?category=myBookings',
 	);
 	await savePreview('support-notifications-page-ui-test');
+});
+
+const AdminPage = require('../../libs/components/admin/AdminPage.tsx').default;
+const adminModel = require('../../libs/admin/model.ts');
+const adminNotice = {
+	...supportRow,
+	__typename: 'AdminSupportNotice',
+	memberId: member,
+	noticeRevision: 2,
+	noticeCategory: 'FAQ',
+	noticeStatus: 'ACTIVE',
+	noticeTitle: 'Plan a smoother arrival',
+	noticeContent: 'Check your confirmed reservation before travelling.',
+	noticeResponse: null,
+	respondedAt: null,
+};
+const adminMember = {
+	__typename: 'Member',
+	_id: 'e'.repeat(24),
+	memberNick: 'Mina',
+	memberFullName: 'Mina Park',
+	memberImage: '/img/hotelia/stay-placeholder.svg',
+	memberType: 'HOTEL_OWNER',
+	memberStatus: 'ACTIVE',
+	memberHotels: 2,
+	createdAt: base.createdAt,
+};
+const adminHotel = {
+	...ownerHotel,
+	__typename: 'Hotel',
+	createdAt: base.createdAt,
+	memberData: { __typename: 'MemberPublic', _id: member, memberNick: 'Mina' },
+};
+const adminArticle = {
+	__typename: 'BoardArticle',
+	_id: 'f'.repeat(24),
+	articleTitle: 'A quiet morning in Seoul',
+	articleContent: 'Courtyards, warm light and room to slow down.',
+	articleImage: '/img/hotelia/stay-placeholder.svg',
+	articleCategory: 'TRAVEL_STORY',
+	articleStatus: 'ACTIVE',
+	createdAt: base.createdAt,
+	memberData: { __typename: 'MemberPublic', _id: member, memberNick: 'Mina' },
+};
+const collection = (list) => ({ list, metaCounter: [{ total: list.length }] });
+function adminFixture(op) {
+	switch (op.operationName) {
+		case 'AdminOverview':
+			return {
+				hotels: { metaCounter: [{ total: 18 }] },
+				members: { metaCounter: [{ total: 142 }] },
+				journal: { metaCounter: [{ total: 24 }] },
+				inquiries: collection([{ _id: adminNotice._id, noticeTitle: 'Late arrival', createdAt: base.createdAt }]),
+				bookings: collection([ownerBooking]),
+			};
+		case 'AdminHotels':
+			return {
+				getAllHotelsByAdmin: collection([
+					adminHotel,
+					{
+						...adminHotel,
+						_id: '1'.repeat(24),
+						hotelName: 'Coastal retreat',
+						hotelCity: 'Busan',
+						hotelStatus: 'PAUSED',
+					},
+				]),
+			};
+		case 'AdminMembers':
+			return {
+				getAllMembersByAdmin: collection([
+					adminMember,
+					{ ...adminMember, _id: member, memberNick: 'Administrator', memberType: 'ADMIN', memberHotels: 0 },
+					{ ...adminMember, _id: '2'.repeat(24), memberNick: 'Traveler', memberType: 'USER', memberHotels: 0 },
+				]),
+			};
+		case 'AdminJournal':
+			return { getAllBoardArticlesByAdmin: collection([adminArticle]) };
+		case 'AdminRooms':
+			return { getAllRoomsByAdmin: collection([ownerRoom]) };
+		case 'AdminReservations':
+			return {
+				getAllBookingsByAdmin: collection([
+					ownerBooking,
+					{ ...ownerBooking, _id: '4'.repeat(24), bookingStatus: 'COMPLETED' },
+				]),
+			};
+		case 'AdminSupport':
+			return {
+				getSupportByAdmin: collection([
+					{
+						...adminNotice,
+						noticeCategory: op.variables.input.noticeCategory,
+						noticeStatus: op.variables.input.noticeCategory === 'INQUIRY' ? 'HOLD' : 'ACTIVE',
+						noticeTitle: op.variables.input.noticeCategory === 'INQUIRY' ? 'Late arrival' : adminNotice.noticeTitle,
+					},
+				]),
+			};
+		default:
+			throw Error('Unexpected admin operation ' + op.operationName);
+	}
+}
+async function mountAdmin(
+	path = '/_admin',
+	query = {},
+	handler = adminFixture,
+	role = 'ADMIN',
+	push = async () => true,
+) {
+	authModule.updateUserInfo = async () => true;
+	const ops = await mount(React.createElement(AdminPage), handler, query, push, path, role);
+	await settle();
+	await settle();
+	return ops;
+}
+for (const [name, path] of [
+	['overview', '/_admin'],
+	['hotels', '/_admin/hotels'],
+	['members', '/_admin/users'],
+	['journal', '/_admin/journal'],
+	['rooms', '/_admin/rooms'],
+	['reservations', '/_admin/bookings'],
+	['faq', '/_admin/support/faq'],
+	['notices', '/_admin/support/notice'],
+	['inquiries', '/_admin/support/inquiry'],
+]) {
+	test('admin workspace renders ' + name + ' through its protected full layout', async () => {
+		const ops = await mountAdmin(path);
+		assert.ok(ops.length > 0);
+		assert.ok(document.querySelector('nav[aria-label="Dashboard navigation"]'));
+		assert.equal(
+			document.querySelector('nav[aria-label="Dashboard navigation"] a[aria-current="page"]').getAttribute('href'),
+			path,
+		);
+		assert.doesNotMatch(document.body.textContent, /planned for/);
+		await savePreview('admin-' + name + '-ui-test');
+	});
+}
+test('admin gates do not fetch private data for guests hotel owners or anonymous sessions', async () => {
+	const ops = await mountAdmin('/_admin', {}, adminFixture, 'USER');
+	assert.equal(ops.length, 0);
+	assert.match(document.body.textContent, /Access restricted/);
+	await act(async () => userVar({ ...userVar(), memberType: 'HOTEL_OWNER' }));
+	await settle();
+	assert.equal(ops.length, 0);
+	await act(async () => userVar({ ...anonymousUser }));
+	await settle();
+	assert.equal(ops.length, 0);
+	assert.match(document.body.textContent, /Sign in to continue/);
+});
+test('admin filters reject invalid enums arrays IDs and pages before a query', async () => {
+	for (const q of [{ page: '0' }, { page: '1.5' }, { status: 'ACTIVE', type: 'AGENT' }, { text: ['a', 'b'] }])
+		assert.equal(adminModel.parseAdminFilters('users', q).valid, false);
+	assert.equal(adminModel.parseAdminFilters('rooms', { hotelId: 'bad' }).valid, false);
+	const ops = await mountAdmin('/_admin/hotels', { page: '0' });
+	assert.equal(ops.length, 0);
+	assert.match(document.body.textContent, /Check the filters/);
+});
+test('admin hotel pause requires confirmation locks repeated clicks and refreshes server state', async () => {
+	let release,
+		calls = 0,
+		paused = false;
+	const ops = await mountAdmin('/_admin/hotels', {}, (op) => {
+		if (op.operationName === 'AdminHotels')
+			return { getAllHotelsByAdmin: collection([{ ...adminHotel, hotelStatus: paused ? 'PAUSED' : 'ACTIVE' }]) };
+		assert.equal(op.operationName, 'AdminHotelStatus');
+		calls++;
+		assert.deepEqual(op.variables.input, { _id: adminHotel._id, hotelStatus: 'PAUSED' });
+		return new Promise(
+			(resolve) =>
+				(release = () => {
+					paused = true;
+					resolve({ updateHotelByAdmin: { __typename: 'Hotel', _id: adminHotel._id, hotelStatus: 'PAUSED' } });
+				}),
+		);
+	});
+	await click('Pause hotel');
+	assert.equal(calls, 0);
+	await click('Keep current');
+	assert.equal(calls, 0);
+	await click('Pause hotel');
+	await act(async () => {
+		button('Confirm change').click();
+		button('Confirm change').click();
+	});
+	await settle();
+	assert.equal(calls, 1);
+	await act(async () => release());
+	await settle();
+	assert.ok(button('Activate hotel'));
+	assert.equal(ops.filter((o) => o.operationName === 'AdminHotels').length, 2);
+	assert.match(document.body.textContent, /Change saved/);
+});
+test('admin members protect administrators and owners with hotels from role downgrade', async () => {
+	await mountAdmin('/_admin/users');
+	const rows = [...document.querySelectorAll('.h-admin-row')];
+	assert.equal(rows[0].querySelector('button').disabled, true);
+	assert.equal(rows[1].querySelectorAll('button').length, 0);
+	assert.equal(rows[2].querySelector('button').disabled, false);
+	assert.match(rows[1].textContent, /Protected administrator/);
+});
+test('admin archived journal and terminal bookings offer only supported actions', async () => {
+	await mountAdmin('/_admin/journal', {}, (op) => ({
+		getAllBoardArticlesByAdmin: collection([
+			{ ...adminArticle, articleStatus: 'DELETE', articleContent: '<script>neverRun()</script>' },
+		]),
+	}));
+	assert.equal(document.querySelectorAll('.h-admin-story button').length, 0);
+	assert.equal(document.querySelectorAll('script').length, 0);
+	assert.match(document.body.textContent, /<script>/);
+});
+test('admin support publication needs review trims input and confirms receipt despite failed refresh', async () => {
+	let calls = 0,
+		reads = 0;
+	await mountAdmin('/_admin/support/faq', {}, (op) => {
+		if (op.operationName === 'AdminSupport') {
+			if (++reads > 1) throw Error('List unavailable');
+			return { getSupportByAdmin: collection([]) };
+		}
+		assert.equal(op.operationName, 'AdminSupportCreate');
+		calls++;
+		const input = op.variables.input;
+		assert.equal(input.noticeCategory, 'FAQ');
+		assert.equal(input.noticeStatus, 'ACTIVE');
+		assert.equal(input.noticeTitle, 'Arrival guide');
+		assert.match(input.requestId, /^[a-f\d-]{36}$/i);
+		assert.equal(input.memberId, undefined);
+		return { createSupportByAdmin: { ...adminNotice, noticeTitle: input.noticeTitle } };
+	});
+	await click('Add FAQ ↗');
+	await fillSupport('Title', '  Arrival guide  ');
+	await fillSupport('Content', '  Check the reservation status before arriving.  ');
+	await act(async () =>
+		require('react-dom/test-utils').Simulate.change(document.querySelector('[role="dialog"] select'), {
+			target: { value: 'ACTIVE' },
+		}),
+	);
+	await click('Review change');
+	assert.equal(calls, 0);
+	assert.match(document.body.textContent, /visible to everyone/);
+	await savePreview('admin-notice-editor-ui-test');
+	await click('Confirm save');
+	assert.equal(calls, 1);
+	assert.match(document.body.textContent, /Saved. Refresh/);
+});
+test('admin notice creation retries one identity and blocks changed ambiguous payload', async () => {
+	const inputs = [];
+	await mountAdmin('/_admin/support/notice', {}, (op) => {
+		if (op.operationName === 'AdminSupport') return adminFixture(op);
+		inputs.push(op.variables.input);
+		throw Error('Lost receipt');
+	});
+	await click('Add notice ↗');
+	await fillSupport('Title', 'Platform update');
+	await fillSupport('Content', 'A helpful update for future stays.');
+	await click('Review change');
+	await click('Confirm save');
+	await click('Review change');
+	await click('Confirm save');
+	assert.equal(inputs.length, 2);
+	assert.equal(inputs[0].requestId, inputs[1].requestId);
+	await fillSupport('Content', 'A different helpful update for future stays.');
+	await click('Review change');
+	assert.equal(inputs.length, 2);
+	assert.match(document.body.textContent, /Retry it unchanged/);
+});
+test('admin replies use the server revision keep inquiry content private and refresh after conflict', async () => {
+	let sent;
+	await mountAdmin('/_admin/support/inquiry', {}, (op) => {
+		if (op.operationName === 'AdminSupport') return adminFixture(op);
+		sent = op.variables.input;
+		throw Error('Revision changed');
+	});
+	await click('Reply');
+	await fillSupport('Reply', '  Please check your confirmed reservation in My trips.  ');
+	await click('Review reply');
+	assert.equal(sent, undefined);
+	await savePreview('admin-reply-editor-ui-test');
+	await click('Confirm reply');
+	assert.deepEqual(sent, {
+		_id: adminNotice._id,
+		expectedRevision: 2,
+		noticeResponse: 'Please check your confirmed reservation in My trips.',
+	});
+	assert.match(document.body.textContent, /Check the refreshed record/);
+});
+
+test('admin reservation cancellation is unavailable after completion and requires confirmation for pending stays', async () => {
+	let variables;
+	await mountAdmin('/_admin/bookings', {}, (op) => {
+		if (op.operationName === 'AdminReservations') return adminFixture(op);
+		variables = op.variables;
+		return { cancelBookingByAdmin: { __typename: 'Booking', _id: ownerBooking._id, bookingStatus: 'CANCELLED' } };
+	});
+	const rows = [...document.querySelectorAll('.h-admin-reservation')];
+	assert.equal(rows[1].querySelectorAll('button').length, 0);
+	await click('Cancel reservation');
+	assert.equal(variables, undefined);
+	await click('Confirm change');
+	assert.deepEqual(variables, { bookingId: ownerBooking._id });
+});
+test('admin room status uses room mutation without changing price or inventory', async () => {
+	let input;
+	await mountAdmin('/_admin/rooms', {}, (op) => {
+		if (op.operationName === 'AdminRooms') return adminFixture(op);
+		input = op.variables.input;
+		return { updateRoomByAdmin: { __typename: 'Room', _id: ownerRoom._id, roomStatus: 'PAUSED' } };
+	});
+	await click('Pause room');
+	await click('Confirm change');
+	assert.deepEqual(input, { _id: ownerRoom._id, roomStatus: 'PAUSED' });
+});
+test('admin notice editing publishes only the existing record with its server revision', async () => {
+	let input;
+	await mountAdmin('/_admin/support/faq', {}, (op) => {
+		if (op.operationName === 'AdminSupport') return adminFixture(op);
+		input = op.variables.input;
+		return { updateSupportByAdmin: { ...adminNotice, ...input, noticeRevision: 3 } };
+	});
+	await click('Manage');
+	await fillSupport('Content', 'Updated helpful guidance for an easy arrival.');
+	await click('Review change');
+	assert.equal(input, undefined);
+	await click('Confirm save');
+	assert.equal(input.expectedRevision, 2);
+	assert.equal(input._id, adminNotice._id);
+	assert.equal(input.noticeCategory, undefined);
+	assert.equal(input.memberId, undefined);
+	assert.equal(input.noticeStatus, 'ACTIVE');
+});
+test('admin account access uses a narrow member status payload after confirmation', async () => {
+	let input;
+	await mountAdmin('/_admin/users', {}, (op) => {
+		if (op.operationName === 'AdminMembers') return { getAllMembersByAdmin: collection([adminMember]) };
+		input = op.variables.input;
+		return {
+			updateMemberByAdmin: {
+				__typename: 'Member',
+				_id: adminMember._id,
+				memberType: 'HOTEL_OWNER',
+				memberStatus: 'BLOCK',
+			},
+		};
+	});
+	await click('Block access');
+	assert.equal(input, undefined);
+	await click('Confirm change');
+	assert.deepEqual(input, { _id: adminMember._id, memberStatus: 'BLOCK' });
 });

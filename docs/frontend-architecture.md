@@ -19,15 +19,15 @@ Canonical routes use Hotelia domain names: `/hotel`, `/hotel-owner`, `/journal` 
 | `owner` | Workspace routing, overview, hotel/room inventory, separate editors and reservations |
 | `account` | Sign-in and registration screen |
 | `layout`, `common` | Public/account/dashboard layouts and shared UI |
-| `about`, `support`, `admin` | Hotelia information and pending support/admin route components |
+| `about`, `support`, `admin` | Hotelia information, support and administration feature screens |
 
 Owner editor fields are shared in `EditorFields.tsx`. Inventory status/actions are shared in `InventoryControls.tsx`. `useOwnerRefresh` lives in `libs/hooks` and invalidates public inventory plus active owner queries. `useViewerRefresh` reloads viewer-dependent social data after session changes. No `libs/components/hotelia` aggregation folder remains.
 
 ## Contracts and operations
 
-`npm run contracts:sync` generates 78 interfaces and 24 enums from the sibling Hotelia API. Types live in domain folders such as `hotel`, `room`, `booking`, `member` and `board-article`. Domain enum files live in `libs/enums`. Export barrels provide stable imports; inter-domain references use type-only imports. `SessionMember` is the client session state, populated from the authenticated member response rather than JWT claims.
+`npm run contracts:sync` generates 84 interfaces and 24 enums from the sibling Hotelia API. Types live in domain folders such as `hotel`, `room`, `booking`, `member` and `board-article`. Domain enum files live in `libs/enums`. Export barrels provide stable imports; inter-domain references use type-only imports. `SessionMember` is the client session state, populated from the authenticated member response rather than JWT claims.
 
-Apollo user operations live in `apollo/user`; owner operations live in `apollo/owner`. Authentication transport remains in `apollo/client.ts`, and the reactive session remains in `apollo/store.ts`. Obsolete real-estate GraphQL operations and duplicate legacy DTOs have been removed.
+Apollo user operations live in `apollo/user`; owner operations live in `apollo/owner`; administration operations live in `apollo/admin`. Authentication transport remains in `apollo/client.ts`, and the reactive session remains in `apollo/store.ts`. Obsolete real-estate GraphQL operations and duplicate legacy DTOs have been removed.
 
 ## Styles, assets and cleanup
 
@@ -35,9 +35,9 @@ Responsive Hotelia styles are split by feature and imported in their previous ca
 
 Only tracked unused files in Hotelia-next are removed. Backend files, design gallery artifacts, environment configuration and user-created untracked artifacts are outside this cleanup.
 
-## Support and pending administration
+## Support and administration
 
-Support/backend integration completed in stage 12: FAQ, public notices, private inquiries, notifications and recovery screens use Hotelia components and contracts. Inherited administration used incompatible real-estate queries and demo tables; its URLs remain explicit Hotelia placeholders with the existing ADMIN session/role gate. Administration/backend integration remains stage 13.
+Support/backend integration completed in stage 12: FAQ, public notices, private inquiries, notifications and recovery screens use Hotelia components and contracts. Stage 13 connects administration through separate overview, hotel, room, reservation, member, journal and support components. DashboardLayout waits for session restoration and an active ADMIN role before mounting queries. Filters and pagination live in the URL; unsupported URL values do not reach the API. Status changes and cancellation use confirmation dialogs; support editors review publication/reply visibility before saving. No administrator-promotion or permanent-removal UI is exposed. Admin support publishes only public categories and replies only to private inquiries, with revision checks for concurrent editing.
 
 ## Verification
 
