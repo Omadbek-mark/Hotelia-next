@@ -35,15 +35,15 @@ const React = require('react'),
 const { ApolloClient, ApolloLink, ApolloProvider, InMemoryCache, Observable } = require('@apollo/client');
 const { RouterContext } = require('next/dist/shared/lib/router-context.shared-runtime');
 const { ThemeProvider } = require('@mui/material'),
-	{ hoteliaTheme } = require('../../libs/components/hotelia/theme.ts');
+	{ hoteliaTheme } = require('../../scss/MaterialTheme/index.ts');
 const { userVar, anonymousUser } = require('../../apollo/store.ts');
-const BookingDialog = require('../../libs/components/hotelia/BookingRequestDialog.tsx').default;
-const MyTrips = require('../../libs/components/hotelia/MyTrips.tsx').default;
-const MemberProfile = require('../../libs/components/hotelia/MemberProfile.tsx').default;
-const Connections = require('../../libs/components/hotelia/Connections.tsx').default;
-const StayCollection = require('../../libs/components/hotelia/StayCollection.tsx').default;
-const PublicLayout = require('../../libs/components/hotelia/PublicLayout.tsx').default;
-const AccountLayout = require('../../libs/components/hotelia/AccountLayout.tsx').default;
+const BookingDialog = require('../../libs/components/booking/BookingRequestDialog.tsx').default;
+const MyTrips = require('../../libs/components/mypage/MyTrips.tsx').default;
+const MemberProfile = require('../../libs/components/member/MemberProfile.tsx').default;
+const Connections = require('../../libs/components/mypage/Connections.tsx').default;
+const StayCollection = require('../../libs/components/mypage/StayCollection.tsx').default;
+const PublicLayout = require('../../libs/components/layout/PublicLayout.tsx').default;
+const AccountLayout = require('../../libs/components/layout/AccountLayout.tsx').default;
 const member = 'c'.repeat(24),
 	hotelId = 'a'.repeat(24),
 	roomId = 'b'.repeat(24);
@@ -443,7 +443,7 @@ test('recent views save a hotel without removing history and invalidate saved co
 	);
 	await settle();
 	await savePreview('viewed-stays-ui-test');
-	const { GET_SAVED_STAYS } = require('../../apollo/hotelia/collections.ts');
+	const { GET_SAVED_STAYS } = require('../../apollo/user/collections.ts');
 	client.cache.writeQuery({
 		query: GET_SAVED_STAYS,
 		variables: { input: { page: 2, limit: 6 } },
@@ -650,9 +650,9 @@ test('connections use returned member IDs and viewer-specific follow records; ma
 	assert.match(document.body.textContent, /Check your page/);
 });
 
-const Journal = require('../../libs/components/hotelia/Journal.tsx').default;
-const JournalDetail = require('../../libs/components/hotelia/JournalDetail.tsx').default;
-const ArticleEditor = require('../../libs/components/hotelia/ArticleEditor.tsx').default;
+const Journal = require('../../libs/components/community/Journal.tsx').default;
+const JournalDetail = require('../../libs/components/community/JournalDetail.tsx').default;
+const ArticleEditor = require('../../libs/components/community/ArticleEditor.tsx').default;
 const { articleInput, storyText } = require('../../libs/journal/model.ts');
 const journalArticle = {
 	__typename: 'BoardArticle',
@@ -879,7 +879,7 @@ test('journal publisher prevents blind retry after ambiguous failure', async () 
 	assert.match(document.body.textContent, /Check My Articles/);
 });
 test('journal comment creation trims text and omits booking-only fields', async () => {
-	const JournalComments = require('../../libs/components/hotelia/JournalComments.tsx').default;
+	const JournalComments = require('../../libs/components/community/JournalComments.tsx').default;
 	const ops = await mount(
 		publicPage(React.createElement(JournalComments, { articleId: journalArticle._id, onChange: async () => {} })),
 		(op) =>
@@ -896,7 +896,7 @@ test('journal comment creation trims text and omits booking-only fields', async 
 	});
 });
 
-const OwnerWorkspace = require('../../libs/components/hotelia/OwnerWorkspace.tsx').default;
+const OwnerWorkspace = require('../../libs/components/owner/OwnerWorkspace.tsx').default;
 const ownerModel = require('../../libs/owner/model.ts');
 const authModule = require('../../libs/auth/index.ts'),
 	originalUpdateUser = authModule.updateUserInfo;

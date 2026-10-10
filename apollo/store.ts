@@ -1,9 +1,7 @@
 import { makeVar } from '@apollo/client';
+import { SessionMember } from '../libs/types/member/session';
 
-import { CustomJwtPayload } from '../libs/types/customJwtPayload';
-export const themeVar = makeVar({});
-
-export const anonymousUser: CustomJwtPayload = {
+export const anonymousUser: SessionMember = {
 	_id: '',
 	memberType: '',
 	memberStatus: '',
@@ -16,7 +14,6 @@ export const anonymousUser: CustomJwtPayload = {
 	memberImage: '',
 	memberAddress: '',
 	memberDesc: '',
-	memberProperties: 0,
 	memberRank: 0,
 	memberArticles: 0,
 	memberPoints: 0,
@@ -26,4 +23,4 @@ export const anonymousUser: CustomJwtPayload = {
 	memberBlocks: 0,
 };
 
-export const userVar = makeVar<CustomJwtPayload>({ ...anonymousUser });
+export const userVar = makeVar<SessionMember>({ ...anonymousUser });

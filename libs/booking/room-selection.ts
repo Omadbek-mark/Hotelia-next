@@ -1,6 +1,6 @@
-import { RoomSort, RoomStatus } from '../types/hotelia/enums';
-import type { AvailableRoom, AvailableRoomsInquiry, RoomsInquiry, StayInput } from '../types/hotelia/contracts';
 import { parseHotelSearch, SearchQuery } from '../search/hotel-search';
+import type { AvailableRoom, AvailableRoomsInquiry, RoomsInquiry, StayInput } from '../types/contracts';
+import { RoomSort, RoomStatus } from '../enums';
 
 export function hotelLocalToday(timezone: string, now = new Date()): string {
 	const parts = new Intl.DateTimeFormat('en-US', {

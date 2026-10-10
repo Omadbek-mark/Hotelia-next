@@ -1,0 +1,345 @@
+.h-owner {
+	max-width: 1440px;
+	margin: 0 auto;
+}
+.h-owner-heading,
+.h-owner-section-heading {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 24px;
+	margin-bottom: 32px;
+}
+.h-owner h1,
+.h-owner h2,
+.h-owner h3 {
+	font-family: var(--h-heading);
+	font-weight: 400;
+	color: var(--h-forest);
+	line-height: 1.15;
+}
+.h-owner h1 {
+	font-size: clamp(36px, 4vw, 52px);
+	margin: 12px 0;
+}
+.h-owner h2 {
+	font-size: 32px;
+	margin: 10px 0;
+}
+.h-owner h3 {
+	font-size: 28px;
+	margin: 12px 0;
+}
+.h-owner p {
+	color: var(--h-muted);
+}
+.h-owner-metrics {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 20px;
+	margin-bottom: 48px;
+}
+.h-owner-metrics > div {
+	padding: 24px;
+	background: var(--h-paper);
+	border: 1px solid var(--h-line);
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+.h-owner-metrics span {
+	font-size: 13px;
+	color: var(--h-muted);
+}
+.h-owner-metrics strong {
+	font-family: var(--h-heading);
+	font-size: 38px;
+	font-weight: 400;
+}
+.h-owner small {
+	font-size: 12px;
+	color: var(--h-muted);
+}
+.h-owner-section {
+	margin-bottom: 48px;
+}
+.h-owner-tabs {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin-bottom: 24px;
+}
+.h-owner-hotels,
+.h-owner-reservations {
+	display: grid;
+	gap: 20px;
+}
+.h-owner-hotel,
+.h-owner-reservation {
+	display: grid;
+	grid-template-columns: 240px minmax(0, 1fr);
+	gap: 28px;
+	padding: 20px;
+	background: var(--h-paper);
+	border: 1px solid var(--h-line);
+	border-radius: 4px;
+}
+.h-owner-hotel > img {
+	width: 100%;
+	height: 100%;
+	min-height: 200px;
+	object-fit: cover;
+	border-radius: 3px;
+}
+.h-owner-badges {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+.h-owner-actions {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-top: 20px;
+}
+.h-owner-actions .h-button {
+	font-size: 12px;
+}
+.h-owner-error {
+	color: #9b3b2b !important;
+	width: 100%;
+	font-size: 14px;
+}
+.h-owner-room-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 24px;
+}
+.h-owner-room {
+	border: 1px solid var(--h-line);
+	background: white;
+	min-width: 0;
+}
+.h-owner-room > img {
+	width: 100%;
+	aspect-ratio: 3/2;
+	object-fit: cover;
+}
+.h-owner-room-copy {
+	padding: 24px;
+}
+.h-owner-amenities {
+	font-size: 13px;
+	min-height: 40px;
+}
+.h-owner-rate {
+	font-size: 28px;
+	font-family: var(--h-heading);
+	font-weight: 500;
+}
+.h-owner-reservation {
+	grid-template-columns: 100px minmax(0, 1fr) auto;
+	gap: 24px;
+}
+.h-owner-reservation > img {
+	width: 100%;
+	aspect-ratio: 1;
+	object-fit: cover;
+}
+.h-owner-reservation h3 {
+	font-size: 24px;
+}
+.h-owner-reservation-total {
+	font: 400 30px var(--h-heading);
+	text-align: right;
+	white-space: nowrap;
+}
+.h-owner-reservation-total small {
+	display: block;
+	margin-top: 10px;
+	font-family: var(--h-body);
+}
+.h-owner-date-filter {
+	display: flex;
+	gap: 16px;
+	align-items: center;
+	margin-bottom: 32px;
+}
+.h-owner-date-filter > .h-field {
+	max-width: 240px;
+}
+.h-owner-date-filter > .h-button {
+	white-space: nowrap;
+}
+.h-owner-editor-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+	gap: 32px;
+}
+.h-owner-form-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	padding: 32px;
+	background: white;
+	border: 1px solid var(--h-line);
+	align-self: start;
+	min-width: 0;
+}
+.h-owner-field-pair {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 24px;
+}
+.h-owner-amenity-options {
+	border: 0;
+	padding: 0;
+	margin: 0;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+}
+.h-owner-amenity-options legend {
+	font-family: var(--h-heading);
+	font-size: 28px;
+	margin-bottom: 20px;
+}
+.h-owner-amenity-options label {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	font-size: 14px;
+	cursor: pointer;
+}
+.h-owner-amenity-options input {
+	accent-color: var(--h-forest);
+	width: 16px;
+	height: 16px;
+}
+.h-owner-photos > small {
+	display: block;
+	margin-top: 16px;
+}
+.h-owner-photos h2 {
+	font-size: 26px;
+}
+.h-owner-photo-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+	margin-bottom: 24px;
+}
+.h-owner-photo-grid > div {
+	min-width: 0;
+}
+.h-owner-photo-grid img {
+	width: 100%;
+	aspect-ratio: 3/2;
+	object-fit: cover;
+}
+.h-owner-photo-grid .h-button {
+	font-size: 11px;
+	padding: 6px;
+	min-width: 0;
+}
+.h-owner-note {
+	border-top: 1px solid var(--h-line);
+	padding-top: 20px;
+}
+.h-owner-note h3 {
+	font-size: 24px;
+}
+.h-owner-note p {
+	font-size: 14px;
+}
+.h-owner-form-footer {
+	display: flex;
+	justify-content: space-between;
+	gap: 16px;
+	flex-wrap: wrap;
+	padding: 28px 0;
+	margin-top: 24px;
+	border-top: 1px solid var(--h-line);
+}
+@media (max-width: 1200px) {
+	.h-owner-metrics {
+		grid-template-columns: repeat(2, 1fr);
+	}
+	.h-owner-hotel {
+		grid-template-columns: 180px minmax(0, 1fr);
+	}
+	.h-owner-reservation {
+		grid-template-columns: 80px minmax(0, 1fr);
+	}
+	.h-owner-reservation-total {
+		grid-column: 2;
+		text-align: left;
+	}
+	.h-owner-editor-grid {
+		grid-template-columns: 1fr;
+	}
+	.h-owner-date-filter {
+		flex-wrap: wrap;
+	}
+}
+@media (max-width: 600px) {
+	.h-owner-heading,
+	.h-owner-section-heading {
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 16px;
+	}
+	.h-owner-metrics {
+		gap: 12px;
+	}
+	.h-owner-metrics > div {
+		padding: 16px;
+	}
+	.h-owner-metrics strong {
+		font-size: 30px;
+	}
+	.h-owner-hotel {
+		grid-template-columns: 1fr;
+		gap: 20px;
+		padding: 16px;
+	}
+	.h-owner-hotel > img {
+		aspect-ratio: 3/2;
+		min-height: 0;
+	}
+	.h-owner-room-grid {
+		grid-template-columns: 1fr;
+	}
+	.h-owner-reservation {
+		grid-template-columns: 1fr;
+		padding: 16px;
+	}
+	.h-owner-reservation > img {
+		max-height: 180px;
+		aspect-ratio: 3/2;
+	}
+	.h-owner-reservation-total {
+		grid-column: 1;
+	}
+	.h-owner-form-panel {
+		padding: 20px;
+	}
+	.h-owner-field-pair {
+		grid-template-columns: 1fr;
+	}
+	.h-owner-date-filter > .h-field {
+		max-width: none;
+	}
+	.h-owner-amenity-options {
+		grid-template-columns: 1fr;
+	}
+	.h-owner-photo-grid {
+		grid-template-columns: 1fr;
+	}
+	.h-owner h2 {
+		font-size: 30px;
+	}
+}

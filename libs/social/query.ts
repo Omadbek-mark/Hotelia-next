@@ -1,6 +1,6 @@
-import type { HotelOwnersInquiry, MeFollowed } from '../types/hotelia/contracts';
-import { Direction } from '../types/hotelia/enums';
 import type { SearchQuery } from '../search/hotel-search';
+import type { HotelOwnersInquiry, MeFollowed } from '../types/contracts';
+import { Direction } from '../enums';
 
 export const isMemberId = (value: unknown): value is string =>
 	typeof value === 'string' && /^[a-f\d]{24}$/i.test(value);

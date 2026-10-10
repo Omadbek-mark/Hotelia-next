@@ -21,7 +21,8 @@ function validateImage(file: File) {
 export async function uploadImage(file: File, target: ImageTarget): Promise<string> {
 	validateImage(file);
 	const { data } = await initializeApollo().mutate<{ imageUploader: string }>({
-		mutation: IMAGE_UPLOADER, variables: { file, target },
+		mutation: IMAGE_UPLOADER,
+		variables: { file, target },
 	});
 	if (!data?.imageUploader) throw new Error('Image upload failed.');
 	return data.imageUploader;
@@ -31,7 +32,8 @@ export async function uploadImages(files: File[], target: ImageTarget): Promise<
 	if (!files.length || files.length > 10) throw new Error('Choose between 1 and 10 images.');
 	files.forEach(validateImage);
 	const { data } = await initializeApollo().mutate<{ imagesUploader: string[] }>({
-		mutation: IMAGES_UPLOADER, variables: { files, target },
+		mutation: IMAGES_UPLOADER,
+		variables: { files, target },
 	});
 	if (!data?.imagesUploader) throw new Error('Image upload failed.');
 	return data.imagesUploader;

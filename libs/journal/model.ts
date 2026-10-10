@@ -1,4 +1,4 @@
-import { BoardArticleCategory } from '../types/hotelia/enums';
+import { BoardArticleCategory } from '../enums';
 export const categories: Record<BoardArticleCategory, string> = {
 	FREE: 'Field notes',
 	TRAVEL_TIPS: 'Travel tips',

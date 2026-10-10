@@ -1,12 +1,12 @@
 import { initializeApollo } from '../../apollo/client';
-import { userVar, anonymousUser } from '../../apollo/store';
-import { GET_SESSION_MEMBER, LOGIN, LOGOUT, SIGN_UP } from '../../apollo/hotelia/auth';
-import type { Member, MemberInput } from '../types/hotelia/contracts';
+import { anonymousUser, userVar } from '../../apollo/store';
+import { GET_SESSION_MEMBER, LOGIN, LOGOUT, SIGN_UP } from '../../apollo/user/auth';
+import type { Member, MemberInput } from '../types/contracts';
 import { clearSession, getJwtToken, getValidAccessToken, readAccessClaims, saveSession } from './session';
 
 export { getJwtToken } from './session';
 
-// Transitional adapter for the existing pages. New screens use memberHotels directly.
+// Store the authenticated member returned by the API.
 export function applySessionMember(member: Member): void {
 	userVar({
 		_id: member._id,
@@ -21,7 +21,6 @@ export function applySessionMember(member: Member): void {
 		memberAddress: member.memberAddress || '',
 		memberDesc: member.memberDesc || '',
 		memberHotels: member.memberHotels,
-		memberProperties: member.memberHotels,
 		memberRank: member.memberRank,
 		memberArticles: member.memberArticles,
 		memberPoints: member.memberPoints,
@@ -52,7 +51,9 @@ export async function logIn(nick: string, password: string): Promise<void> {
 
 export async function signUp(input: MemberInput): Promise<void> {
 	const { data } = await initializeApollo().mutate<{ signup: Member }>({
-		mutation: SIGN_UP, variables: { input }, context: { skipAuth: true },
+		mutation: SIGN_UP,
+		variables: { input },
+		context: { skipAuth: true },
 	});
 	await acceptSession(data?.signup);
 }
@@ -65,10 +66,15 @@ export async function updateUserInfo(_legacyToken?: string): Promise<boolean> {
 	memberRequest = (async () => {
 		const token = await getValidAccessToken();
 		const claims = readAccessClaims(token);
-		if (!claims) { userVar({ ...anonymousUser }); return false; }
+		if (!claims) {
+			userVar({ ...anonymousUser });
+			return false;
+		}
 		try {
 			const { data } = await initializeApollo().query<{ getMember: Member; checkAuth: string }>({
-				query: GET_SESSION_MEMBER, variables: { memberId: claims.sub }, fetchPolicy: 'network-only',
+				query: GET_SESSION_MEMBER,
+				variables: { memberId: claims.sub },
+				fetchPolicy: 'network-only',
 			});
 			if (getJwtToken() !== token) return false;
 			applySessionMember(data.getMember);
@@ -78,20 +84,33 @@ export async function updateUserInfo(_legacyToken?: string): Promise<boolean> {
 			if (/not authenticated|unauthorized/i.test(message) && getJwtToken() === token) clearSession();
 			return false;
 		}
-	})().catch(() => false).finally(() => { memberRequest = null; });
+	})()
+		.catch(() => false)
+		.finally(() => {
+			memberRequest = null;
+		});
 	return memberRequest;
 }
 
 export async function logOut(): Promise<void> {
 	let token = getJwtToken();
-	try { token = await getValidAccessToken(); } catch { /* Clear local credentials even when offline. */ }
+	try {
+		token = await getValidAccessToken();
+	} catch {
+		/* Clear local credentials even when offline. */
+	}
 	clearSession();
 	userVar({ ...anonymousUser });
 	const client = initializeApollo();
 	await client.clearStore();
 	if (token) {
 		try {
-			await client.mutate({ mutation: LOGOUT, context: { skipAuth: true, headers: { Authorization: `Bearer ${token}` } } });
-		} catch { /* Local logout still works when the server is unavailable. */ }
+			await client.mutate({
+				mutation: LOGOUT,
+				context: { skipAuth: true, headers: { Authorization: `Bearer ${token}` } },
+			});
+		} catch {
+			/* Local logout still works when the server is unavailable. */
+		}
 	}
 }

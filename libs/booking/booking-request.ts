@@ -1,6 +1,6 @@
-import type { Booking, BookingInput, Comment, StayInput } from '../types/hotelia/contracts';
-import { BookingStatus } from '../types/hotelia/enums';
 import type { SearchQuery } from '../search/hotel-search';
+import type { Booking, BookingInput, Comment, StayInput } from '../types/contracts';
+import { BookingStatus } from '../enums';
 
 export type RequestDetails = StayInput & { roomId: string };
 type AttemptStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;

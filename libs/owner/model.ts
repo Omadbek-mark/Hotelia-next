@@ -1,8 +1,8 @@
-import { HotelType, HotelAmenity, RoomType, RoomAmenity, BedType, BookingStatus } from '../types/hotelia/enums';
-import { HotelInput, RoomInput, Booking } from '../types/hotelia/contracts';
 import { hotelLocalToday } from '../booking/room-selection';
-import { socialPage, isMemberId } from '../social/query';
 import { SearchQuery } from '../search/hotel-search';
+import { isMemberId, socialPage } from '../social/query';
+import { Booking, HotelInput, RoomInput } from '../types/contracts';
+import { BedType, BookingStatus, HotelAmenity, HotelType, RoomAmenity, RoomType } from '../enums';
 export const label = (value: string) =>
 	value
 		.toLowerCase()

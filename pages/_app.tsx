@@ -1,25 +1,28 @@
-import type { AppProps } from 'next/app';
-import { ThemeProvider } from '@mui/material/styles';
-import { CssBaseline } from '@mui/material';
-import React, { useEffect } from 'react';
-import { hoteliaTheme } from '../libs/components/hotelia/theme';
 import { ApolloProvider } from '@apollo/client';
-import { useApollo } from '../apollo/client';
+import { CssBaseline } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 import { appWithTranslation } from 'next-i18next';
-import '../scss/app.scss';
-import '../scss/pc/main.scss';
-import '../scss/mobile/main.scss';
-import '../scss/hotelia.scss';
-import { updateUserInfo } from '../libs/auth';
+import type { AppProps } from 'next/app';
+import React, { useEffect } from 'react';
+import { useApollo } from '../apollo/client';
 import { anonymousUser, userVar } from '../apollo/store';
+import { updateUserInfo } from '../libs/auth/index';
+import '../scss/app.scss';
+import { hoteliaTheme } from '../scss/MaterialTheme/index';
 
 const App = ({ Component, pageProps }: AppProps) => {
 	const client = useApollo(pageProps.initialApolloState);
 	useEffect(() => {
-		const onLogout = () => { userVar({ ...anonymousUser }); void client.clearStore(); };
+		const onLogout = () => {
+			userVar({ ...anonymousUser });
+			void client.clearStore();
+		};
 		const onStorage = (event: StorageEvent) => {
 			if (event.key === 'logout') onLogout();
-			if (event.key === 'login') { onLogout(); void updateUserInfo(); }
+			if (event.key === 'login') {
+				onLogout();
+				void updateUserInfo();
+			}
 		};
 		void updateUserInfo();
 		window.addEventListener('storage', onStorage);

@@ -1,6 +1,6 @@
 import decodeJWT, { JwtPayload } from 'jwt-decode';
 import { API_GRAPHQL_URL } from '../config';
-import type { TokenPair } from '../types/hotelia/contracts';
+import type { TokenPair } from '../types/contracts';
 
 interface AccessClaims extends JwtPayload {
 	sub: string;
@@ -11,8 +11,12 @@ interface AccessClaims extends JwtPayload {
 export function readAccessClaims(token: string): AccessClaims | null {
 	try {
 		const claims = decodeJWT<AccessClaims>(token);
-		return claims.type === 'access' && /^[a-f\d]{24}$/i.test(claims.sub) &&
-			/^[a-f\d]{24}$/i.test(claims.sid) && typeof claims.exp === 'number' ? claims : null;
+		return claims.type === 'access' &&
+			/^[a-f\d]{24}$/i.test(claims.sub) &&
+			/^[a-f\d]{24}$/i.test(claims.sid) &&
+			typeof claims.exp === 'number'
+			? claims
+			: null;
 	} catch {
 		return null;
 	}
@@ -60,16 +64,27 @@ export async function getValidAccessToken(): Promise<string> {
 			}),
 		});
 		if (window.localStorage.getItem('refreshToken') !== refreshToken) return getJwtToken();
-		if (response.status === 401 || response.status === 403) { clearSession(); return ''; }
-		const result = await response.json();
-		if (result.errors?.some((error: { message: string; extensions?: { code?: string } }) =>
-			['UNAUTHENTICATED', 'UNAUTHORIZED'].includes(error.extensions?.code || '') || /not authenticated|unauthorized/i.test(error.message))) {
+		if (response.status === 401 || response.status === 403) {
 			clearSession();
 			return '';
 		}
-		if (!response.ok || result.errors?.length || !result.data?.refreshToken) throw new Error('Unable to restore session. Please try again.');
+		const result = await response.json();
+		if (
+			result.errors?.some(
+				(error: { message: string; extensions?: { code?: string } }) =>
+					['UNAUTHENTICATED', 'UNAUTHORIZED'].includes(error.extensions?.code || '') ||
+					/not authenticated|unauthorized/i.test(error.message),
+			)
+		) {
+			clearSession();
+			return '';
+		}
+		if (!response.ok || result.errors?.length || !result.data?.refreshToken)
+			throw new Error('Unable to restore session. Please try again.');
 		saveSession(result.data.refreshToken);
 		return result.data.refreshToken.accessToken;
-	})().finally(() => { refreshRequest = null; });
+	})().finally(() => {
+		refreshRequest = null;
+	});
 	return refreshRequest;
 }

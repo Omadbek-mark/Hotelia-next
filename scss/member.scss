@@ -1,0 +1,370 @@
+.h-social-page {
+	padding-top: 48px;
+	padding-bottom: 64px;
+}
+.h-social-heading {
+	margin-bottom: 32px;
+	h1,
+	h2 {
+		font: 400 clamp(38px, 4vw, 60px) / 1.08 var(--h-heading);
+		color: var(--h-forest);
+		margin: 12px 0 16px;
+	}
+	p {
+		color: var(--h-muted);
+		margin: 0;
+	}
+}
+.h-host-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 24px;
+	> form {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		flex: 1;
+	}
+	> .h-field {
+		width: 230px;
+	}
+}
+.h-social-count {
+	color: var(--h-muted);
+	margin: 24px 0;
+	font-size: 13px;
+}
+.h-host-features {
+	display: flex;
+	flex-direction: column;
+	gap: 36px;
+}
+.h-host-feature {
+	display: grid;
+	grid-template-columns: 1fr 1.1fr;
+	border: 1px solid var(--h-line);
+	border-radius: 12px;
+	overflow: hidden;
+	background: #f6f3ee;
+}
+.h-host-person {
+	padding: 36px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+	h2,
+	h2 a {
+		font: 400 36px/1.12 var(--h-heading);
+		color: var(--h-forest);
+	}
+	h2 {
+		margin: 0;
+	}
+	> p {
+		margin: 0;
+		color: var(--h-muted);
+		max-width: 430px;
+	}
+}
+.h-host-portrait {
+	width: 84px;
+	height: 84px;
+	object-fit: cover;
+	border-radius: 50%;
+	background: var(--h-soft);
+}
+.h-clamped-bio {
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	overflow-wrap: anywhere;
+}
+.h-host-counts {
+	display: flex;
+	gap: 24px;
+	font-size: 13px;
+	color: var(--h-muted);
+}
+.h-social-actions {
+	display: flex;
+	align-items: center;
+	gap: 24px;
+	flex-wrap: wrap;
+	margin-top: 8px;
+}
+.h-follow-action {
+	.h-button {
+		min-width: 115px;
+	}
+	.MuiAlert-root {
+		max-width: 350px;
+		margin-top: 12px;
+		font-size: 12px;
+	}
+}
+.h-host-sanctuary {
+	min-width: 0;
+	> a {
+		display: block;
+		position: relative;
+		height: 100%;
+		min-height: 380px;
+	}
+	img {
+		height: 100%;
+		width: 100%;
+		object-fit: cover;
+		position: absolute;
+		inset: 0;
+	}
+	> a::after {
+		content: '';
+		position: absolute;
+		inset: 40% 0 0;
+		background: linear-gradient(transparent, rgba(5, 25, 18, 0.85));
+	}
+	> a > div {
+		position: absolute;
+		bottom: 32px;
+		left: 32px;
+		right: 24px;
+		z-index: 1;
+		color: var(--h-ivory);
+		h3 {
+			font: 400 32px/1.2 var(--h-heading);
+			margin: 10px 0;
+			overflow-wrap: anywhere;
+		}
+		> span:last-child {
+			font-size: 13px;
+		}
+		.h-eyebrow {
+			color: #f0ded1;
+		}
+	}
+}
+.h-profile-back {
+	margin-bottom: 28px;
+}
+.h-profile-hero {
+	display: grid;
+	grid-template-columns: 280px minmax(0, 1fr);
+	gap: 56px;
+	padding: 40px;
+	background: #f6f3ee;
+	border-radius: 12px;
+	border: 1px solid var(--h-line);
+}
+.h-profile-portrait {
+	position: relative;
+	img {
+		width: 100%;
+		height: 300px;
+		object-fit: cover;
+		border-radius: 8px;
+		background: var(--h-soft);
+	}
+	.h-chip {
+		position: absolute;
+		bottom: 16px;
+		left: 16px;
+	}
+}
+.h-profile-intro {
+	min-width: 0;
+	h1 {
+		font: 400 clamp(38px, 4vw, 58px) / 1.12 var(--h-heading);
+		color: var(--h-forest);
+		margin: 12px 0;
+		overflow-wrap: anywhere;
+	}
+	> p {
+		max-width: 650px;
+		color: var(--h-muted);
+		overflow-wrap: anywhere;
+		margin: 22px 0;
+	}
+}
+.h-profile-since {
+	font-size: 13px;
+	color: var(--h-muted);
+}
+.h-profile-stats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 32px;
+	margin: 26px 0;
+	strong {
+		display: block;
+		font-size: 24px;
+		font-weight: 500;
+		color: var(--h-forest);
+	}
+	span {
+		display: block;
+		font-size: 12px;
+		color: var(--h-muted);
+		margin-top: 4px;
+	}
+}
+.h-social-tabs {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 24px;
+	border-bottom: 1px solid var(--h-line);
+	margin: 32px 0;
+	a {
+		padding: 14px 0;
+		font-size: 14px;
+		border-bottom: 2px solid transparent;
+	}
+	a[aria-current='page'] {
+		border-color: var(--h-clay);
+		color: var(--h-clay);
+	}
+	> .h-button {
+		margin-left: auto;
+	}
+}
+.h-profile-section {
+	margin-top: 48px;
+	.h-card-title-row h3 a {
+		font-family: inherit;
+	}
+}
+.h-profile-journal-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 24px;
+}
+.h-profile-story {
+	overflow: hidden;
+	border-radius: 8px;
+	background: #f6f3ee;
+	img {
+		width: 100%;
+		aspect-ratio: 3 / 2;
+		object-fit: cover;
+	}
+	> div {
+		padding: 24px;
+	}
+	h3 {
+		font: 400 28px/1.2 var(--h-heading);
+		margin: 16px 0;
+		overflow-wrap: anywhere;
+	}
+}
+.h-connection-list {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 20px;
+}
+.h-connection-card {
+	padding: 24px;
+	background: #f6f3ee;
+	border: 1px solid var(--h-line);
+	border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+}
+.h-connection-person {
+	display: flex;
+	gap: 20px;
+	min-width: 0;
+	img {
+		width: 68px;
+		height: 68px;
+		border-radius: 50%;
+		object-fit: cover;
+		flex-shrink: 0;
+	}
+	> div {
+		min-width: 0;
+	}
+	h2 {
+		font: 400 26px/1.12 var(--h-heading);
+		margin: 4px 0 10px;
+		overflow-wrap: anywhere;
+	}
+	p {
+		color: var(--h-muted);
+		font-size: 13px;
+		margin: 0 0 12px;
+	}
+}
+@media (max-width: 1000px) {
+	.h-profile-hero {
+		grid-template-columns: 220px minmax(0, 1fr);
+		gap: 32px;
+		padding: 28px;
+	}
+	.h-host-person {
+		padding: 28px;
+	}
+	.h-profile-journal-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+@media (max-width: 600px) {
+	.h-social-page {
+		padding-top: 28px;
+		padding-bottom: 40px;
+	}
+	.h-host-toolbar {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 16px;
+		> .h-field {
+			width: 100%;
+		}
+		> form {
+			gap: 8px;
+		}
+	}
+	.h-host-feature {
+		grid-template-columns: 1fr;
+	}
+	.h-host-person {
+		padding: 24px;
+	}
+	.h-host-sanctuary > a {
+		min-height: 280px;
+	}
+	.h-host-sanctuary > a > div {
+		bottom: 24px;
+		left: 24px;
+	}
+	.h-profile-hero {
+		grid-template-columns: 1fr;
+		padding: 24px;
+		gap: 24px;
+	}
+	.h-profile-portrait {
+		max-width: 240px;
+		img {
+			height: 240px;
+		}
+	}
+	.h-profile-stats {
+		gap: 24px;
+	}
+	.h-social-tabs {
+		gap: 20px;
+	}
+	.h-social-tabs > .h-button {
+		margin-left: 0;
+	}
+	.h-connection-list,
+	.h-profile-journal-grid {
+		grid-template-columns: 1fr;
+	}
+	.h-connection-card {
+		padding: 20px;
+	}
+}

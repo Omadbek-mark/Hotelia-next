@@ -1,38 +1,45 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Hotelia Next
 
-## Getting Started
+Hotel marketplace built with Next.js Pages Router, React, MUI and Apollo Client. The API lives in the sibling `Hotelia` repository.
 
-First, run the development server:
+## Run locally
 
-```bash
+```sh
+yarn install --frozen-lockfile
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3015. `npm run start` also uses port 3015 after `npm run build`.
+Configure `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_API_GRAPHQL_URL` for the Hotelia API (local default: port 3021).
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## Architecture
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+The folder boundaries follow `nestar-next`: route entry points in `pages`, feature components in `libs/components`, shared hooks, domain types/enums, Apollo operations and SCSS. Hotelia keeps its own design and backend contracts.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+- `pages/`: routes and Next.js data-loading exports; page implementations live in their feature folders.
+- `libs/components/homepage`, `property`, `agent`, `member`, `mypage`, `community`, `account`, `owner`: feature screens and components.
+- `libs/components/layout`, `common`: shared layouts and UI primitives.
+- `libs/hooks`: viewer refresh and owner cache refresh hooks.
+- `libs/auth`, `api`, `booking`, `search`, `social`, `journal`, `owner`: session, uploads, validation and domain helpers.
+- `libs/types/<domain>` and `libs/enums`: generated Hotelia API contracts. `libs/types/contracts.ts` and `libs/enums/index.ts` are export barrels.
+- `apollo/user`, `apollo/owner`: GraphQL operations; `client.ts` configures authenticated transport and `store.ts` holds session state.
+- `scss/`: responsive styles split by feature, imported in order by `main.scss` through `app.scss`.
+- `libs/config/design-assets.json`: design photography references.
+- `public/`: assets used by Hotelia and locale namespaces.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+The existing `/property`, `/agent`, `/community` URLs remain compatible. They represent Hotelia stays, hosts and journal pages. The inherited real-estate components and API operations have been removed.
 
-## Learn More
+Support and administration routes are explicit placeholders for implementation stages 12 and 13. They do not execute inherited Nestar API operations; administration retains its ADMIN role gate.
 
-To learn more about Next.js, take a look at the following resources:
+## Validate
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```sh
+npm test
+npm run typecheck
+npm run build
+npm run contracts:sync
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Contract synchronization reads GraphQL-decorated DTOs and enums from `../Hotelia`. Do not edit generated files manually. The UI tests use fixtures and do not create live backend records.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+See [the implementation plan](docs/hotelia-implementation-plan.md) and [architecture notes](docs/frontend-architecture.md).
