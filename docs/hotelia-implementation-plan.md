@@ -159,3 +159,11 @@ Live browserdagi Hosts hydration xatosi aniqlandi: server router hali ready emas
 99 frontend test, 276 backend test va frontend production build o‘tdi; 44 alohida Mongo integration testi skip qilingan. Barcha 73 frontend GraphQL operation live schema bilan mos. Live ADMINning 9 route’i desktop/mobilda API ma’lumot yoki to‘g‘ri empty state bilan ochildi; mobil drawer Escape bilan yopiladi. 23 populated actual component preview (69 ta desktop/tablet/mobile tekshiruv) gorizontal overflow bermadi. Final CSS bilan fixturelar yangilandi. Home First Load JS 232 kB, umumiy shared JS 181 kB; bu build o‘lchovi, Lighthouse yoki haqiqiy foydalanuvchi performance o‘lchovi emas.
 
 30 Stitch ekranining mos live sahifa/flow va sample previewlari `http://localhost:8861/final-review.html` galereyasiga joylandi; coverage `docs/final-review.md`da. Live bazada published rooms, stories va bookings yetishmasligi sababli shu populated holatlar isolated test fixturelarda ko‘rsatiladi. Live mutationlar bajarilmadi; yangi bron, room, account, inquiry yoki moderation record yaratilmagan. Backenddagi user-owned `output/` fayllari saqlandi. App 3015da; bosqich yakunida foydalanuvchi tekshiruvini kutamiz.
+
+### Design refinement 01 — 2026-10-11
+
+User-supplied navbar/footer references adapted to Hotelia. Public navbar keeps Home/Stays/Hosts/Journal/Saved/Trips, notifications, role-based dashboard and account actions. Styling uses a warm ivory-to-sage gradient, rounded navigation capsule, forest active link and terracotta account action. Mobile account icon retains an accessible account name.
+
+PublicFooter is a layout component with Explore, Your stay and Here to help links to existing Hotelia routes, role-aware dashboard access, a short brand line, forest copyright strip and Back to top anchor. No contact or social destination was fabricated. Footer adapts to stacked tablet and two-column mobile navigation.
+
+Validation: 99 existing frontend tests passed; production build passed. Browser checks cover desktop/mobile header/footer, navigation overflow and the Back to top/mobile menu flow. Preview images: `hotelia-stitch/redesign-navbar-desktop.png` and `redesign-footer-desktop.png`. Design refinement pauses for user review; no push.

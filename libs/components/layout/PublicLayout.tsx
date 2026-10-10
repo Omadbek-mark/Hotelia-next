@@ -1,4 +1,5 @@
 import NotificationLink from '../common/NotificationLink';
+import PublicFooter from './PublicFooter';
 import { useReactiveVar } from '@apollo/client';
 import CloseIcon from '@mui/icons-material/Close';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -61,7 +62,7 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 		</>
 	);
 	return (
-		<div className="h-site">
+		<div className="h-site" id="hotelia-top">
 			<Head>
 				<title>{title} · Hotelia</title>
 				<meta
@@ -90,7 +91,11 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 								Admin
 							</Link>
 						)}
-						<Link className="h-account-link" href={user._id ? '/account?category=myProfile' : '/account/join'}>
+						<Link
+							className="h-account-link"
+							aria-label={user._id ? user.memberNick : 'Account'}
+							href={user._id ? '/account?category=myProfile' : '/account/join'}
+						>
 							<span>{user._id ? user.memberNick : 'Account'}</span>
 							<PersonOutlineIcon fontSize="small" />
 						</Link>
@@ -136,19 +141,7 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 			<main id="hotelia-main" className="h-main" tabIndex={-1}>
 				{children}
 			</main>
-			<footer className="h-footer">
-				<div className="h-container h-footer-inner">
-					<Brand />
-					<nav aria-label="Footer navigation">
-						<Link href="/hotel">Stays</Link>
-						<Link href="/hotel-owner">Hosts</Link>
-						<Link href="/journal">Journal</Link>
-						<Link href="/about">About</Link>
-						<Link href="/support">Help</Link>
-					</nav>
-					<small>© {new Date().getFullYear()} Hotelia</small>
-				</div>
-			</footer>
+			<PublicFooter />
 		</div>
 	);
 }
