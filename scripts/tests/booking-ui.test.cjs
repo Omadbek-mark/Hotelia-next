@@ -435,6 +435,8 @@ const collectionHotels = ['Seoul Courtyard', 'Busan Ocean', 'Tashkent Garden'].m
 	hotelAmenities: ['WIFI', 'BREAKFAST'],
 	hotelRating: 0,
 	hotelReviews: 0,
+	hotelViews: 103,
+	hotelLikes: 76,
 	startingPrice: null,
 	isFavorite: true,
 }));
@@ -507,6 +509,9 @@ test('recent views save a hotel without removing history and invalidate saved co
 	await act(async () => document.querySelector('[aria-label="Save Seoul Courtyard"]').click());
 	await settle();
 	assert.ok(document.querySelector('[aria-label="Unsave Seoul Courtyard"]'));
+	const updatedCard = document.querySelector('.h-hotel-card');
+	assert.ok(updatedCard.querySelector('[aria-label="103 views"]'));
+	assert.ok(updatedCard.querySelector('[aria-label="1 likes"]'));
 	assert.equal(document.querySelectorAll('.h-hotel-card').length, 3);
 	assert.equal(operations.filter((op) => op.operationName === 'ViewedStays').length, 1);
 	assert.equal(client.cache.readQuery({ query: GET_SAVED_STAYS, variables: { input: { page: 2, limit: 6 } } }), null);

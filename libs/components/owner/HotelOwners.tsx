@@ -11,6 +11,7 @@ import { useViewerRefresh } from '../../hooks/useViewerRefresh';
 import { hostSorts, isFollowing, parseHostQuery } from '../../social/query';
 import { HotelSort } from '../../enums';
 import FollowButton from '../common/FollowButton';
+import HotelMetrics from '../common/HotelMetrics';
 import { Button, EmptyState, Field, Pagination, SiteImage } from '../common/ui';
 
 function HostFeature({ host, index }: { host: PublicProfile; index: number }) {
@@ -69,6 +70,7 @@ function HostFeature({ host, index }: { host: PublicProfile; index: number }) {
 								{hotel.hotelCity}, {hotel.hotelCountry}
 							</span>
 							<h3>{hotel.hotelName}</h3>
+							<HotelMetrics views={hotel.hotelViews} likes={hotel.hotelLikes} saved={hotel.isFavorite} />
 							<span>Explore this stay ↗</span>
 						</div>
 					</Link>

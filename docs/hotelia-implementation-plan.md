@@ -175,3 +175,7 @@ Removed the forest footer strip. Copyright now sits beneath the brand CTA on the
 ### Design refinement 03 — 2026-10-11
 
 Hero search remains in its original position with a 980px maximum width, approximately 65px desktop height, smaller spacing and rounded ivory surface. Date inputs and occupancy remain accessible; the existing search component and catalog styling are unchanged. Tablet uses two rows and mobile uses three compact rows. Production build passed; 1440/1024/768/390px browser checks showed no page/input overflow, and the occupancy dialog opens/closes successfully. Preview: `hotelia-stitch/compact-hero-search.png`.
+
+### Design refinement 04 — 2026-10-11
+
+Existing backend hotelViews/hotelLikes are selected by discovery, saved/recent and detail queries. Shared HotelMetrics renders eye/heart counts on hotel cards, host directory hotel previews and detail metadata. Saved hearts use terracotta; counts remain the exact server values, with no invented zero for absent data. Existing favorite cache synchronization updates hotelLikes; the collection UI regression now verifies the returned count alongside unchanged views. Backend was inspected and not modified: views count first authenticated member visits, likes follow existing favorite/unfavorite operations. 99 frontend tests and production build passed; live catalog/detail displayed 4 views and 0 likes for Seoul, and 390px catalog had no overflow. Preview: `hotelia-stitch/hotel-view-like-card.png`.

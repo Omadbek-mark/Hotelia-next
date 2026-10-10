@@ -6,6 +6,7 @@ import { IconButton } from '@mui/material';
 import Link from 'next/link';
 import type { HotelCardData } from '../../../apollo/user/discovery';
 import { Chip, formatUsd, SiteImage } from './ui';
+import HotelMetrics from './HotelMetrics';
 
 const labels: Record<string, string> = {
 	WIFI: 'Wi-Fi',
@@ -68,6 +69,7 @@ export default function HotelCard({
 						<Chip key={amenity}>{labels[amenity] || amenity}</Chip>
 					))}
 				</div>
+				<HotelMetrics views={hotel.hotelViews} likes={hotel.hotelLikes} saved={hotel.isFavorite} />
 				<div className="h-card-bottom">
 					<Link href={href} className="h-text-link">
 						View hotel <ArrowForwardIcon fontSize="small" />

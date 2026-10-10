@@ -17,6 +17,7 @@ export const GET_HOTEL_DETAIL = gql`
 			hotelRating
 			hotelReviews
 			hotelLikes
+			hotelViews
 			isFavorite
 			memberData {
 				_id

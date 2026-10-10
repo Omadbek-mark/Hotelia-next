@@ -11,6 +11,8 @@ const fields = gql`
 		hotelAmenities
 		hotelRating
 		hotelReviews
+		hotelViews
+		hotelLikes
 		startingPrice
 		isFavorite
 	}

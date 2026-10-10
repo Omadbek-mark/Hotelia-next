@@ -678,3 +678,37 @@
 		gap: 40px;
 	}
 }
+
+.h-hotel-metrics {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 16px;
+	color: var(--h-muted);
+	font-size: 12px;
+	font-weight: 500;
+	font-variant-numeric: tabular-nums;
+	> span {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+	}
+	svg {
+		width: 17px;
+		height: 17px;
+		color: #7a8377;
+	}
+	.is-saved svg {
+		color: var(--h-clay);
+	}
+}
+.h-hotel-card .h-hotel-metrics {
+	margin-top: 14px;
+	padding: 7px 10px;
+	border-radius: 100px;
+	background: #e9ede580;
+	border: 1px solid #e5e7de;
+	&:empty {
+		display: none;
+	}
+}

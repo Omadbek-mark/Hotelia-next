@@ -11,6 +11,8 @@ export type HotelCardData = Pick<
 	| 'hotelAmenities'
 	| 'hotelRating'
 	| 'hotelReviews'
+	| 'hotelViews'
+	| 'hotelLikes'
 	| 'startingPrice'
 	| 'isFavorite'
 >;
@@ -35,6 +37,8 @@ export const GET_DISCOVERY_HOTELS = gql`
 				hotelAmenities
 				hotelRating
 				hotelReviews
+				hotelViews
+				hotelLikes
 				startingPrice
 				isFavorite
 			}

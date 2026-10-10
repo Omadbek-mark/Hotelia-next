@@ -25,6 +25,7 @@ import type { AvailableRoom, AvailableRooms, Comments, Hotel, Room, Rooms, StayI
 import { CommentGroup, Direction, RoomSort, RoomType } from '../../enums';
 import BookingRequestDialog from '../booking/BookingRequestDialog';
 import PhotoGallery from '../common/PhotoGallery';
+import HotelMetrics from '../common/HotelMetrics';
 import { Button, Chip, EmptyState, Field, formatUsd, Pagination, SiteImage } from '../common/ui';
 import PublicLayout from '../layout/PublicLayout';
 import StayAvailabilityForm from './StayAvailabilityForm';
@@ -235,6 +236,7 @@ export default function HotelDetail() {
 						<span className="h-eyebrow">{labels[hotel.hotelType]}</span>
 						<h1>{hotel.hotelName}</h1>
 						<div className="h-detail-meta">
+							<HotelMetrics views={hotel.hotelViews} likes={hotel.hotelLikes} saved={hotel.isFavorite} />
 							<span>
 								<LocationOnOutlinedIcon fontSize="small" />
 								{hotel.hotelCity}, {hotel.hotelCountry}

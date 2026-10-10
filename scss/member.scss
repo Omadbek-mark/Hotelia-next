@@ -368,3 +368,15 @@
 		padding: 20px;
 	}
 }
+
+.h-host-sanctuary .h-hotel-metrics {
+	display: flex;
+	margin-bottom: 12px;
+	color: var(--h-ivory);
+	svg {
+		color: #f0ded1;
+	}
+	.is-saved svg {
+		color: #ffb5a1;
+	}
+}
