@@ -35,6 +35,13 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [open, setOpen] = useState(false);
+	const [scrolled, setScrolled] = useState(false);
+	useEffect(() => {
+		const update = () => setScrolled(window.scrollY >= 50);
+		update();
+		window.addEventListener('scroll', update, { passive: true });
+		return () => window.removeEventListener('scroll', update);
+	}, []);
 	useEffect(() => {
 		setOpen(false);
 	}, [router.asPath]);
@@ -62,7 +69,7 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 		</>
 	);
 	return (
-		<div className="h-site" id="hotelia-top">
+		<div className={`h-site${router.pathname === '/' ? ' h-site--home' : ''}`} id="hotelia-top">
 			<Head>
 				<title>{title} · Hotelia</title>
 				<meta
@@ -73,7 +80,7 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 			<a className="h-skip-link" href="#hotelia-main">
 				Skip to content
 			</a>
-			<header className="h-header">
+			<header className={`h-header${scrolled ? ' h-header--scrolled' : ''}`}>
 				<div className="h-container h-header-inner">
 					<Brand />
 					<nav className="h-desktop-nav" aria-label="Main navigation">
