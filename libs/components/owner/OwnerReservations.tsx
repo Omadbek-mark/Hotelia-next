@@ -1,5 +1,5 @@
 import { useApolloClient, useMutation, useQuery, useReactiveVar } from '@apollo/client';
-import { useRouter } from 'next/router';
+import { useReadyRouter as useRouter } from '../../hooks/useReadyRouter';
 import { useEffect, useRef, useState } from 'react';
 import {
 	COMPLETE_BOOKING,

@@ -2,7 +2,7 @@ import { useQuery, useReactiveVar } from '@apollo/client';
 import { Skeleton } from '@mui/material';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useReadyRouter as useRouter } from '../../hooks/useReadyRouter';
 import { userVar } from '../../../apollo/store';
 import { GET_MEMBER_FOLLOWERS, GET_MEMBER_FOLLOWINGS } from '../../../apollo/user/social';
 import { useViewerRefresh } from '../../hooks/useViewerRefresh';

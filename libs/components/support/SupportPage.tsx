@@ -1,5 +1,5 @@
 import { useReactiveVar } from '@apollo/client';
-import { useRouter } from 'next/router';
+import { useReadyRouter as useRouter } from '../../hooks/useReadyRouter';
 import { userVar } from '../../../apollo/store';
 import { NoticeCategory } from '../../enums';
 import { socialHref, socialPage } from '../../social/query';

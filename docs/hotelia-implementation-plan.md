@@ -8,7 +8,7 @@ Boshlang‘ich holat: `develop`, `3e0bc16`, Next.js Pages Router, React, TypeScr
 
 ## Ishlash tartibi
 
-Holat: 1–13-bosqichlar amalga oshirildi. Admin ekranlari yakunlandi; foydalanuvchi tekshiruvini kutamiz. Keyingi bosqich — 14. Yakuniy tekshiruv; faqat davom ettirish buyrug‘idan so‘ng boshlanadi. Kontrakt xaritasi: `docs/backend-contract-map.md`.
+Holat: 1–14-bosqichlar amalga oshirildi. Yakuniy tekshiruv natijalari `docs/final-review.md`da. Foydalanuvchi tekshiruvini kutamiz; push/deploy bajarilmadi. Kontrakt xaritasi: `docs/backend-contract-map.md`.
 
 2-bosqich tekshiruvlari: TypeScript va production build o‘tdi; brauzerda yangi public header/footer, 390px mobil menu drawer va anonymous admin access holati tekshirildi. Eski sahifa kontenti keyingi feature bosqichlarida almashtiriladi. Owner shell shu bosqichda komponent sifatida tayyorlandi, inventory sahifalariga 11-bosqichda ulanadi.
 
@@ -148,3 +148,14 @@ Support backendga 4 ADMIN-only operation qo‘shildi: getSupportByAdmin, createS
 Tekshiruv: 91 frontend test, 197 backend test (7 API/auth suite), TypeScript va ikkala production build o‘tdi. 15 admin GraphQL operation live schema bilan validatsiyadan o‘tdi. 84 interfaces va 24 enums generator orqali sinxronlandi. Barcha 9 admin ekranining actual component fixture HTML previewlari desktop/mobilda tekshirildi; 768px tablet ham tekshirildi. Real admin mutations yoki real recordlar yaratilmagan. Login qilingan ADMIN bilan live write smoke test bajarilmagan; izolyatsiyalangan UI/API testlari mutation payload, role guards, confirmations, double submit, refresh va stale revision’larni qamrab oladi.
 
 Live app: http://localhost:3015/_admin (ADMIN session required). Galereya: http://localhost:8861/admin-stage-13.html. Fixture fayllar: admin-{overview,hotels,members,journal,rooms,reservations,faq,notices,inquiries}-ui-test.html; notice/reply editor previewlari ham mavjud. Screenshotlar preview-admin-{screen}-{desktop,mobile}.png. 13-bosqich tugadi; 14-bosqich foydalanuvchi tekshiruvi va davom ettirish buyrug‘idan keyin boshlanadi.
+
+
+### 14-bosqich — Yakuniy tekshiruv
+
+Public navigation route boundary bilan moslashtirildi: `/hotel-owner` endi `/hotel` Stays linkini active qilmaydi. Mobile menu expanded state va navigation targetni bildiradi; public hamda dashboard skip links focusable main contentga olib boradi.
+
+Live browserdagi Hosts hydration xatosi aniqlandi: server router hali ready emasligi sababli 0 hosts, client esa loading text render qilgan. Umumiy `useReadyRouter` hook queryga bog‘liq ekranlarda hydration tugaguncha readinessni false saqlaydi. Account, public hotel/host/journal, owner editors/lists, admin filters va support shu hookdan foydalanadi. Server HTML → hydrate → ready o‘tishi regression test bilan tekshirildi.
+
+99 frontend test, 276 backend test va frontend production build o‘tdi; 44 alohida Mongo integration testi skip qilingan. Barcha 73 frontend GraphQL operation live schema bilan mos. Live ADMINning 9 route’i desktop/mobilda API ma’lumot yoki to‘g‘ri empty state bilan ochildi; mobil drawer Escape bilan yopiladi. 23 populated actual component preview (69 ta desktop/tablet/mobile tekshiruv) gorizontal overflow bermadi. Final CSS bilan fixturelar yangilandi. Home First Load JS 232 kB, umumiy shared JS 181 kB; bu build o‘lchovi, Lighthouse yoki haqiqiy foydalanuvchi performance o‘lchovi emas.
+
+30 Stitch ekranining mos live sahifa/flow va sample previewlari `http://localhost:8861/final-review.html` galereyasiga joylandi; coverage `docs/final-review.md`da. Live bazada published rooms, stories va bookings yetishmasligi sababli shu populated holatlar isolated test fixturelarda ko‘rsatiladi. Live mutationlar bajarilmadi; yangi bron, room, account, inquiry yoki moderation record yaratilmagan. Backenddagi user-owned `output/` fayllari saqlandi. App 3015da; bosqich yakunida foydalanuvchi tekshiruvini kutamiz.

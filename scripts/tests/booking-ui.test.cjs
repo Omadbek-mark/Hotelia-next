@@ -160,6 +160,56 @@ async function settle() {
 		await new Promise((r) => setTimeout(r, 25));
 	});
 }
+test('query readiness matches server HTML before becoming ready after hydration', async () => {
+	const { renderToString } = require('react-dom/server');
+	const { hydrateRoot } = require('react-dom/client');
+	const { useReadyRouter } = require('../../libs/hooks/useReadyRouter.ts');
+	function Probe() {
+		return React.createElement('p', null, useReadyRouter().isReady ? 'Ready' : 'Opening');
+	}
+	const tree = React.createElement(
+		RouterContext.Provider,
+		{ value: { isReady: true, query: {}, pathname: '/hotel-owner' } },
+		React.createElement(Probe),
+	);
+	host = document.createElement('div');
+	host.innerHTML = renderToString(tree);
+	document.body.append(host);
+	assert.equal(host.textContent, 'Opening');
+	const errors = [];
+	await act(async () => {
+		root = hydrateRoot(host, tree, { onRecoverableError: (error) => errors.push(error) });
+	});
+	assert.equal(host.textContent, 'Ready');
+	assert.deepEqual(errors, []);
+});
+for (const [pathname, query, label] of [
+	['/hotel-owner', {}, 'Hosts'],
+	['/hotel-owner/detail', { ownerId: member }, 'Hosts'],
+	['/hotel/detail', { hotelId }, 'Stays'],
+	['/journal/detail', { articleId: member }, 'Journal'],
+	['/account', { category: 'myFavorites', page: '2' }, 'Saved'],
+	['/account', { category: 'myBookings', status: 'PENDING' }, 'Trips'],
+]) {
+	test('public navigation highlights only ' + label + ' on ' + pathname, async () => {
+		await mount(React.createElement(PublicLayout, null, 'Page content'), () => ({}), query, undefined, pathname);
+		const active = document.querySelectorAll('nav[aria-label="Main navigation"] a[aria-current="page"]');
+		assert.equal(active.length, 1);
+		assert.equal(active[0].textContent, label);
+	});
+}
+test('public mobile navigation exposes its expanded state and content target', async () => {
+	await mount(React.createElement(PublicLayout, null, 'Page content'), () => ({}));
+	const menu = document.querySelector('button[aria-label="Open menu"]');
+	assert.equal(menu.getAttribute('aria-expanded'), 'false');
+	await act(async () => menu.click());
+	assert.equal(menu.getAttribute('aria-expanded'), 'true');
+	assert.ok(document.getElementById(menu.getAttribute('aria-controls')));
+	await act(async () => document.querySelector('button[aria-label="Close menu"]').click());
+	assert.equal(menu.getAttribute('aria-expanded'), 'false');
+	assert.equal(document.querySelector('.h-skip-link').getAttribute('href'), '#hotelia-main');
+	assert.equal(document.getElementById('hotelia-main').tabIndex, -1);
+});
 function button(text) {
 	const found = [...document.querySelectorAll('button')].find((element) => element.textContent.trim() === text);
 	assert.ok(found, `Missing button: ${text}`);

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
-import { useRouter } from 'next/router';
+import { useReadyRouter as useRouter } from '../../hooks/useReadyRouter';
 import { useRef, useState } from 'react';
 import { CREATE_HOTEL, OWNER_HOTEL, UPDATE_HOTEL } from '../../../apollo/owner/owner';
 import { userVar } from '../../../apollo/store';

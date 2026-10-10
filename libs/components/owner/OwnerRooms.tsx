@@ -1,5 +1,5 @@
 import { useQuery, useReactiveVar } from '@apollo/client';
-import { useRouter } from 'next/router';
+import { useReadyRouter as useRouter } from '../../hooks/useReadyRouter';
 import { OWNER_HOTEL, OWNER_ROOMS } from '../../../apollo/owner/owner';
 import { userVar } from '../../../apollo/store';
 import { label, ownerFilters } from '../../owner/model';

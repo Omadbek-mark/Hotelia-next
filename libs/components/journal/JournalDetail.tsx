@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useReadyRouter as useRouter } from '../../hooks/useReadyRouter';
 import { useRef, useState } from 'react';
 import { userVar } from '../../../apollo/store';
 import { ARTICLE, LIKE_ARTICLE } from '../../../apollo/user/journal';

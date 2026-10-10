@@ -4,7 +4,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import TuneIcon from '@mui/icons-material/Tune';
 import { Alert, Drawer, MenuItem } from '@mui/material';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { useReadyRouter as useRouter } from '../../hooks/useReadyRouter';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { userVar } from '../../../apollo/store';
 import { syncFavoriteCache } from '../../../apollo/user/collections';

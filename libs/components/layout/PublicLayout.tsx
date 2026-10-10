@@ -48,7 +48,9 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 						(href.includes('?category=') &&
 							router.pathname === '/account' &&
 							router.query.category === href.split('?category=')[1]) ||
-						(href !== '/' && !href.includes('?') && router.pathname.startsWith(href))
+						(href !== '/' &&
+							!href.includes('?') &&
+							(router.pathname === href || router.pathname.startsWith(`${href}/`)))
 							? 'page'
 							: undefined
 					}
@@ -92,7 +94,13 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 							<span>{user._id ? user.memberNick : 'Account'}</span>
 							<PersonOutlineIcon fontSize="small" />
 						</Link>
-						<IconButton className="h-mobile-menu" aria-label="Open menu" onClick={() => setOpen(true)}>
+						<IconButton
+							className="h-mobile-menu"
+							aria-label="Open menu"
+							aria-expanded={open}
+							aria-controls={open ? 'hotelia-mobile-navigation' : undefined}
+							onClick={() => setOpen(true)}
+						>
 							<MenuIcon />
 						</IconButton>
 					</div>
@@ -106,7 +114,7 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 							<CloseIcon />
 						</IconButton>
 					</div>
-					<nav aria-label="Mobile navigation">
+					<nav id="hotelia-mobile-navigation" aria-label="Mobile navigation">
 						{navigation}
 						<Link href="/support">Help</Link>
 						{user.memberType === MemberType.HOTEL_OWNER && <Link href="/owner">Host dashboard</Link>}
@@ -125,7 +133,7 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 					)}
 				</div>
 			</Drawer>
-			<main id="hotelia-main" className="h-main">
+			<main id="hotelia-main" className="h-main" tabIndex={-1}>
 				{children}
 			</main>
 			<footer className="h-footer">

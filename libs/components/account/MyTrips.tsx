@@ -2,7 +2,7 @@ import { useApolloClient, useQuery, useReactiveVar } from '@apollo/client';
 import CloseIcon from '@mui/icons-material/Close';
 import { Alert, Dialog, DialogContent, DialogTitle, IconButton, MenuItem, Skeleton } from '@mui/material';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { useReadyRouter as useRouter } from '../../hooks/useReadyRouter';
 import { useMemo, useRef, useState } from 'react';
 import { userVar } from '../../../apollo/store';
 import { CANCEL_STAY_BOOKING, GET_MY_TRIPS, GET_TRIP_DETAIL } from '../../../apollo/user/bookings';

@@ -1,7 +1,7 @@
 import { useApolloClient, useQuery, useReactiveVar } from '@apollo/client';
 import { Alert } from '@mui/material';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { useReadyRouter as useRouter } from '../../hooks/useReadyRouter';
 import { useRef, useState } from 'react';
 import { userVar } from '../../../apollo/store';
 import { GET_SAVED_STAYS, GET_VIEWED_STAYS, syncFavoriteCache } from '../../../apollo/user/collections';

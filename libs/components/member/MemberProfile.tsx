@@ -2,7 +2,7 @@ import { useQuery, useReactiveVar } from '@apollo/client';
 import { Skeleton } from '@mui/material';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useReadyRouter as useRouter } from '../../hooks/useReadyRouter';
 import { userVar } from '../../../apollo/store';
 import { GET_DISCOVERY_HOTELS, HotelCollection } from '../../../apollo/user/discovery';
 import { GET_PROFILE_ARTICLES, GET_PUBLIC_PROFILE, PublicProfile } from '../../../apollo/user/social';

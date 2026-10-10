@@ -107,6 +107,9 @@ export default function DashboardLayout({
 	);
 	return (
 		<div className="h-site h-dashboard">
+			<a className="h-skip-link" href="#hotelia-dashboard-main">
+				Skip to content
+			</a>
 			<Head>
 				<title>{title} · Hotelia</title>
 			</Head>
@@ -120,14 +123,21 @@ export default function DashboardLayout({
 			<div className="h-dashboard-workspace">
 				<header className="h-dashboard-topbar">
 					<div>
-						<IconButton className="h-mobile-menu" aria-label="Open dashboard menu" onClick={() => setOpen(true)}>
+						<IconButton
+							className="h-mobile-menu"
+							aria-label="Open dashboard menu"
+							aria-expanded={open}
+							onClick={() => setOpen(true)}
+						>
 							<MenuIcon />
 						</IconButton>
 						<span>{title}</span>
 					</div>
 					<Link href="/account?category=myProfile">{user.memberNick}</Link>
 				</header>
-				<main className="h-dashboard-main">{children}</main>
+				<main id="hotelia-dashboard-main" className="h-dashboard-main" tabIndex={-1}>
+					{children}
+				</main>
 			</div>
 		</div>
 	);

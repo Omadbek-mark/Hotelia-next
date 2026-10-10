@@ -1,6 +1,6 @@
 import { DocumentNode, useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { Alert } from '@mui/material';
-import { useRouter } from 'next/router';
+import { useReadyRouter as useRouter } from '../../hooks/useReadyRouter';
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { userVar } from '../../../apollo/store';
 import { AdminSection, label, parseAdminFilters, statuses } from '../../admin/model';

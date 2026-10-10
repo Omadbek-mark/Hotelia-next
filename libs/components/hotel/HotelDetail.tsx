@@ -7,7 +7,7 @@ import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import { Alert, MenuItem, Skeleton } from '@mui/material';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useReadyRouter as useRouter } from '../../hooks/useReadyRouter';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { userVar } from '../../../apollo/store';
 import { syncFavoriteCache } from '../../../apollo/user/collections';
