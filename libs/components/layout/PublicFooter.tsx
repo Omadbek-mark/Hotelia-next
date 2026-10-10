@@ -1,6 +1,6 @@
 import { useReactiveVar } from '@apollo/client';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Link from 'next/link';
 import { userVar } from '../../../apollo/store';
 import { MemberType } from '../../enums';
@@ -20,6 +20,7 @@ export default function PublicFooter() {
 					<Link className="h-footer-discover" href="/hotel">
 						Find your next stay <NorthEastIcon fontSize="small" />
 					</Link>
+					<small className="h-footer-copyright">© {new Date().getFullYear()} Hotelia</small>
 				</div>
 				<nav className="h-footer-navigation" aria-label="Footer navigation">
 					<div>
@@ -45,13 +46,10 @@ export default function PublicFooter() {
 					</div>
 				</nav>
 			</div>
-			<div className="h-footer-bottom">
-				<div className="h-container">
-					<small>© {new Date().getFullYear()} Hotelia</small>
-					<a href="#hotelia-top">
-						Back to top <ArrowUpwardIcon fontSize="small" />
-					</a>
-				</div>
+			<div className="h-footer-return">
+				<a className="h-back-to-top" href="#hotelia-top" aria-label="Back to top" title="Back to top">
+					<KeyboardArrowUpIcon />
+				</a>
 			</div>
 		</footer>
 	);

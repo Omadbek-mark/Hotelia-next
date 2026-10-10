@@ -210,30 +210,40 @@
 		text-underline-offset: 4px;
 	}
 }
-.h-footer-bottom {
-	background: var(--h-forest);
-	color: #e5eade;
-	padding: 24px 0;
-	> div {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 24px;
-	}
-	small {
-		font-size: 12px;
-	}
-	a {
-		display: inline-flex;
-		align-items: center;
-		gap: 12px;
-		font-size: 12px;
-	}
+.h-footer-copyright {
+	display: block;
+	margin-top: 24px;
+	color: var(--h-muted);
+	font-size: 12px;
+}
+.h-footer-return {
+	display: flex;
+	justify-content: center;
+	padding: 0 16px 28px;
+}
+.h-site .h-back-to-top {
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	width: 64px;
+	height: 64px;
+	border: 4px solid var(--h-paper);
+	border-radius: 50%;
+	background: var(--h-clay);
+	color: white;
+	box-shadow: 0 6px 18px rgba(161, 63, 36, 0.22);
+	transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
 	svg {
-		font-size: 16px;
+		font-size: 32px;
 	}
-	:focus-visible {
-		outline-color: #e5eade;
+	&:hover,
+	&:focus-visible {
+		background: var(--h-forest);
+		box-shadow: 0 8px 22px rgba(26, 46, 38, 0.26);
+		transform: translateY(-4px);
+	}
+	&:focus-visible {
+		outline-color: var(--h-forest);
 	}
 }
 .h-skip-link {
@@ -644,9 +654,6 @@
 	}
 	.h-site .h-account-link {
 		padding: 9px;
-	}
-	.h-footer-bottom {
-		padding: 20px 0;
 	}
 	.h-dashboard-main {
 		padding: 24px 16px;

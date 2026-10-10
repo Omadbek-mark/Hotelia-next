@@ -167,3 +167,7 @@ User-supplied navbar/footer references adapted to Hotelia. Public navbar keeps H
 PublicFooter is a layout component with Explore, Your stay and Here to help links to existing Hotelia routes, role-aware dashboard access, a short brand line, forest copyright strip and Back to top anchor. No contact or social destination was fabricated. Footer adapts to stacked tablet and two-column mobile navigation.
 
 Validation: 99 existing frontend tests passed; production build passed. Browser checks cover desktop/mobile header/footer, navigation overflow and the Back to top/mobile menu flow. Preview images: `hotelia-stitch/redesign-navbar-desktop.png` and `redesign-footer-desktop.png`. Design refinement pauses for user review; no push.
+
+### Design refinement 02 — 2026-10-11
+
+Removed the forest footer strip. Copyright now sits beneath the brand CTA on the sage surface. Back to top is a 64px circular terracotta chevron link with a white border and shadow, centered at the footer bottom; hover/keyboard focus changes it to forest. Reduced-motion behavior remains supported. Production build passed; browser confirmed exact horizontal centering and click returns to scrollY=0.
