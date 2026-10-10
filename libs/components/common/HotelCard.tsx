@@ -1,12 +1,10 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
-import { IconButton } from '@mui/material';
 import Link from 'next/link';
 import type { HotelCardData } from '../../../apollo/user/discovery';
 import { Chip, formatUsd, SiteImage } from './ui';
 import HotelMetrics from './HotelMetrics';
+import { useHotelFavorite } from '../../hooks/useHotelFavorite';
 
 const labels: Record<string, string> = {
 	WIFI: 'Wi-Fi',
@@ -30,6 +28,7 @@ export default function HotelCard({
 	saving?: boolean;
 	stayQuery?: Record<string, string>;
 }) {
+	const favorite = useHotelFavorite();
 	const href = { pathname: '/hotel/detail', query: { ...stayQuery, hotelId: hotel._id } };
 	return (
 		<article className="h-card h-hotel-card">
@@ -40,37 +39,38 @@ export default function HotelCard({
 				<span className="h-location-chip">
 					{hotel.hotelCity}, {hotel.hotelCountry}
 				</span>
-				{onFavorite && (
-					<IconButton
-						className="h-favorite"
-						disabled={saving}
-						onClick={() => onFavorite(hotel)}
-						aria-label={`${hotel.isFavorite ? 'Unsave' : 'Save'} ${hotel.hotelName}`}
-						aria-pressed={!!hotel.isFavorite}
-					>
-						{hotel.isFavorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-					</IconButton>
-				)}
 			</div>
 			<div className="h-card-body">
 				<div className="h-card-title-row">
 					<h3>
 						<Link href={href}>{hotel.hotelName}</Link>
 					</h3>
-					{hotel.startingPrice != null && (
-						<span className="h-price">
-							{formatUsd(hotel.startingPrice)}
-							<small>/ night</small>
-						</span>
-					)}
+					<HotelMetrics
+						views={hotel.hotelViews}
+						likes={hotel.hotelLikes}
+						saved={hotel.isFavorite}
+						hotelName={hotel.hotelName}
+						pending={onFavorite ? saving : favorite.pending}
+						onLike={() => (onFavorite ? onFavorite(hotel) : void favorite.toggle(hotel))}
+					/>
 				</div>
 				<div className="h-chips">
 					{hotel.hotelAmenities.slice(0, 3).map((amenity) => (
 						<Chip key={amenity}>{labels[amenity] || amenity}</Chip>
 					))}
 				</div>
-				<HotelMetrics views={hotel.hotelViews} likes={hotel.hotelLikes} saved={hotel.isFavorite} />
+				{!onFavorite && favorite.error && (
+					<p className="h-like-error" role="alert">
+						{favorite.error}
+					</p>
+				)}
 				<div className="h-card-bottom">
+					{hotel.startingPrice != null && (
+						<span className="h-price">
+							{formatUsd(hotel.startingPrice)}
+							<small>/ night</small>
+						</span>
+					)}
 					<Link href={href} className="h-text-link">
 						View hotel <ArrowForwardIcon fontSize="small" />
 					</Link>

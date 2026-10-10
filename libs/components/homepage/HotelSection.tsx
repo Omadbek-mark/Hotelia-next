@@ -2,6 +2,7 @@ import { useQuery } from '@apollo/client';
 import { GET_DISCOVERY_HOTELS, HotelCollection } from '../../../apollo/user/discovery';
 import { HotelsInquiry } from '../../types/contracts';
 import { HotelSort } from '../../enums';
+import { useViewerRefresh } from '../../hooks/useViewerRefresh';
 import HotelCard from '../common/HotelCard';
 import { Button, CardSkeletons, EmptyState, SectionHeading } from '../common/ui';
 
@@ -13,6 +14,7 @@ export default function HotelSection({ title, eyebrow, sort }: { title: string; 
 			notifyOnNetworkStatusChange: true,
 		},
 	);
+	useViewerRefresh(refetch, true);
 	return (
 		<section className="h-section h-container">
 			<SectionHeading eyebrow={eyebrow} title={title} href={`/hotel?sort=${sort}`} action="All stays" />

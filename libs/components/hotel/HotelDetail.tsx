@@ -236,7 +236,14 @@ export default function HotelDetail() {
 						<span className="h-eyebrow">{labels[hotel.hotelType]}</span>
 						<h1>{hotel.hotelName}</h1>
 						<div className="h-detail-meta">
-							<HotelMetrics views={hotel.hotelViews} likes={hotel.hotelLikes} saved={hotel.isFavorite} />
+							<HotelMetrics
+								views={hotel.hotelViews}
+								likes={hotel.hotelLikes}
+								saved={hotel.isFavorite}
+								hotelName={hotel.hotelName}
+								pending={saving}
+								onLike={() => void save()}
+							/>
 							<span>
 								<LocationOnOutlinedIcon fontSize="small" />
 								{hotel.hotelCity}, {hotel.hotelCountry}

@@ -447,6 +447,86 @@ const collectionPage = (kind) =>
 		React.createElement(AccountLayout, {}, React.createElement(StayCollection, { kind })),
 	);
 
+const HotelSection = require('../../libs/components/homepage/HotelSection.tsx').default;
+const discoverySections = () =>
+	React.createElement(
+		React.Fragment,
+		{},
+		React.createElement(HotelSection, { title: 'Popular stays', eyebrow: 'Discover', sort: 'MOST_POPULAR' }),
+		React.createElement(HotelSection, { title: 'Guest favorites', eyebrow: 'Stay', sort: 'MOST_LIKED' }),
+	);
+
+test('title hearts synchronize like/unlike counts across homepage sections and prevent repeat clicks', async () => {
+	const operations = await mount(
+		discoverySections(),
+		(operation) => {
+			if (operation.operationName === 'DiscoveryHotels')
+				return {
+					getHotels: {
+						list: [{ ...collectionHotels[0], isFavorite: false, hotelLikes: 76 }],
+						metaCounter: [{ total: 1 }],
+					},
+				};
+			const saved = operation.operationName === 'SaveCatalogHotel';
+			assert.ok(saved || operation.operationName === 'UnsaveCatalogHotel');
+			return {
+				[saved ? 'favoriteHotel' : 'unfavoriteHotel']: {
+					hotelId: collectionHotels[0]._id,
+					isFavorite: saved,
+					hotelLikes: saved ? 77 : 76,
+				},
+			};
+		},
+		{},
+		undefined,
+		'/',
+	);
+	await settle();
+	assert.equal(document.querySelectorAll('.h-card-title-row .h-hotel-metrics').length, 2);
+	await act(async () => {
+		const button = document.querySelector('[aria-label="Save Seoul Courtyard"]');
+		button.click();
+		button.click();
+	});
+	await settle();
+	assert.equal(operations.filter((op) => op.operationName === 'SaveCatalogHotel').length, 1);
+	assert.equal(document.querySelectorAll('.h-hotel-metrics .is-saved button[aria-pressed="true"]').length, 2);
+	assert.equal(document.querySelectorAll('[aria-label="77 likes"]').length, 2);
+	assert.equal(document.querySelectorAll('[aria-label="103 views"]').length, 2);
+	await savePreview('hotel-like-synced-ui-test');
+	await act(async () => document.querySelectorAll('[aria-label="Unsave Seoul Courtyard"]')[1].click());
+	await settle();
+	assert.equal(document.querySelectorAll('.h-hotel-metrics .is-saved').length, 0);
+	assert.equal(document.querySelectorAll('[aria-label="76 likes"]').length, 2);
+	assert.equal(operations.filter((op) => op.operationName === 'UnsaveCatalogHotel').length, 1);
+});
+
+test('failed title like retains original counts and exposes a retryable error', async () => {
+	await mount(
+		discoverySections(),
+		(operation) => {
+			if (operation.operationName === 'DiscoveryHotels')
+				return {
+					getHotels: {
+						list: [{ ...collectionHotels[0], isFavorite: false }],
+						metaCounter: [{ total: 1 }],
+					},
+				};
+			throw Error('Unavailable');
+		},
+		{},
+		undefined,
+		'/',
+	);
+	await settle();
+	await act(async () => document.querySelector('[aria-label="Save Seoul Courtyard"]').click());
+	await settle();
+	assert.equal(document.querySelectorAll('.h-hotel-metrics .is-saved').length, 0);
+	assert.equal(document.querySelectorAll('[aria-label="76 likes"]').length, 2);
+	assert.match(document.querySelector('[role="alert"]').textContent, /Please try again/);
+	assert.equal(document.querySelector('[aria-label="Save Seoul Courtyard"]').disabled, false);
+});
+
 test('saved stays remove once, refresh membership/count and retain other hotel cache fields', async () => {
 	let removed = false;
 	const operations = await mount(
