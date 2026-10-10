@@ -346,3 +346,80 @@
 		font-size: 22px;
 	}
 }
+
+// Compact hero search; the catalog retains its existing search layout.
+.h-home-hero .h-search {
+	width: 100%;
+	max-width: 980px;
+	grid-template-columns: minmax(150px, 1fr) minmax(300px, 1.4fr) minmax(160px, 0.85fr) auto;
+	gap: 4px;
+	padding: 6px;
+	border: 1px solid rgba(255, 255, 255, 0.55);
+	border-radius: 18px;
+	background: #fcf9f4f5;
+	box-shadow: 0 12px 32px rgba(5, 25, 18, 0.18);
+	> div,
+	> fieldset {
+		padding: 5px 12px;
+	}
+	label,
+	legend,
+	.h-search-occupancy > span {
+		font-size: 9px;
+		margin-bottom: 3px;
+	}
+	input,
+	.h-search-occupancy > button {
+		height: 24px;
+		font-size: 12px;
+	}
+	input[type='date'] {
+		font-size: 12px;
+	}
+	svg {
+		font-size: 18px;
+	}
+	.h-search-submit.MuiButton-root {
+		height: 48px;
+		padding: 10px 16px;
+		font-size: 12px;
+		border-radius: 12px;
+	}
+}
+@media (min-width: 901px) and (max-width: 1100px) {
+	.h-home-hero .h-search .h-search-occupancy {
+		border-left: 1px solid var(--h-line);
+	}
+}
+@media (max-width: 900px) {
+	.h-home-hero .h-search {
+		max-width: 700px;
+		grid-template-columns: minmax(0, 1fr) minmax(300px, 1.35fr);
+		gap: 8px 4px;
+		.h-search-occupancy {
+			border-left: 0;
+		}
+	}
+}
+@media (max-width: 600px) {
+	.h-home-hero .h-search {
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: 4px;
+		border-radius: 16px;
+		> div,
+		> fieldset {
+			padding: 6px 8px;
+		}
+		.h-search-destination,
+		.h-search-dates {
+			grid-column: 1 / -1;
+		}
+		.h-search-occupancy {
+			border-top: 0;
+		}
+		.h-search-submit.MuiButton-root {
+			height: 44px;
+			padding: 9px 12px;
+		}
+	}
+}

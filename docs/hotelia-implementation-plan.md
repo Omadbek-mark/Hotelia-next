@@ -171,3 +171,7 @@ Validation: 99 existing frontend tests passed; production build passed. Browser 
 ### Design refinement 02 — 2026-10-11
 
 Removed the forest footer strip. Copyright now sits beneath the brand CTA on the sage surface. Back to top is a 64px circular terracotta chevron link with a white border and shadow, centered at the footer bottom; hover/keyboard focus changes it to forest. Reduced-motion behavior remains supported. Production build passed; browser confirmed exact horizontal centering and click returns to scrollY=0.
+
+### Design refinement 03 — 2026-10-11
+
+Hero search remains in its original position with a 980px maximum width, approximately 65px desktop height, smaller spacing and rounded ivory surface. Date inputs and occupancy remain accessible; the existing search component and catalog styling are unchanged. Tablet uses two rows and mobile uses three compact rows. Production build passed; 1440/1024/768/390px browser checks showed no page/input overflow, and the occupancy dialog opens/closes successfully. Preview: `hotelia-stitch/compact-hero-search.png`.
