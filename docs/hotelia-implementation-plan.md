@@ -195,3 +195,9 @@ The homepage hero starts at the top with no separate header strip. Hero height p
 ### Design refinement 07 — 2026-10-11
 
 Replaced the opaque ivory/sage navbar gradient with a restrained dark forest glass surface matching the user's Nestar reference. Hero top uses 42% opacity with 2px blur; scrolled and other public pages use 62% opacity with 3px blur so underlying content remains visible. Removed opaque navigation/account group capsules, softened the border and shadow, and changed header text/icons to ivory with a warm brand subtitle. Existing account CTA, navigation, placement and scroll behavior remain. Production build passed; desktop hero/scrolled and 390px mobile browser checks confirmed the new background, readable controls and no horizontal overflow. Previews: hotelia-stitch/light-glass-navbar-home.png and light-glass-navbar-scroll.png. Stop for user review; no push.
+
+### Design refinement 08 — 2026-10-11
+
+Generated a new transparent Hotelia emblem using imagegen: a terracotta badge combines an ivory H, a welcoming arch/doorway and a rising sun/horizon. Saved the project asset as public/img/hotelia/hotelia-logo-v1.png and integrated it to the left of the wordmark through the shared Brand component, including navbar, mobile drawer and footer. Next Image delivers optimized sizes; decorative image has empty alt while the brand link retains its accessible name. Desktop logo is 48px and mobile 40px. Brand wordmark now uses weight 600; navigation, dashboard and account text use weight 700.
+
+101 frontend tests and production build passed. Browser verified the logo loads in header/footer/mobile drawer, font weights resolve correctly, and widths 390/320px do not overflow or overlap actions. Preview: hotelia-stitch/hotelia-logo-navbar.png. App on 3015; stop for user review, no push.

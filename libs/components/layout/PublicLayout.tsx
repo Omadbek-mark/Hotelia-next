@@ -7,6 +7,7 @@ import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import { Drawer, IconButton } from '@mui/material';
 import Head from 'next/head';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { userVar } from '../../../apollo/store';
@@ -25,8 +26,18 @@ const links = [
 export function Brand() {
 	return (
 		<Link className="h-brand" href="/" aria-label="Hotelia home">
-			<span>Hotelia</span>
-			<small>Open Horizons</small>
+			<Image
+				className="h-brand-logo"
+				src="/img/hotelia/hotelia-logo-v1.png"
+				alt=""
+				aria-hidden="true"
+				width={48}
+				height={48}
+			/>
+			<div className="h-brand-copy">
+				<span>Hotelia</span>
+				<small>Open Horizons</small>
+			</div>
 		</Link>
 	);
 }
