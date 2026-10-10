@@ -101,8 +101,9 @@ async function mount(
 	query = { category: 'myBookings' },
 	push = async () => true,
 	pathname = '/mypage',
+	role = 'USER',
 ) {
-	userVar({ ...anonymousUser, _id: member, memberNick: 'Traveler', memberType: 'USER' });
+	userVar({ ...anonymousUser, _id: member, memberNick: 'Traveler', memberType: role });
 	const operations = [];
 	client = new ApolloClient({
 		cache: new InMemoryCache(),
@@ -893,4 +894,437 @@ test('journal comment creation trims text and omits booking-only fields', async 
 		commentRefId: journalArticle._id,
 		commentContent: 'Good morning!',
 	});
+});
+
+const OwnerWorkspace = require('../../libs/components/hotelia/OwnerWorkspace.tsx').default;
+const ownerModel = require('../../libs/owner/model.ts');
+const authModule = require('../../libs/auth/index.ts'),
+	originalUpdateUser = authModule.updateUserInfo;
+afterEach(() => {
+	authModule.updateUserInfo = originalUpdateUser;
+});
+const ownerHotel = {
+	__typename: 'Hotel',
+	_id: hotelId,
+	ownerId: member,
+	hotelName: 'Seoul courtyard sanctuary',
+	hotelDescription: 'A quiet courtyard, warm timber and thoughtful hospitality.',
+	hotelCountry: 'South Korea',
+	hotelCity: 'Seoul',
+	hotelAddress: '12 Bukchon-ro, Jongno-gu',
+	hotelTimezone: 'Asia/Seoul',
+	hotelType: 'GUEST_HOUSE',
+	hotelStatus: 'ACTIVE',
+	hotelImages: [journalArticle.articleImage],
+	hotelAmenities: ['WIFI', 'BREAKFAST', 'SPA'],
+	hotelRating: 4.8,
+	hotelReviews: 12,
+	hotelViews: 100,
+	hotelLikes: 18,
+};
+const ownerRoom = {
+	__typename: 'Room',
+	_id: roomId,
+	hotelId,
+	roomName: 'Courtyard suite',
+	roomDescription: 'Warm timber, quiet mornings and a private view of the courtyard.',
+	roomType: 'SUITE',
+	roomStatus: 'ACTIVE',
+	roomPrice: 140,
+	roomCapacity: 2,
+	roomQuantity: 3,
+	bedType: 'KING',
+	roomSize: 62,
+	roomImages: [journalArticle.articleImage],
+	roomAmenities: ['WIFI', 'AIR_CONDITIONING', 'PRIVATE_BATHROOM'],
+};
+const ownerBooking = {
+	__typename: 'Booking',
+	_id: '3'.repeat(24),
+	memberId: '4'.repeat(24),
+	hotelId,
+	roomId,
+	checkIn: '2027-11-01T00:00:00Z',
+	checkOut: '2027-11-04T00:00:00Z',
+	guests: 2,
+	rooms: 1,
+	nights: 3,
+	pricePerNight: 140,
+	totalPrice: 420,
+	currency: 'USD',
+	bookingStatus: 'PENDING',
+	expiresAt: '2027-10-31T00:00:00Z',
+	createdAt: '2026-10-10T00:00:00Z',
+	updatedAt: '2026-10-10T00:00:00Z',
+	hotelData: {
+		__typename: 'BookingHotelData',
+		_id: hotelId,
+		hotelName: ownerHotel.hotelName,
+		hotelCity: 'Seoul',
+		hotelTimezone: 'Asia/Seoul',
+		hotelImages: ownerHotel.hotelImages,
+	},
+	roomData: {
+		__typename: 'BookingRoomData',
+		_id: roomId,
+		roomName: ownerRoom.roomName,
+		roomImages: ownerRoom.roomImages,
+	},
+	memberData: { __typename: 'MemberPublic', _id: '4'.repeat(24), memberNick: 'Evelyn', memberImage: '' },
+};
+function ownerFixture(op) {
+	switch (op.operationName) {
+		case 'HostDashboard':
+			return {
+				getOwnerDashboard: {
+					__typename: 'OwnerDashboard',
+					totalHotels: 2,
+					totalRooms: 8,
+					totalBookings: 14,
+					totalRevenue: 6840,
+					currency: 'USD',
+				},
+			};
+		case 'HostHotels':
+			return {
+				getOwnerHotels: {
+					__typename: 'Hotels',
+					list: [
+						ownerHotel,
+						{
+							...ownerHotel,
+							_id: '5'.repeat(24),
+							hotelName: 'Busan ocean house',
+							hotelCity: 'Busan',
+							hotelStatus: 'PAUSED',
+						},
+					],
+					metaCounter: [{ total: 2 }],
+				},
+			};
+		case 'HostHotel':
+			return { getOwnerHotel: ownerHotel };
+		case 'HostRooms':
+			return {
+				getOwnerRooms: {
+					__typename: 'Rooms',
+					list: [
+						ownerRoom,
+						{
+							...ownerRoom,
+							_id: '6'.repeat(24),
+							roomName: 'Garden double',
+							roomStatus: 'PAUSED',
+							roomType: 'DOUBLE',
+							roomPrice: 90,
+						},
+					],
+					metaCounter: [{ total: 2 }],
+				},
+			};
+		case 'HostRoom':
+			return { getOwnerRoom: ownerRoom };
+		case 'HostReservations':
+			return { getOwnerBookings: { __typename: 'Bookings', list: [ownerBooking], metaCounter: [{ total: 1 }] } };
+		case 'HostReservation':
+			return { getOwnerBooking: ownerBooking };
+		default:
+			throw new Error('Unexpected ' + op.operationName);
+	}
+}
+async function mountOwner(query = {}, handler = ownerFixture, editor, push = async () => true) {
+	authModule.updateUserInfo = async () => true;
+	const ops = await mount(
+		React.createElement(OwnerWorkspace, { editor }),
+		handler,
+		query,
+		push,
+		editor ? '/owner/' + editor : '/owner',
+		'HOTEL_OWNER',
+	);
+	await settle();
+	await settle();
+	return ops;
+}
+test('owner models enforce inventory limits, actual enums, timezone and scoped payloads', () => {
+	const h = ownerModel.hotelInput({ ...ownerHotel, ownerId: 'bad', hotelStatus: 'DELETE' });
+	assert.equal(h.ownerId, undefined);
+	assert.equal(h.hotelStatus, undefined);
+	assert.throws(() => ownerModel.hotelInput({ ...ownerHotel, hotelTimezone: 'Invalid/Zone' }));
+	assert.throws(() => ownerModel.hotelInput({ ...ownerHotel, hotelImages: [] }));
+	assert.throws(() => ownerModel.roomInput({ ...ownerRoom, roomPrice: 1.001 }));
+	assert.throws(() => ownerModel.roomInput({ ...ownerRoom, roomPrice: 1.00000001 }));
+	assert.throws(() => ownerModel.roomInput({ ...ownerRoom, roomQuantity: 1.5 }));
+	assert.throws(() => ownerModel.roomInput({ ...ownerRoom, roomCapacity: 0 }));
+	assert.throws(() => ownerModel.roomInput({ ...ownerRoom, roomType: 'PENTHOUSE' }));
+	assert.equal(ownerModel.roomInput(ownerRoom).roomPrice, 140);
+	assert.ok(ownerModel.ownerFilters({ page: ['1'], hotelId }, 'rooms').error);
+	assert.ok(ownerModel.ownerFilters({ status: 'DELETE' }, 'hotels').error);
+	assert.ok(ownerModel.ownerFilters({ checkIn: '2026-02-30', checkOut: '2026-03-03' }, 'bookings').error);
+	assert.equal(ownerModel.ownerFilters({ hotelId, status: 'PAUSED' }, 'rooms').error, undefined);
+});
+test('owner reservation eligibility follows expiry and hotel-local dates', () => {
+	const now = new Date('2026-10-09T16:00:00Z');
+	assert.equal(ownerModel.reservationActions({ ...ownerBooking, checkIn: '2026-10-09T00:00:00Z' }, now).confirm, false);
+	assert.equal(
+		ownerModel.reservationActions({ ...ownerBooking, expiresAt: '2026-10-09T15:00:00Z' }, now).confirm,
+		false,
+	);
+	assert.equal(
+		ownerModel.reservationActions(
+			{ ...ownerBooking, bookingStatus: 'CONFIRMED', checkOut: '2026-10-10T00:00:00Z' },
+			now,
+		).complete,
+		true,
+	);
+	assert.equal(
+		ownerModel.reservationActions(
+			{ ...ownerBooking, bookingStatus: 'CONFIRMED', checkOut: '2026-10-11T00:00:00Z' },
+			now,
+		).complete,
+		false,
+	);
+	assert.deepEqual(ownerModel.reservationActions({ ...ownerBooking, bookingStatus: 'COMPLETED' }, now), {
+		confirm: false,
+		complete: false,
+		cancel: false,
+	});
+});
+test('owner dashboard gate blocks guest queries and preserves sign-in referrer', async () => {
+	authModule.updateUserInfo = async () => true;
+	const ops = await mount(React.createElement(OwnerWorkspace), ownerFixture, {}, async () => true, '/owner');
+	await settle();
+	assert.match(document.body.textContent, /Access restricted/);
+	assert.equal(ops.length, 0);
+	await act(async () => userVar({ ...anonymousUser }));
+	await settle();
+	assert.match(document.body.textContent, /Sign in to continue/);
+	assert.match(document.querySelector('a[href*="referrer"]').href, /referrer=%2Fowner/);
+});
+test('owner overview renders authoritative revenue and operational links', async () => {
+	await mountOwner();
+	assert.match(document.body.textContent, /6,840/);
+	assert.match(document.body.textContent, /completed stays only/);
+	assert.ok(document.querySelector('a[href="/owner?tab=rooms"]'));
+	await savePreview('owner-overview-ui-test');
+});
+test('owner hotel pause executes once and refreshes server status; delete uses dedicated mutation', async () => {
+	let status = 'ACTIVE',
+		removed = false,
+		count = 0,
+		release;
+	const ops = await mountOwner({ tab: 'hotels' }, (op) => {
+		if (op.operationName === 'HostHotels')
+			return {
+				getOwnerHotels: {
+					list: removed ? [] : [{ ...ownerHotel, hotelStatus: status }],
+					metaCounter: [{ total: removed ? 0 : 1 }],
+				},
+			};
+		if (op.operationName === 'HostUpdateHotel') {
+			count++;
+			return new Promise(
+				(r) =>
+					(release = () => {
+						status = 'PAUSED';
+						r({ updateHotel: { _id: hotelId, hotelStatus: status } });
+					}),
+			);
+		}
+		if (op.operationName === 'HostDeleteHotel') {
+			removed = true;
+			return { deleteHotel: { _id: hotelId, hotelStatus: 'DELETE' } };
+		}
+		throw new Error(op.operationName);
+	});
+	await savePreview('owner-hotels-ui-test');
+	await act(async () => {
+		button('Pause listing').click();
+		button('Pause listing').click();
+	});
+	await settle();
+	assert.equal(count, 1);
+	await act(async () => release());
+	await settle();
+	assert.ok(button('Activate listing'));
+	assert.deepEqual(ops.find((o) => o.operationName === 'HostUpdateHotel').variables.input, {
+		_id: hotelId,
+		hotelStatus: 'PAUSED',
+	});
+	await click('Remove hotel');
+	await click('Remove listing');
+	assert.equal(ops.find((o) => o.operationName === 'HostDeleteHotel').variables.hotelId, hotelId);
+	assert.match(document.body.textContent, /next sanctuary/);
+});
+test('owner room inventory is scoped and invalid IDs skip fetching', async () => {
+	const ops = await mountOwner({ tab: 'rooms', hotelId });
+	assert.equal(ops.find((o) => o.operationName === 'HostRooms').variables.input.hotelId, hotelId);
+	assert.match(document.body.textContent, /3 units/);
+	await savePreview('owner-rooms-ui-test');
+	await act(async () => root.unmount());
+	root = null;
+	host.remove();
+	host = null;
+	const invalid = await mountOwner({ tab: 'rooms', hotelId: 'bad' });
+	assert.equal(invalid.length, 0);
+	assert.match(document.body.textContent, /valid hotel/);
+});
+test('owner hotel editor submits only editable fields and guards double save', async () => {
+	let saves = 0,
+		release;
+	const ops = await mountOwner(
+		{ hotelId },
+		(op) =>
+			op.operationName === 'HostUpdateHotel'
+				? (saves++, new Promise((r) => (release = () => r({ updateHotel: { _id: hotelId, hotelStatus: 'ACTIVE' } }))))
+				: ownerFixture(op),
+		'hotel',
+	);
+	await savePreview('owner-hotel-editor-ui-test');
+	await act(async () => {
+		button('Save hotel').click();
+		button('Save hotel').click();
+	});
+	await settle();
+	assert.equal(saves, 1);
+	const input = ops.find((o) => o.operationName === 'HostUpdateHotel').variables.input;
+	assert.equal(input.ownerId, undefined);
+	assert.equal(input.hotelTimezone, 'Asia/Seoul');
+	assert.equal(input.hotelStatus, 'ACTIVE');
+	await act(async () => release());
+	await settle();
+});
+test('owner room editor keeps parent immutable and displays inventory conflict', async () => {
+	const ops = await mountOwner(
+		{ hotelId, roomId },
+		(op) => {
+			if (op.operationName === 'HostUpdateRoom')
+				throw new Error('Cannot reduce inventory or capacity while active bookings exist');
+			return ownerFixture(op);
+		},
+		'room',
+	);
+	await savePreview('owner-room-editor-ui-test');
+	await fillJournal('Units in inventory', '1');
+	await click('Save room');
+	const input = ops.find((o) => o.operationName === 'HostUpdateRoom').variables.input;
+	assert.equal(input.hotelId, undefined);
+	assert.equal(input.roomQuantity, 1);
+	assert.match(document.body.textContent, /Existing reservations prevent/);
+});
+test('owner reservations re-read eligibility and confirm once with authoritative status', async () => {
+	let status = 'PENDING',
+		count = 0,
+		release;
+	const ops = await mountOwner({ tab: 'bookings' }, (op) => {
+		if (op.operationName === 'HostReservations')
+			return { getOwnerBookings: { list: [{ ...ownerBooking, bookingStatus: status }], metaCounter: [{ total: 1 }] } };
+		if (op.operationName === 'HostReservation') return { getOwnerBooking: { ...ownerBooking, bookingStatus: status } };
+		if (op.operationName === 'HostConfirmReservation') {
+			count++;
+			return new Promise(
+				(r) =>
+					(release = () => {
+						status = 'CONFIRMED';
+						r({ confirmBooking: { ...ownerBooking, bookingStatus: status } });
+					}),
+			);
+		}
+		throw new Error(op.operationName);
+	});
+	await savePreview('owner-reservations-ui-test');
+	await click('Confirm booking');
+	await act(async () => {
+		button('Confirm action').click();
+		button('Confirm action').click();
+	});
+	await settle();
+	assert.equal(count, 1);
+	assert.equal(ops.find((o) => o.operationName === 'HostReservation').variables.bookingId, ownerBooking._id);
+	await act(async () => release());
+	await settle();
+	assert.match(document.body.textContent, /Confirmed/);
+	assert.equal(
+		[...document.querySelectorAll('button')].some((b) => b.textContent === 'Confirm booking'),
+		false,
+	);
+});
+test('owner reservations refuse action after authoritative status changed', async () => {
+	const ops = await mountOwner({ tab: 'bookings' }, (op) =>
+		op.operationName === 'HostReservation'
+			? { getOwnerBooking: { ...ownerBooking, bookingStatus: 'CANCELLED' } }
+			: ownerFixture(op),
+	);
+	await click('Confirm booking');
+	await click('Confirm action');
+	assert.equal(
+		ops.some((o) => o.operationName === 'HostConfirmReservation'),
+		false,
+	);
+	assert.match(document.body.textContent, /reservation has changed/);
+});
+const uploadModule = require('../../libs/api/upload.ts'),
+	originalUploadImages = uploadModule.uploadImages;
+afterEach(() => {
+	uploadModule.uploadImages = originalUploadImages;
+});
+async function attachOwnerPhoto() {
+	uploadModule.uploadImages = async (files, target) => {
+		assert.equal(files.length, 1);
+		assert.ok(['hotel', 'room'].includes(target));
+		return [journalArticle.articleImage];
+	};
+	await act(async () =>
+		require('react-dom/test-utils').Simulate.change(document.querySelector('input[type=file]'), {
+			target: { files: [new dom.window.File(['fixture'], 'cover.jpg', { type: 'image/jpeg' })], value: '' },
+		}),
+	);
+	await settle();
+}
+test('owner creates a hotel without client owner/status and proceeds to room inventory', async () => {
+	let destination;
+	const ops = await mountOwner(
+		{},
+		(op) => {
+			assert.equal(op.operationName, 'HostCreateHotel');
+			return { createHotel: { _id: hotelId } };
+		},
+		'hotel',
+		async (href) => {
+			destination = href;
+			return true;
+		},
+	);
+	await click('Save hotel');
+	assert.equal(ops.length, 0);
+	await fillJournal('Hotel name', ' New courtyard ');
+	await fillJournal('Description', ownerHotel.hotelDescription);
+	await fillJournal('Country', 'South Korea');
+	await fillJournal('City', 'Seoul');
+	await fillJournal('Street address', '12 Bukchon-ro');
+	await attachOwnerPhoto();
+	await savePreview('owner-add-hotel-ui-test');
+	await click('Save hotel');
+	assert.equal(ops[0].variables.input.hotelName, 'New courtyard');
+	assert.equal(ops[0].variables.input.ownerId, undefined);
+	assert.equal(ops[0].variables.input.hotelStatus, undefined);
+	assert.equal(destination, `/owner?tab=rooms&hotelId=${hotelId}`);
+});
+test('owner creates a room under the selected hotel with validated numeric fields', async () => {
+	const ops = await mountOwner(
+		{ hotelId },
+		(op) => (op.operationName === 'HostCreateRoom' ? { createRoom: { _id: roomId, hotelId } } : ownerFixture(op)),
+		'room',
+	);
+	await fillJournal('Room name', 'Garden suite');
+	await fillJournal('Description', ownerRoom.roomDescription);
+	await fillJournal('Nightly price (USD)', '149.50');
+	await attachOwnerPhoto();
+	await savePreview('owner-add-room-ui-test');
+	await click('Save room');
+	const input = ops.find((o) => o.operationName === 'HostCreateRoom').variables.input;
+	assert.equal(input.hotelId, hotelId);
+	assert.equal(input.roomPrice, 149.5);
+	assert.equal(input.roomStatus, undefined);
+	assert.equal(input._id, undefined);
 });

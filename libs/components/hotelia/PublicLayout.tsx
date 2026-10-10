@@ -36,7 +36,7 @@ export default function PublicLayout({ children, title = 'Open Horizons', legacy
 		<header className="h-header"><div className="h-container h-header-inner">
 			<Brand /><nav className="h-desktop-nav" aria-label="Main navigation">{navigation}</nav>
 			<div className="h-header-actions">
-				{user.memberType === MemberType.HOTEL_OWNER && <Link className="h-owner-link" href="/mypage?category=myProperties">Host dashboard</Link>}
+				{user.memberType === MemberType.HOTEL_OWNER && <Link className="h-owner-link" href="/owner">Host dashboard</Link>}
 				{user.memberType === MemberType.ADMIN && <Link className="h-owner-link" href="/_admin">Admin</Link>}
 				<Link className="h-account-link" href={user._id ? '/mypage?category=myProfile' : '/account/join'}>
 					<span>{user._id ? user.memberNick : 'Account'}</span><PersonOutlineIcon fontSize="small" />
@@ -47,7 +47,7 @@ export default function PublicLayout({ children, title = 'Open Horizons', legacy
 		<Drawer open={open} anchor="right" onClose={() => setOpen(false)}>
 			<div className="h-mobile-drawer"><div className="h-drawer-top"><Brand /><IconButton aria-label="Close menu" onClick={() => setOpen(false)}><CloseIcon /></IconButton></div>
 				<nav aria-label="Mobile navigation">{navigation}<Link href="/cs">Help</Link>
-					{user.memberType === MemberType.HOTEL_OWNER && <Link href="/mypage?category=myProperties">Host dashboard</Link>}
+					{user.memberType === MemberType.HOTEL_OWNER && <Link href="/owner">Host dashboard</Link>}
 					{user.memberType === MemberType.ADMIN && <Link href="/_admin">Admin dashboard</Link>}
 				</nav>
 				{user._id && <button className="h-plain-button" onClick={() => { void logOut(); setOpen(false); }}>Sign out</button>}

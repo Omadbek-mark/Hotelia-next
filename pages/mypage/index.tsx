@@ -1,16 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { Stack } from '@mui/material';
 import { useReactiveVar } from '@apollo/client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
-import MyProperties from '../../libs/components/mypage/MyProperties';
-import AddProperty from '../../libs/components/mypage/AddNewProperty';
 import MyProfile from '../../libs/components/mypage/MyProfile';
 import Journal from '../../libs/components/hotelia/Journal';
-import MyMenu from '../../libs/components/mypage/MyMenu';
 import ArticleEditor from '../../libs/components/hotelia/ArticleEditor';
 import { userVar } from '../../apollo/store';
 import { updateUserInfo } from '../../libs/auth';
@@ -25,8 +20,7 @@ export const getStaticProps = async ({ locale }: any) => ({
 });
 
 function MyPage() {
-	const device = useDeviceDetect(),
-		user = useReactiveVar(userVar),
+	const user = useReactiveVar(userVar),
 		router = useRouter();
 	const category = router.query.category ?? 'myProfile';
 	const [ready, setReady] = useState(false);
@@ -84,25 +78,21 @@ function MyPage() {
 		return (
 			<AccountLayout>{category === 'myArticles' ? <Journal own key={user._id} /> : <ArticleEditor />}</AccountLayout>
 		);
-	if (device === 'mobile') return <div>MY PAGE</div>;
-	return (
-		<div id="my-page" style={{ position: 'relative' }}>
-			<div className="container">
-				<Stack className="my-page">
-					<Stack className="back-frame">
-						<Stack className="left-config">
-							<MyMenu />
-						</Stack>
-						<Stack className="main-config" mb="76px">
-							<Stack className="list-config">
-								{category === 'addProperty' && <AddProperty />}
-								{category === 'myProperties' && <MyProperties />}
-							</Stack>
-						</Stack>
-					</Stack>
-				</Stack>
-			</div>
-		</div>
-	);
+	if (['myProperties', 'addProperty', 'ownerBookings'].includes(String(category)))
+		return <OwnerRedirect category={String(category)} />;
+	return <EmptyState title="Page unavailable" action={<Link href="/mypage?category=myProfile">My profile</Link>} />;
+}
+function OwnerRedirect({ category }: { category: string }) {
+	const router = useRouter();
+	useEffect(() => {
+		void router.replace(
+			category === 'addProperty'
+				? '/owner/hotel'
+				: category === 'ownerBookings'
+				? '/owner?tab=bookings'
+				: '/owner?tab=hotels',
+		);
+	}, [category, router]);
+	return <EmptyState title="Opening your host workspace…" />;
 }
 export default withLayoutBasic(MyPage);
