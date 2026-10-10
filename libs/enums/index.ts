@@ -7,3 +7,5 @@ export * from './like.enum';
 export * from './common.enum';
 export * from './comment.enum';
 export * from './board-article.enum';
+export * from './notice.enum';
+export * from './notification.enum';

@@ -102,6 +102,7 @@ async function mount(
 	push = async () => true,
 	pathname = '/account',
 	role = 'USER',
+	unreadCount = 0,
 ) {
 	userVar({ ...anonymousUser, _id: member, memberNick: 'Traveler', memberType: role });
 	const operations = [];
@@ -110,9 +111,13 @@ async function mount(
 		link: new ApolloLink(
 			(operation) =>
 				new Observable((observer) => {
-					operations.push(operation);
+					if (operation.operationName !== 'SupportUnreadCount') operations.push(operation);
 					Promise.resolve()
-						.then(() => handler(operation))
+						.then(() =>
+							operation.operationName === 'SupportUnreadCount'
+								? { getUnreadNotificationCount: unreadCount }
+								: handler(operation),
+						)
 						.then(
 							(data) => {
 								observer.next({ data });
@@ -198,9 +203,9 @@ async function savePreview(name) {
 		});
 	});
 	const css = fs
-		.readdirSync('.next/static/supports')
+		.readdirSync('.next/static/css')
 		.filter((file) => file.endsWith('.css'))
-		.map((file) => fs.readFileSync('.next/static/supports/' + file, 'utf8'))
+		.map((file) => fs.readFileSync('.next/static/css/' + file, 'utf8'))
 		.join('\n');
 	const mui = Array.from(document.styleSheets)
 		.map((sheet) =>
@@ -211,7 +216,7 @@ async function savePreview(name) {
 		.join('\n');
 	fs.writeFileSync(
 		directory + '/' + name + '.html',
-		`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotelia UI test preview</title><link href="https://fonts.googleapis.com/supports2?family=Newsreader:wght@400;500;600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"><style>${css} ${mui} body{margin:0;background:#fcf9f4}.fixture-label{position:fixed;top:0;left:0;right:0;z-index:1600;padding:8px;background:#1a2e26;color:white;text-align:center;font:12px Arial}</style></head><body><div class="fixture-label">UI test preview · Sample data · No live records created</div>${root.innerHTML}</body></html>`,
+		`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotelia UI test preview</title><link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"><style>${css} ${mui} body{margin:0;background:#fcf9f4}.fixture-label{position:fixed;top:0;left:0;right:0;z-index:1600;padding:8px;background:#1a2e26;color:white;text-align:center;font:12px Arial}</style></head><body><div class="fixture-label">UI test preview · Sample data · No live records created</div>${root.innerHTML}</body></html>`,
 	);
 }
 
@@ -1355,4 +1360,294 @@ test('hotel availability form applies stay dates with the canonical hotelId', as
 	} finally {
 		global.FormData = originalFormData;
 	}
+});
+
+const SupportPage = require('../../libs/components/support/SupportPage.tsx').default;
+const Inquiries = require('../../libs/components/support/Inquiries.tsx').default;
+const NotificationsPanel = require('../../libs/components/support/Notifications.tsx').default;
+const supportRow = {
+	__typename: 'SupportNotice',
+	_id: 'd'.repeat(24),
+	noticeCategory: 'INQUIRY',
+	noticeStatus: 'HOLD',
+	noticeTitle: 'Late arrival',
+	noticeContent: 'Can I arrive after midnight?',
+	noticeResponse: null,
+	respondedAt: null,
+	createdAt: '2026-10-10T10:00:00Z',
+	updatedAt: '2026-10-10T10:00:00Z',
+};
+async function fillSupport(label, value) {
+	const field = [...document.querySelectorAll('input,textarea')].find(
+		(el) => document.querySelector(`label[for="${el.id}"]`)?.textContent.replace('*', '').trim() === label,
+	);
+	assert.ok(field, label);
+	await act(async () => require('react-dom/test-utils').Simulate.change(field, { target: { value } }));
+}
+
+test('support FAQ search filters honest booking guides and renders plain text published FAQs', async () => {
+	await mount(
+		React.createElement(SupportPage),
+		(op) => {
+			assert.equal(op.operationName, 'SupportNotices');
+			assert.equal(op.variables.input.noticeCategory, 'FAQ');
+			return {
+				getSupportNotices: {
+					list: [
+						{
+							...supportRow,
+							noticeCategory: 'FAQ',
+							noticeTitle: 'Published guide',
+							noticeContent: '<script>bad()</script>',
+						},
+					],
+					metaCounter: [{ total: 1 }],
+				},
+			};
+		},
+		{},
+		undefined,
+		'/support',
+	);
+	await settle();
+	assert.match(document.body.textContent, /How does booking work/);
+	assert.match(document.body.textContent, /<script>bad\(\)<\/script>/);
+	assert.equal(document.querySelector('script'), null);
+	await savePreview('support-faq-ui-test');
+	await fillSupport('Search answers', 'review');
+	assert.doesNotMatch(document.body.textContent, /How does booking work/);
+	assert.match(document.body.textContent, /When can I write a review/);
+});
+test('support notices show backend policies, page filters and empty state without fabricated notices', async () => {
+	const ops = await mount(
+		React.createElement(SupportPage),
+		(op) => ({ getSupportNotices: { list: [], metaCounter: [] } }),
+		{ tab: 'notices', noticeCategory: 'TERMS', page: '2' },
+		undefined,
+		'/support',
+	);
+	await settle();
+	assert.equal(ops[0].variables.input.noticeCategory, 'TERMS');
+	assert.equal(ops[0].variables.input.page, 2);
+	assert.match(document.body.textContent, /No published notices/);
+	await savePreview('support-notices-ui-test');
+});
+test('private support tabs wait for authentication and never query private data for anonymous viewers', async () => {
+	authModule.updateUserInfo = async () => {
+		userVar({ ...anonymousUser });
+		return false;
+	};
+	const ops = await mount(
+		React.createElement(SupportPage),
+		() => {
+			throw Error('Unexpected private query');
+		},
+		{ tab: 'inquiries' },
+		undefined,
+		'/support',
+		'',
+	);
+	await act(async () => userVar({ ...anonymousUser }));
+	await settle();
+	assert.match(document.body.textContent, /Sign in to continue/);
+	assert.equal(ops.filter((op) => op.operationName === 'MySupportInquiries').length, 0);
+	assert.match(document.querySelector('main a').getAttribute('href'), /referrer=/);
+});
+test('inquiry creation trims content, locks double submission and refreshes private messages', async () => {
+	let sent = false,
+		release,
+		calls = 0,
+		input;
+	const ops = await mount(React.createElement(Inquiries, { page: 1, onPage: () => {} }), (op) => {
+		if (op.operationName === 'MySupportInquiries')
+			return { getMyInquiries: { list: sent ? [supportRow] : [], metaCounter: [{ total: sent ? 1 : 0 }] } };
+		assert.equal(op.operationName, 'SendSupportInquiry');
+		calls++;
+		input = op.variables.input;
+		return new Promise((resolve) => {
+			release = () => {
+				sent = true;
+				resolve({ createSupportInquiry: supportRow });
+			};
+		});
+	});
+	await fillSupport('Subject', '  Late arrival  ');
+	await fillSupport('Message', '  Can I arrive after midnight?  ');
+	await act(async () => {
+		require('react-dom/test-utils').Simulate.submit(document.querySelector('form'));
+		require('react-dom/test-utils').Simulate.submit(document.querySelector('form'));
+	});
+	await settle();
+	assert.equal(calls, 1);
+	assert.deepEqual(Object.keys(input).sort(), ['noticeContent', 'noticeTitle', 'requestId']);
+	assert.equal(input.noticeTitle, 'Late arrival');
+	assert.equal(input.noticeContent, 'Can I arrive after midnight?');
+	assert.match(input.requestId, /^[a-f\d-]{36}$/i);
+	await act(async () => release());
+	await settle();
+	assert.match(document.body.textContent, /Message received/);
+	assert.match(document.body.textContent, /Received/);
+	assert.equal(ops.filter((op) => op.operationName === 'MySupportInquiries').length, 2);
+	await savePreview('support-inquiries-ui-test');
+});
+test('ambiguous inquiry delivery retries the same request identity and blocks changed content', async () => {
+	const requests = [];
+	await mount(React.createElement(Inquiries, { page: 1, onPage: () => {} }), (op) => {
+		if (op.operationName === 'MySupportInquiries') return { getMyInquiries: { list: [], metaCounter: [] } };
+		requests.push(op.variables.input);
+		throw Error('Lost response');
+	});
+	await fillSupport('Subject', 'Late arrival');
+	await fillSupport('Message', 'Can I arrive after midnight?');
+	await act(async () => require('react-dom/test-utils').Simulate.submit(document.querySelector('form')));
+	await settle();
+	await act(async () => require('react-dom/test-utils').Simulate.submit(document.querySelector('form')));
+	await settle();
+	assert.equal(requests.length, 2);
+	assert.equal(requests[0].requestId, requests[1].requestId);
+	await fillSupport('Message', 'Can I arrive after one in the morning?');
+	await act(async () => require('react-dom/test-utils').Simulate.submit(document.querySelector('form')));
+	await settle();
+	assert.equal(requests.length, 2);
+	assert.match(document.body.textContent, /previous message may have been sent/);
+});
+test('notifications use server read status, block double marking and refresh the list', async () => {
+	let read = false,
+		calls = 0;
+	const row = {
+		_id: 'e'.repeat(24),
+		notificationType: 'BOOKING_CONFIRMED',
+		notificationGroup: 'BOOKING',
+		notificationTitle: 'Your stay is confirmed',
+		notificationDesc: 'Open My trips for the details.',
+		hotelId,
+		bookingId: 'd'.repeat(24),
+		createdAt: '2026-10-10T10:00:00Z',
+		updatedAt: '2026-10-10T10:00:00Z',
+	};
+	await mount(React.createElement(NotificationsPanel, { page: 1, onPage: () => {} }), (op) => {
+		if (op.operationName === 'SupportNotifications')
+			return {
+				getMyNotifications: {
+					list: [{ ...row, notificationStatus: read ? 'READ' : 'WAIT' }],
+					metaCounter: [{ total: 1 }],
+				},
+			};
+		assert.equal(op.operationName, 'ReadSupportNotification');
+		calls++;
+		read = true;
+		return { markNotificationRead: { _id: row._id, notificationStatus: 'READ', updatedAt: row.updatedAt } };
+	});
+	await settle();
+	await savePreview('support-notifications-ui-test');
+	await act(async () => {
+		button('Mark as read').click();
+		button('Mark as read').click();
+	});
+	await settle();
+	assert.equal(calls, 1);
+	assert.match(document.body.textContent, /Read/);
+	assert.equal([...document.querySelectorAll('button')].filter((b) => b.textContent === 'Mark as read').length, 0);
+});
+test('malformed support routes do not request support collections', async () => {
+	const ops = await mount(
+		React.createElement(SupportPage),
+		() => {
+			throw Error('Unexpected collection request');
+		},
+		{ tab: ['faq', 'notices'] },
+		undefined,
+		'/support',
+	);
+	await settle();
+	assert.match(document.body.textContent, /Check your support link/);
+	assert.equal(ops.length, 0);
+});
+
+test('confirmed inquiry receipt stays successful if refreshing the message list fails', async () => {
+	let queries = 0;
+	await mount(React.createElement(Inquiries, { page: 1, onPage: () => {} }), (op) => {
+		if (op.operationName === 'MySupportInquiries') {
+			if (++queries > 1) throw Error('List unavailable');
+			return { getMyInquiries: { list: [], metaCounter: [] } };
+		}
+		return { createSupportInquiry: supportRow };
+	});
+	await fillSupport('Subject', 'Late arrival');
+	await fillSupport('Message', 'Can I arrive after midnight?');
+	await act(async () => require('react-dom/test-utils').Simulate.submit(document.querySelector('form')));
+	await settle();
+	assert.match(document.body.textContent, /Message received/);
+	assert.doesNotMatch(document.body.textContent, /could not confirm delivery/);
+});
+
+test('support inquiries page opens authenticated messages and safely renders replies', async () => {
+	authModule.updateUserInfo = async () => true;
+	const ops = await mount(
+		React.createElement(SupportPage),
+		(op) => {
+			assert.equal(op.operationName, 'MySupportInquiries');
+			return {
+				getMyInquiries: {
+					list: [
+						{
+							...supportRow,
+							noticeResponse: 'Open My trips to check the latest reservation status.',
+							respondedAt: '2026-10-10T12:00:00Z',
+						},
+					],
+					metaCounter: [{ total: 1 }],
+				},
+			};
+		},
+		{ tab: 'inquiries' },
+		undefined,
+		'/support',
+	);
+	await settle();
+	assert.equal(ops.length, 1);
+	assert.match(document.body.textContent, /Replied/);
+	assert.match(document.body.textContent, /Hotelia support/);
+	await savePreview('support-inquiries-page-ui-test');
+});
+test('support notifications page exposes an unread badge and reservation navigation', async () => {
+	authModule.updateUserInfo = async () => true;
+	await mount(
+		React.createElement(SupportPage),
+		(op) => {
+			assert.equal(op.operationName, 'SupportNotifications');
+			return {
+				getMyNotifications: {
+					list: [
+						{
+							_id: 'e'.repeat(24),
+							notificationType: 'BOOKING_CONFIRMED',
+							notificationStatus: 'WAIT',
+							notificationGroup: 'BOOKING',
+							notificationTitle: 'Your stay is confirmed',
+							notificationDesc: 'See your trip for dates and room details.',
+							hotelId,
+							bookingId: 'd'.repeat(24),
+							createdAt: '2026-10-10T10:00:00Z',
+							updatedAt: '2026-10-10T10:00:00Z',
+						},
+					],
+					metaCounter: [{ total: 1 }],
+				},
+			};
+		},
+		{ tab: 'notifications' },
+		undefined,
+		'/support',
+		'USER',
+		1,
+	);
+	await settle();
+	assert.ok(document.querySelector('a[aria-label="Notifications, 1 unread"]'));
+	assert.match(document.body.textContent, /Unread/);
+	assert.equal(
+		[...document.querySelectorAll('a')].find((a) => a.textContent === 'View reservations').getAttribute('href'),
+		'/account?category=myBookings',
+	);
+	await savePreview('support-notifications-page-ui-test');
 });

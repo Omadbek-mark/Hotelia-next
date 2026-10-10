@@ -29,7 +29,7 @@ The folder boundaries follow `nestar-next`: route entry points in `pages`, featu
 
 Canonical routes are `/hotel`, `/hotel-owner`, `/journal` and `/account`. Legacy bookmarks redirect to these routes. They represent Hotelia stays, hosts and journal pages. The inherited real-estate components and API operations have been removed.
 
-Support and administration routes are explicit placeholders for implementation stages 12 and 13. They do not execute inherited Nestar API operations; administration retains its ADMIN role gate.
+Support includes quick answers, published FAQs/notices, private inquiries and notifications. Administration still awaits stage 13 and retains its ADMIN role gate.
 
 ## Validate
 

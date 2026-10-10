@@ -25,7 +25,7 @@ Owner editor fields are shared in `EditorFields.tsx`. Inventory status/actions a
 
 ## Contracts and operations
 
-`npm run contracts:sync` generates 70 interfaces and 19 enums from the sibling Hotelia API. Types live in domain folders such as `hotel`, `room`, `booking`, `member` and `board-article`. Domain enum files live in `libs/enums`. Export barrels provide stable imports; inter-domain references use type-only imports. `SessionMember` is the client session state, populated from the authenticated member response rather than JWT claims.
+`npm run contracts:sync` generates 78 interfaces and 24 enums from the sibling Hotelia API. Types live in domain folders such as `hotel`, `room`, `booking`, `member` and `board-article`. Domain enum files live in `libs/enums`. Export barrels provide stable imports; inter-domain references use type-only imports. `SessionMember` is the client session state, populated from the authenticated member response rather than JWT claims.
 
 Apollo user operations live in `apollo/user`; owner operations live in `apollo/owner`. Authentication transport remains in `apollo/client.ts`, and the reactive session remains in `apollo/store.ts`. Obsolete real-estate GraphQL operations and duplicate legacy DTOs have been removed.
 
@@ -35,9 +35,9 @@ Responsive Hotelia styles are split by feature and imported in their previous ca
 
 Only tracked unused files in Hotelia-next are removed. Backend files, design gallery artifacts, environment configuration and user-created untracked artifacts are outside this cleanup.
 
-## Pending routes
+## Support and pending administration
 
-The inherited support pages contained property-trading demo copy; inherited administration used incompatible real-estate queries and demo tables. Their URLs remain available as explicit Hotelia placeholders. Administration preserves the existing ADMIN session/role gate. Support/backend integration is still stage 12, and administration/backend integration is still stage 13; this refactor does not mark either stage complete.
+Support/backend integration completed in stage 12: FAQ, public notices, private inquiries, notifications and recovery screens use Hotelia components and contracts. Inherited administration used incompatible real-estate queries and demo tables; its URLs remain explicit Hotelia placeholders with the existing ADMIN session/role gate. Administration/backend integration remains stage 13.
 
 ## Verification
 

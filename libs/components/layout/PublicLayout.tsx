@@ -1,3 +1,4 @@
+import NotificationLink from '../common/NotificationLink';
 import { useReactiveVar } from '@apollo/client';
 import CloseIcon from '@mui/icons-material/Close';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -76,6 +77,7 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 						{navigation}
 					</nav>
 					<div className="h-header-actions">
+						<NotificationLink />
 						{user.memberType === MemberType.HOTEL_OWNER && (
 							<Link className="h-owner-link" href="/owner">
 								Host dashboard

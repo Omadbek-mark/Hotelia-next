@@ -8,7 +8,7 @@ Boshlang‘ich holat: `develop`, `3e0bc16`, Next.js Pages Router, React, TypeScr
 
 ## Ishlash tartibi
 
-Holat: 1–11-bosqichlar amalga oshirildi. Owner paneli yakunlandi; foydalanuvchi tekshiruvini kutamiz. Keyingi bosqich — Support va system; faqat davom ettirish buyrug‘idan so‘ng boshlanadi. Kontrakt xaritasi: `docs/backend-contract-map.md`.
+Holat: 1–12-bosqichlar amalga oshirildi. Support va system ekranlari yakunlandi; foydalanuvchi tekshiruvini kutamiz. Keyingi bosqich — 13. Admin; faqat davom ettirish buyrug‘idan so‘ng boshlanadi. Kontrakt xaritasi: `docs/backend-contract-map.md`.
 
 2-bosqich tekshiruvlari: TypeScript va production build o‘tdi; brauzerda yangi public header/footer, 390px mobil menu drawer va anonymous admin access holati tekshirildi. Eski sahifa kontenti keyingi feature bosqichlarida almashtiriladi. Owner shell shu bosqichda komponent sifatida tayyorlandi, inventory sahifalariga 11-bosqichda ulanadi.
 
@@ -121,3 +121,15 @@ User-requested cleanup between stages 11 and 12. Studied `nestar-next` folder bo
 ### Hotelia domain naming — 2026-10-10
 
 Public hotel-owner directory components now share `libs/components/owner` with the authenticated HOTEL_OWNER workspace. There is no separate agent role or component folder. Canonical hotel routes/components/styles use `hotel`; public owner URLs use `hotel-owner` and `ownerId`; hotel details use `hotelId`. Journal and account screens use corresponding route/component names. Administration lists use `hotels`. UI copy uses hotel/inventory/journal terminology. Legacy route names remain only in redirects for older bookmarks. TypeScript API names such as `isPropertyDeclaration`, JS property descriptors and backend BoardArticle contracts retain their technical meanings.
+
+### 12-bosqich — Support va system
+
+`/support` ixcham FAQ/search/topic filters, published FAQlar, announcement/policy notices, private inquiries va notifications bilan ulandi. FAQ quick answers faqat mavjud booking, room availability, review, saved va owner workflowlarini tushuntiradi. Uydirma telefon/email, response SLA, payment channel yoki cancellation fee qoidalari yo‘q. Published notices backend ACTIVE public kategoriyalaridan olinadi; INQUIRY hech qachon public listga kirmaydi. Empty/error/retry va URL pagination/validation mavjud.
+
+Backend Notice modeli SupportModule orqali ulandi. Public `getSupportNotices`; authenticated `getMyInquiries`, `createSupportInquiry`. Ownership, INQUIRY category va HOLD status server tomonidan beriladi. Subject 3–100, message 10–2000 trimmed characters; UUID v4 requestId member bo‘yicha partial unique index bilan bir xil so‘rov retry/concurrency’da deduplicate qilinadi. Client double submitni bloklaydi, ambiguous delivery’da shu requestId bilan qayta urinadi va o‘zgargan payloadni ko‘r-ko‘rona yubormaydi. Confirmed receipt list refresh failure’da ham muvaffaqiyatli hisoblanadi. Reply mavjud bo‘lsa private ekranda ko‘rsatiladi; administrator reply/publishing amallari 13-bosqichda qo‘shiladi.
+
+Mavjud notifications API authenticated receiver scope bilan ulandi. Header unread count, paginated updates va individual mark-as-read server statusini qayta oladi. Count error’da soxta zero ko‘rsatilmaydi; anonymous/private tabs session tiklanishini kutadi va sign-in referrer saqlaydi. About Hotelia, custom 404/500 va global error ekranlari Open Horizons uslubiga moslandi. Oldingi nom almashtirishdagi CSS/Google Fonts URL xatosi to‘g‘rilandi.
+
+Tekshiruv: 70 frontend test, 11 support/notification backend test, TypeScript va ikkala production build o‘tdi. 6 GraphQL operation live schema bilan validatsiyadan o‘tdi. Actual komponentlardan 4 support ekranining fixture previewlari saqlandi; private previewlar sample data bilan. Real inquiry yoki notification read yozuvi yaratilmagan. Stage 13 boshlanmadi.
+
+Brauzer tekshiruvi: live FAQ search/topic/accordion, public notices empty state, anonymous inquiry/notification gates, About va 404 recovery tekshirildi. Support fixture ekranlari desktop, 768px tablet va 390px mobile’da horizontal overflow bermadi. Galereyada `support-{faq,notices,inquiries-page,notifications-page}-ui-test.html`; screenshotlar `preview-support-{faq,notices,inquiries,notifications}-{desktop,mobile}.png`. Live About va 404 screenshotlari ham saqlandi. Frontend `http://localhost:3015/support` da ochiq. 12-bosqich tugadi; foydalanuvchi tekshiruvi va davom ettirish buyrug‘ini kutamiz.

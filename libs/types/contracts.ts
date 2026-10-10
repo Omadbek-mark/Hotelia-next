@@ -30,3 +30,5 @@ export * from './comment/comment.update';
 export * from './board-article/board-article.input';
 export * from './board-article/board-article';
 export * from './board-article/board-article.update';
+export * from './support/support';
+export * from './notification/notification';
