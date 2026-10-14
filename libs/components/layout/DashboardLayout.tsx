@@ -55,7 +55,7 @@ export default function DashboardLayout({
 		return (
 			<div className="h-site">
 				<EmptyState
-					title={user._id ? 'Access restricted' : 'Sign in to continue'}
+					title={user._id ? 'Access restricted' : 'Log in to continue'}
 					description={
 						user._id ? 'This dashboard is available to the appropriate account role.' : 'Your session may have expired.'
 					}
@@ -64,7 +64,7 @@ export default function DashboardLayout({
 							className="h-text-link"
 							href={user._id ? '/' : `/account/join?referrer=${encodeURIComponent(router.asPath)}`}
 						>
-							{user._id ? 'Back to stays' : 'Sign in'}
+							{user._id ? 'Back to stays' : 'Log in'}
 						</Link>
 					}
 				/>
@@ -101,7 +101,7 @@ export default function DashboardLayout({
 					void logOut();
 				}}
 			>
-				Sign out
+				Log out
 			</Button>
 		</div>
 	);

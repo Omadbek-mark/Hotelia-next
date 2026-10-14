@@ -842,3 +842,192 @@
 	font-size: 19px;
 	text-align: left;
 }
+
+// Compact discovery cards, language choice and role account menu.
+.h-site .h-account-link {
+	border: 0;
+	font-family: inherit;
+	cursor: pointer;
+}
+.h-language-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	border: 0;
+	border-radius: 24px;
+	padding: 8px;
+	background: transparent;
+	color: var(--h-forest);
+	font: 700 11px var(--h-body);
+	cursor: pointer;
+	&:hover,
+	&[aria-expanded='true'] {
+		background: #e8ede5;
+	}
+}
+.h-navbar-menu.MuiPaper-root {
+	border-radius: 16px;
+	padding: 4px;
+	background: #faf8f3;
+	border: 1px solid #dedfd7;
+	box-shadow: 0 12px 32px #19352a20;
+	min-width: 170px;
+	.MuiMenuItem-root {
+		font-size: 13px;
+		border-radius: 9px;
+		min-height: 40px;
+	}
+	.Mui-selected {
+		background: #e3ebe2;
+		color: #19352a;
+		font-weight: 700;
+	}
+}
+.h-language-error {
+	padding: 8px;
+	max-width: 220px;
+	color: #a23e24;
+}
+.h-compact-stays .h-card-grid {
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 18px;
+}
+.h-compact-stays,
+.h-catalog-results {
+	.h-card-body {
+		padding: 14px;
+	}
+	.h-card-title-row {
+		gap: 8px;
+		h3 {
+			font-size: 19px;
+			line-height: 1.25;
+		}
+	}
+	.h-hotel-card .h-card-photo {
+		aspect-ratio: 3 / 2;
+	}
+	.h-chips {
+		margin: 10px 0;
+		gap: 4px;
+	}
+	.h-chip {
+		padding: 4px 6px;
+		font-size: 10px;
+	}
+	.h-price {
+		font-size: 20px;
+	}
+}
+.h-featured-host-grid {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 32px;
+}
+.h-featured-host {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	padding: 12px 8px;
+	img {
+		width: min(190px, 100%);
+		aspect-ratio: 1;
+		object-fit: cover;
+		border-radius: 50%;
+		border: 5px solid #f4f1ea;
+		box-shadow: 0 5px 20px #19352a0e;
+		transition: transform 0.2s, border-color 0.2s;
+	}
+	h3 {
+		margin: 14px 0 4px;
+		font: 700 16px var(--h-body);
+	}
+	> span {
+		font-size: 11px;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--h-muted);
+	}
+	&:hover img {
+		transform: translateY(-4px);
+		border-color: #c9d7cb;
+	}
+}
+@media (max-width: 1100px) {
+	.h-compact-stays .h-card-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+@media (max-width: 600px) {
+	.h-compact-stays .h-card-grid {
+		grid-template-columns: 1fr;
+	}
+	.h-featured-host-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 20px 12px;
+	}
+	.h-featured-host img {
+		width: 140px;
+	}
+}
+@media (max-width: 400px) {
+	.h-brand {
+		gap: 5px;
+		.h-brand-logo {
+			width: 30px;
+			height: 30px;
+		}
+		span {
+			font-size: 23px;
+		}
+		small {
+			font-size: 8px;
+			letter-spacing: 1px;
+		}
+	}
+	.h-header-inner {
+		gap: 6px;
+	}
+	.h-header-actions {
+		gap: 2px;
+		padding: 3px;
+		.h-notification-link {
+			padding: 5px;
+		}
+		.h-mobile-menu {
+			padding: 4px;
+		}
+	}
+	.h-site .h-account-link {
+		padding: 6px;
+	}
+	.h-language-button {
+		padding: 5px;
+		gap: 2px;
+		svg {
+			display: none;
+		}
+	}
+}
+.h-header .h-language-button {
+	color: var(--h-ivory);
+	&:hover,
+	&[aria-expanded='true'] {
+		background: rgba(255, 255, 255, 0.14);
+	}
+}
+
+@media (min-width: 901px) {
+	.h-header {
+		left: max(24px, calc(50% - 560px));
+		right: max(24px, calc(50% - 560px));
+		height: 70px;
+	}
+	.h-header-inner {
+		width: calc(100% - 40px);
+		gap: 16px;
+	}
+	.h-header .h-brand-logo { width: 40px; height: 40px; }
+	.h-header .h-brand span { font-size: 28px; }
+}

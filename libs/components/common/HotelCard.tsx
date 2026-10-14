@@ -1,3 +1,4 @@
+import { useHoteliaTranslation } from '../../hooks/useHoteliaTranslation';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import Link from 'next/link';
@@ -28,6 +29,7 @@ export default function HotelCard({
 	saving?: boolean;
 	stayQuery?: Record<string, string>;
 }) {
+	const tr = useHoteliaTranslation();
 	const favorite = useHotelFavorite();
 	const href = { pathname: '/hotel/detail', query: { ...stayQuery, hotelId: hotel._id } };
 	return (
@@ -56,7 +58,7 @@ export default function HotelCard({
 				</div>
 				<div className="h-chips">
 					{hotel.hotelAmenities.slice(0, 3).map((amenity) => (
-						<Chip key={amenity}>{labels[amenity] || amenity}</Chip>
+						<Chip key={amenity}>{tr(labels[amenity] || amenity)}</Chip>
 					))}
 				</div>
 				{!onFavorite && favorite.error && (
@@ -68,11 +70,11 @@ export default function HotelCard({
 					{hotel.startingPrice != null && (
 						<span className="h-price">
 							{formatUsd(hotel.startingPrice)}
-							<small>/ night</small>
+							<small>/ {tr('night')}</small>
 						</span>
 					)}
 					<Link href={href} className="h-text-link">
-						View hotel <ArrowForwardIcon fontSize="small" />
+						{tr('View hotel')} <ArrowForwardIcon fontSize="small" />
 					</Link>
 					{hotel.hotelReviews > 0 && (
 						<span className="h-rating">

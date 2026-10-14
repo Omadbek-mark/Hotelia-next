@@ -21,9 +21,9 @@ export default function SessionGate({ children }: { children: ReactNode }) {
 	if (!user._id)
 		return (
 			<EmptyState
-				title="Sign in to continue"
+				title="Log in to continue"
 				description="Your messages and updates are private."
-				action={<Button href={`/account/join?referrer=${encodeURIComponent(router.asPath)}`}>Sign in</Button>}
+				action={<Button href={`/account/join?referrer=${encodeURIComponent(router.asPath)}`}>Log in</Button>}
 			/>
 		);
 	return <>{children}</>;

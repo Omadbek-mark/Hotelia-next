@@ -7,6 +7,7 @@ import React, { useEffect } from 'react';
 import { useApollo } from '../apollo/client';
 import { anonymousUser, userVar } from '../apollo/store';
 import { updateUserInfo } from '../libs/auth/index';
+import PublicChat from '../libs/components/common/PublicChat';
 import '../scss/app.scss';
 import { hoteliaTheme } from '../scss/MaterialTheme/index';
 
@@ -38,9 +39,10 @@ const App = ({ Component, pageProps }: AppProps) => {
 			<ThemeProvider theme={hoteliaTheme}>
 				<CssBaseline />
 				<Component {...pageProps} />
+				<PublicChat />
 			</ThemeProvider>
 		</ApolloProvider>
 	);
 };
 
-export default appWithTranslation(App);
+export default appWithTranslation(App, require('../next-i18next.config'));

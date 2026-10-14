@@ -74,3 +74,11 @@ test('pagination and sorting preserve filters; changed filters reset page explic
 	assert.equal(sorted.page, 1);
 	assert.equal(sorted.sort, 'RATING');
 });
+
+test('multiple city filters round-trip, deduplicate, and reject malformed lists', () => {
+	const parsed = parseHotelSearch({ cities: ['Tashkent', 'Almaty', 'Tashkent'] });
+	assert.equal(parsed.error, undefined);
+	assert.deepEqual(parsed.input.search.cities, ['Tashkent', 'Almaty']);
+	assert.equal(hotelSearchQuery(parsed.input).cities, 'Tashkent,Almaty');
+	for (const cities of ['Tashkent,,Almaty', 'a'.repeat(101), Array.from({length:101}, (_, i) => `city${i}`).join(',')]) assert.ok(parseHotelSearch({ cities }).error);
+});

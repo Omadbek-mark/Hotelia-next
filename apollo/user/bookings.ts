@@ -14,8 +14,17 @@ export const BOOKING_FIELDS = gql`
 		pricePerNight
 		totalPrice
 		currency
+		paymentMethod
+		paymentStatus
 		bookingStatus
 		expiresAt
+		freeCancellationUntil
+		cancellationFeeRate
+		cancellationFee
+		refundAmount
+		cancelledAt
+		confirmedAt
+		confirmedAutomatically
 		createdAt
 		updatedAt
 	}

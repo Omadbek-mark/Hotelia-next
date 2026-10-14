@@ -10,6 +10,7 @@ import { bookingError, bookingRequester, tripDate } from '../../booking/booking-
 import { canSelectRoom, estimateStay, parseRoomSelection } from '../../booking/room-selection';
 import type { AvailableRoom, Booking, Hotel, StayInput } from '../../types/contracts';
 import { Button, Chip, formatUsd } from '../common/ui';
+import PaymentMethodChoice from '../payment/PaymentMethodChoice';
 
 export default function BookingRequestDialog({
 	hotel,
@@ -150,13 +151,32 @@ export default function BookingRequestDialog({
 						{receipt ? formatUsd(receipt.totalPrice) : estimate !== undefined ? formatUsd(estimate) : '—'}
 					</strong>
 				</div>
+				{!receipt ? (
+					<PaymentMethodChoice />
+				) : (
+					<Alert severity="info">
+						Payment method: CEO bank account · Demo only. No transfer is required and no real money was charged.
+					</Alert>
+				)}
 				<p className="h-booking-note">
 					{receipt
 						? receipt.bookingStatus === 'PENDING'
-							? 'Awaiting your host’s confirmation. Follow your request in My Trips.'
+							? 'Your host may confirm earlier; otherwise your booking is automatically confirmed after 15 minutes. Follow it in My Trips.'
 							: 'Your latest status is available in My Trips.'
-						: 'Your host confirms the stay. The final total is returned when you send your request.'}
+						: 'Your host may confirm earlier; otherwise your booking is automatically confirmed after 15 minutes. The final total is returned when you send your request.'}
 				</p>
+				<Alert severity="info" className="h-booking-policy">
+					<strong>Cancellation policy</strong>
+					<br />
+					Cancel free of charge within 15 minutes of creating your booking, even if your host confirms earlier. After
+					that, cancelling retains 5% of the booking total as compensation; the remaining 95% is refundable.
+					{receipt?.freeCancellationUntil && (
+						<span className="h-booking-policy-deadline">
+							{' '}
+							Free cancellation until {new Date(receipt.freeCancellationUntil).toLocaleString()}.
+						</span>
+					)}
+				</Alert>
 				{error && <Alert severity="error">{error}</Alert>}
 				<div className="h-dialog-actions">
 					{receipt ? (
@@ -171,7 +191,7 @@ export default function BookingRequestDialog({
 					) : (
 						<>
 							<Button fullWidth color="secondary" disabled={pending || !!parsed.error} onClick={request}>
-								{pending ? 'Sending request…' : user._id ? 'Send booking request' : 'Sign in to request'}
+								{pending ? 'Sending request…' : user._id ? 'Send booking request' : 'Log in to request'}
 							</Button>
 							<Button variant="text" fullWidth disabled={pending} onClick={close}>
 								Keep exploring

@@ -37,10 +37,10 @@ function MyPage() {
 	if (!user._id)
 		return (
 			<EmptyState
-				title="Sign in to continue"
+				title="Log in to continue"
 				action={
 					<Link className="h-text-link" href={`/account/join?referrer=${encodeURIComponent(router.asPath)}`}>
-						Sign in
+						Log in
 					</Link>
 				}
 			/>

@@ -123,3 +123,9 @@ export const UNSAVE_DETAIL_HOTEL = gql`
 		}
 	}
 `;
+
+export const CREATE_HOTEL_COMMENT = gql`
+	mutation CreateHotelComment($input: CommentInput!) {
+		createComment(input: $input) { _id commentContent createdAt }
+	}
+`;

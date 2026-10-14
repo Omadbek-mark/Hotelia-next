@@ -2,10 +2,10 @@ import { Head, Html, Main, NextScript } from 'next/document';
 
 export default function Document() {
 	return (
-		<Html lang="en">
+		<Html>
 			<Head>
 				<meta name="robots" content="index,follow" />
-				<link rel="icon" type="image/svg+xml" href="/img/hotelia/favicon.svg" />
+				<link rel="icon" type="image/png" sizes="64x64" href="/img/hotelia/favicon-v1.png" />
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
 				<link

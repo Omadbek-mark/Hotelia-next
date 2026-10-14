@@ -14,8 +14,8 @@ const IMAGES_UPLOADER = gql`
 `;
 
 function validateImage(file: File) {
-	if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) throw new Error('Choose a JPG or PNG image.');
-	if (!file.size || file.size > 15_000_000) throw new Error('Each image must be under 15 MB.');
+	if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('Choose a JPG, JPEG, PNG or WebP image.');
+	if (!file.size) throw new Error('Choose a non-empty image.');
 }
 
 export async function uploadImage(file: File, target: ImageTarget): Promise<string> {

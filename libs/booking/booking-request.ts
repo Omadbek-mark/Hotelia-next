@@ -1,6 +1,6 @@
 import type { SearchQuery } from '../search/hotel-search';
 import type { Booking, BookingInput, Comment, StayInput } from '../types/contracts';
-import { BookingStatus } from '../enums';
+import { BookingStatus, PaymentMethod } from '../enums';
 
 export type RequestDetails = StayInput & { roomId: string };
 type AttemptStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
@@ -40,7 +40,7 @@ export class BookingRequester {
 			/* In-memory retries remain safe when storage is unavailable. */
 		}
 		const operation = Promise.resolve()
-			.then(() => send({ ...canonical, requestId: requestId! }))
+			.then(() => send({ ...canonical, requestId: requestId!, paymentMethod: PaymentMethod.CEO_BANK_ACCOUNT }))
 			.then((booking) => {
 				this.ids.delete(key);
 				try {
@@ -113,6 +113,6 @@ export function bookingError(error: unknown): string {
 	if (/already has a review/i.test(message)) return 'A review has already been submitted for this stay.';
 	if (/only pending or confirmed/i.test(message))
 		return 'This trip’s status changed. Refresh your trips to see the latest status.';
-	if (/unauthenticated|unauthorized|authentication|token/i.test(message)) return 'Please sign in again, then retry.';
+	if (/unauthenticated|unauthorized|authentication|token/i.test(message)) return 'Please log in again, then retry.';
 	return 'The request could not be confirmed. Try again or check My Trips.';
 }

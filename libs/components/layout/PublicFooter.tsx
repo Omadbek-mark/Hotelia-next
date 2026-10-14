@@ -31,10 +31,8 @@ export default function PublicFooter() {
 						<Link href="/about">About Hotelia</Link>
 					</div>
 					<div>
-						<h2>Your stay</h2>
-						<Link href="/account?category=myBookings">My trips</Link>
-						<Link href="/account?category=myFavorites">Saved stays</Link>
-						<Link href="/account?category=myProfile">My account</Link>
+						<h2>Your Hotelia</h2>
+						<Link href="/account?category=myProfile">My profile</Link>
 						{user.memberType === MemberType.HOTEL_OWNER && <Link href="/owner">Host dashboard</Link>}
 						{user.memberType === MemberType.ADMIN && <Link href="/_admin">Admin dashboard</Link>}
 					</div>

@@ -1,4 +1,5 @@
 import { useQuery, useReactiveVar } from '@apollo/client';
+import { useState } from 'react';
 import { Skeleton } from '@mui/material';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -15,14 +16,17 @@ export default function Connections({
 	memberId,
 	kind,
 	account = false,
+	compact = false,
 }: {
 	memberId: string;
 	kind: 'followers' | 'followings';
 	account?: boolean;
+	compact?: boolean;
 }) {
 	const router = useRouter(),
 		user = useReactiveVar(userVar);
-	const page = socialPage(router.query.networkPage),
+	const [localPage, setLocalPage] = useState(1);
+	const page = compact ? localPage : socialPage(router.query.networkPage),
 		followers = kind === 'followers';
 	const { data, loading, error, refetch } = useQuery<{
 		getMemberFollowers?: Followers;
@@ -49,17 +53,21 @@ export default function Connections({
 		socialHref(account ? '/account' : '/member', { ...(account ? {} : { memberId }), category, networkPage: next });
 	const Heading = account ? 'h1' : 'h2';
 	return (
-		<section className="h-connections">
-			<Head>
-				<title>{followers ? 'Followers' : 'Following'} · Hotelia</title>
-			</Head>
-			<div className="h-social-heading">
-				<span className="h-eyebrow">Your Hotelia circle</span>
-				<Heading>Community connections.</Heading>
-				<p>People worth staying connected to.</p>
-			</div>
+		<section className={`h-connections${compact ? ' h-connections--compact' : ''}`}>
+			{!compact && (
+				<Head>
+					<title>{followers ? 'Followers' : 'Following'} · Hotelia</title>
+				</Head>
+			)}
+			{!compact && (
+				<div className="h-social-heading">
+					<span className="h-eyebrow">Your Hotelia circle</span>
+					<Heading>Community connections.</Heading>
+					<p>People worth staying connected to.</p>
+				</div>
+			)}
 			<div className="h-social-tabs">
-				{account && (
+				{account && !compact && (
 					<>
 						<Link aria-current={followers ? 'page' : undefined} href={href('followers')}>
 							Followers
@@ -106,7 +114,12 @@ export default function Connections({
 						page > 1 ? 'No connections on this page' : followers ? 'A growing circle' : 'Meet your next inspiration'
 					}
 					action={
-						<Button href={page > 1 ? href(kind) : '/hotel-owner'}>{page > 1 ? 'First page' : 'Meet hosts'}</Button>
+						<Button
+							href={page > 1 ? (compact ? undefined : href(kind)) : '/hotel-owner'}
+							onClick={compact && page > 1 ? () => setLocalPage(1) : undefined}
+						>
+							{page > 1 ? 'First page' : 'Meet hosts'}
+						</Button>
 					}
 				/>
 			) : (
@@ -132,7 +145,8 @@ export default function Connections({
 					limit={6}
 					total={total}
 					onChange={(next) => {
-						void router.push(href(kind, String(next)), undefined, { scroll: false });
+						if (compact) setLocalPage(next);
+						else void router.push(href(kind, String(next)), undefined, { scroll: false });
 					}}
 				/>
 			)}

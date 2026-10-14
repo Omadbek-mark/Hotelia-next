@@ -55,6 +55,7 @@ export default function OwnerReservations({ compact = false }: { compact?: boole
 		},
 		skip: !router.isReady || !!filters.error || user.memberType !== MemberType.HOTEL_OWNER,
 		fetchPolicy: 'network-only',
+		pollInterval: 15000,
 	});
 	const hotel = useQuery<{ getOwnerHotel: Hotel }>(OWNER_HOTEL, {
 		variables: { hotelId: filters.hotelId },
@@ -161,7 +162,7 @@ export default function OwnerReservations({ compact = false }: { compact?: boole
 			)}
 			{filters.error ? (
 				<EmptyState title={filters.error} />
-			) : result.loading ? (
+			) : result.loading && !result.data ? (
 				<EmptyState title="Loading reservations…" />
 			) : result.error ? (
 				<EmptyState
@@ -210,8 +211,18 @@ export default function OwnerReservations({ compact = false }: { compact?: boole
 										{booking.hotelData?.hotelTimezone || 'Hotel local dates'}
 									</small>
 									{booking.bookingStatus === 'PENDING' && !actions.confirm && (
-										<p className="h-owner-error">Confirmation window has passed.</p>
+										<p className="h-owner-error">This stay’s check-in date has passed.</p>
 									)}
+									{booking.bookingStatus === 'PENDING' && booking.freeCancellationUntil && (
+										<p className="h-booking-note">
+											{Date.parse(booking.freeCancellationUntil) > now.getTime()
+												? `Automatically confirms at ${new Date(
+														booking.freeCancellationUntil,
+												  ).toLocaleString()}. You can confirm earlier.`
+												: 'Automatic confirmation is being processed.'}
+										</p>
+									)}
+									{booking.confirmedAutomatically && <p className="h-booking-note">Automatically confirmed.</p>}
 									<div className="h-owner-actions">
 										{Object.entries(actions)
 											.filter(([, available]) => available)
@@ -269,7 +280,7 @@ export default function OwnerReservations({ compact = false }: { compact?: boole
 				</p>
 				<p>
 					{target?.action === 'cancel'
-						? 'The guest’s reservation will be cancelled.'
+						? 'The guest’s reservation will be cancelled with no guest cancellation fee.'
 						: target?.action === 'complete'
 						? 'Mark this checked-out stay as completed.'
 						: 'Reserve these rooms for the guest.'}

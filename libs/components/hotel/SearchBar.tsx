@@ -1,3 +1,5 @@
+import { useHotelLocations } from '../../hooks/useHotelLocations';
+import { useHoteliaTranslation } from '../../hooks/useHoteliaTranslation';
 import AddIcon from '@mui/icons-material/Add';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
@@ -26,6 +28,8 @@ export default function SearchBar({
 	onSearch?: (search: HotelSearch) => Promise<unknown>;
 }) {
 	const router = useRouter();
+	const tr = useHoteliaTranslation();
+	const { locations } = useHotelLocations();
 	const [destination, setDestination] = useState('');
 	const [checkIn, setCheckIn] = useState('');
 	const [checkOut, setCheckOut] = useState('');
@@ -75,26 +79,28 @@ export default function SearchBar({
 	};
 	return (
 		<>
-			<form className="h-search" onSubmit={submit} aria-label="Search stays" aria-busy={pending}>
+			<form className="h-search" onSubmit={submit} aria-label={tr('Search stays')} aria-busy={pending}>
 				<div className="h-search-destination">
-					<label htmlFor="home-destination">Destination</label>
+					<label htmlFor="home-destination">{tr('Destination')}</label>
 					<div>
 						<LocationOnOutlinedIcon fontSize="small" />
 						<input
 							id="home-destination"
-							placeholder="Seoul, Busan, or Tashkent"
+							list="hotelia-destination-options"
+							placeholder={tr('Tashkent, Almaty, or Bishkek')}
 							maxLength={100}
 							value={destination}
 							onChange={(event) => setDestination(event.target.value)}
 						/>
+						<datalist id="hotelia-destination-options">{locations.map(({ city, country }) => <option key={city} value={city}>{tr(city)} · {tr(country)}</option>)}</datalist>
 					</div>
 				</div>
 				<fieldset className="h-search-dates">
-					<legend>Stay dates</legend>
+					<legend>{tr('Stay dates')}</legend>
 					<div>
 						<CalendarMonthOutlinedIcon fontSize="small" />
 						<input
-							aria-label="Arrival"
+							aria-label={tr('Arrival')}
 							name="checkIn"
 							type="date"
 							min={today()}
@@ -107,7 +113,7 @@ export default function SearchBar({
 						/>
 						<span aria-hidden="true">—</span>
 						<input
-							aria-label="Departure"
+							aria-label={tr('Departure')}
 							name="checkOut"
 							type="date"
 							min={checkIn || today()}
@@ -118,7 +124,7 @@ export default function SearchBar({
 					</div>
 				</fieldset>
 				<div className="h-search-occupancy">
-					<span>Occupancy</span>
+					<span>{tr('Occupancy')}</span>
 					<button
 						type="button"
 						onClick={(event) => setAnchor(event.currentTarget)}
@@ -127,7 +133,7 @@ export default function SearchBar({
 						aria-haspopup="dialog"
 					>
 						<PeopleOutlineIcon fontSize="small" />
-						{guests} {guests === 1 ? 'Guest' : 'Guests'}, {rooms} {rooms === 1 ? 'Room' : 'Rooms'}
+						{guests} {tr(guests === 1 ? 'Guest' : 'Guests')}, {rooms} {tr(rooms === 1 ? 'Room' : 'Rooms')}
 					</button>
 				</div>
 				<Button
@@ -137,7 +143,7 @@ export default function SearchBar({
 					disabled={pending}
 					endIcon={<ArrowForwardIcon />}
 				>
-					{pending ? 'Opening…' : 'Search stays'}
+					{tr(pending ? 'Opening…' : 'Search stays')}
 				</Button>
 			</form>
 			<Popover
@@ -147,13 +153,13 @@ export default function SearchBar({
 				onClose={() => setAnchor(null)}
 				anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
 			>
-				<div className="h-occupancy-popover" role="dialog" aria-label="Guests and rooms">
+				<div className="h-occupancy-popover" role="dialog" aria-label={tr('Guests and rooms')}>
 					{[
 						{ label: 'Guests', value: guests, set: setGuests },
 						{ label: 'Rooms', value: rooms, set: setRooms },
 					].map(({ label, value, set }) => (
 						<div className="h-stepper" key={label}>
-							<span>{label}</span>
+							<span>{tr(label)}</span>
 							<div>
 								<IconButton
 									aria-label={`Fewer ${label.toLowerCase()}`}
@@ -170,7 +176,7 @@ export default function SearchBar({
 						</div>
 					))}
 					<Button fullWidth variant="outlined" onClick={() => setAnchor(null)}>
-						Done
+						{tr('Done')}
 					</Button>
 				</div>
 			</Popover>

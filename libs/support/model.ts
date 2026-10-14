@@ -26,7 +26,7 @@ export const guides = [
 	{
 		topic: 'Account',
 		title: 'Where are my saved hotels?',
-		content: 'Sign in and open Saved. Recently viewed hotels are available in your account too.',
+		content: 'Log in and open Saved. Recently viewed hotels are available in your account too.',
 	},
 	{
 		topic: 'Hosting',

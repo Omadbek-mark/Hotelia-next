@@ -34,7 +34,7 @@ function EditorForm({ article }: { article?: BoardArticle }) {
 			return;
 		}
 		if (user._id !== owner.current || !user._id) {
-			setError('Sign in again before publishing.');
+			setError('Log in again before publishing.');
 			return;
 		}
 		lock.current = true;
@@ -107,7 +107,7 @@ function EditorForm({ article }: { article?: BoardArticle }) {
 							<input
 								hidden
 								type="file"
-								accept="image/jpeg,image/png"
+								accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
 								onChange={async (e) => {
 									const file = e.target.files?.[0];
 									e.target.value = '';
@@ -132,7 +132,7 @@ function EditorForm({ article }: { article?: BoardArticle }) {
 								Remove photo
 							</Button>
 						)}
-						<small>JPG or PNG · up to 15 MB</small>
+						<small>JPG, JPEG, PNG or WebP</small>
 					</div>
 					<Field
 						label="Story"

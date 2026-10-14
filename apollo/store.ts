@@ -18,6 +18,8 @@ export const anonymousUser: SessionMember = {
 	memberArticles: 0,
 	memberPoints: 0,
 	memberLikes: 0,
+	memberFollowers: 0,
+	memberFollowings: 0,
 	memberViews: 0,
 	memberWarnings: 0,
 	memberBlocks: 0,

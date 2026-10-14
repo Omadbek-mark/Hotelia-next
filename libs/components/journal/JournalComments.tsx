@@ -98,7 +98,7 @@ export default function JournalComments({
 				</form>
 			) : (
 				<Button href={`/account/join?referrer=${encodeURIComponent(`/journal/detail?articleId=${articleId}`)}`}>
-					Sign in to comment
+					Log in to comment
 				</Button>
 			)}
 			{error && <p role="alert">{error}</p>}

@@ -2,12 +2,12 @@ import Link from 'next/link';
 import { ADMIN_HOTELS, ADMIN_HOTEL_UPDATE } from '../../../apollo/admin/admin';
 import { HotelStatus } from '../../enums';
 import { Hotels } from '../../types/contracts';
-import { Button, Pagination, SiteImage } from '../common/ui';
+import { Pagination, SiteImage } from '../common/ui';
 import {
 	AdminFilters,
 	AdminHeading,
 	AdminState,
-	Status,
+	StatusMenu,
 	useAdminAction,
 	useAdminFilters,
 	useAdminList,
@@ -52,29 +52,27 @@ export default function AdminHotels() {
 									{h.memberData?.memberNick || 'Hotel owner'} · {h.hotelType.toLowerCase().replace(/_/g, ' ')}
 								</small>
 							</div>
-							<Status value={h.hotelStatus} />
+							<StatusMenu
+								value={h.hotelStatus}
+								name={h.hotelName}
+								options={Object.values(HotelStatus)}
+								disabled={action.busy || h.hotelStatus === HotelStatus.DELETE}
+								onChange={(status) =>
+									action.open({
+										title: `Set ${h.hotelName} to ${status.toLowerCase()}?`,
+										description:
+											status === HotelStatus.DELETE
+												? 'Archive this hotel. Active reservations must be resolved first. Deleted records cannot be reactivated.'
+												: status === HotelStatus.PAUSED
+												? 'Stop new bookings. Existing reservations remain available.'
+												: 'Allow available booking requests again.',
+										variables: { input: { _id: h._id, hotelStatus: status } },
+									})
+								}
+							/>
 							<div className="h-admin-actions">
 								<Link href={{ pathname: '/_admin/rooms', query: { hotelId: h._id } }}>Rooms ↗</Link>
 								<Link href={{ pathname: '/_admin/bookings', query: { hotelId: h._id } }}>Reservations ↗</Link>
-								{h.hotelStatus !== HotelStatus.DELETE && (
-									<Button
-										variant="outlined"
-										disabled={action.busy}
-										onClick={() => {
-											const status = h.hotelStatus === HotelStatus.ACTIVE ? HotelStatus.PAUSED : HotelStatus.ACTIVE;
-											action.open({
-												title: `${status === HotelStatus.PAUSED ? 'Pause' : 'Activate'} ${h.hotelName}?`,
-												description:
-													status === HotelStatus.PAUSED
-														? 'This hotel will stop appearing in available stays. Existing reservations remain in the reservation workspace.'
-														: 'This hotel can appear in available stays again.',
-												variables: { input: { _id: h._id, hotelStatus: status } },
-											});
-										}}
-									>
-										{h.hotelStatus === HotelStatus.ACTIVE ? 'Pause hotel' : 'Activate hotel'}
-									</Button>
-								)}
 							</div>
 						</article>
 					))}

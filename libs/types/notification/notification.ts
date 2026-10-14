@@ -14,6 +14,8 @@ export interface Notification {
 	receiverId: string;
 	hotelId?: string | null;
 	bookingId?: string | null;
+	roomId?: string | null;
+	inquiryId?: string | null;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -25,8 +27,17 @@ export interface Notifications {
 }
 
 // Backend: dto/notification/notification.ts
+export interface UnreadNotificationCount {
+	notificationType: NotificationType;
+	total: number;
+}
+
+// Backend: dto/notification/notification.ts
 export interface NotificationsInquiry {
 	page?: number;
 	limit?: number;
 	notificationStatus?: NotificationStatus;
+	notificationType?: NotificationType;
+	notificationTypes?: NotificationType[];
+	notificationGroup?: NotificationGroup;
 }

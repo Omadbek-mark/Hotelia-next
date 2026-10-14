@@ -1,3 +1,65 @@
+.h-admin-status,
+.h-admin-status-option {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	font: 600 12px var(--h-body);
+}
+.h-admin-status {
+	border: 1px solid currentColor;
+	border-radius: 100px;
+	padding: 8px 10px;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: box-shadow 0.18s, filter 0.18s;
+	&:hover:not(:disabled) {
+		filter: brightness(0.94);
+		box-shadow: 0 3px 12px #19352a12;
+	}
+	&:focus-visible {
+		outline: 2px solid var(--h-clay);
+		outline-offset: 3px;
+	}
+	&:disabled {
+		opacity: 0.6;
+		cursor: default;
+	}
+}
+.h-admin-status-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+	flex-shrink: 0;
+}
+.h-admin-status--success {
+	color: #285e43;
+	background: #e8f0e7;
+}
+.h-admin-status--warning {
+	color: #8a651b;
+	background: #f7eed8;
+}
+.h-admin-status--danger {
+	color: #a33e26;
+	background: #fae9e2;
+}
+.h-admin-status-menu.MuiPaper-root {
+	min-width: 165px;
+	border-radius: 14px;
+	border: 1px solid var(--h-line);
+	box-shadow: 0 12px 36px #19352a22;
+	.MuiMenuItem-root {
+		margin: 3px 7px;
+		padding: 9px 10px;
+		border-radius: 8px;
+		justify-content: space-between;
+		gap: 18px;
+	}
+	.h-admin-status-option {
+		background: transparent;
+	}
+}
 .h-admin {
 	h1 {
 		font: 400 clamp(32px, 3.5vw, 52px) / 1.15 var(--h-heading);

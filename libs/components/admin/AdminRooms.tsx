@@ -2,12 +2,12 @@ import Link from 'next/link';
 import { ADMIN_ROOMS, ADMIN_ROOM_UPDATE } from '../../../apollo/admin/admin';
 import { RoomStatus } from '../../enums';
 import { Rooms } from '../../types/contracts';
-import { Button, Pagination, SiteImage, formatUsd } from '../common/ui';
+import { Pagination, SiteImage, formatUsd } from '../common/ui';
 import {
 	AdminFilters,
 	AdminHeading,
 	AdminState,
-	Status,
+	StatusMenu,
 	useAdminAction,
 	useAdminFilters,
 	useAdminList,
@@ -54,28 +54,26 @@ export default function AdminRooms() {
 									{r.roomCapacity} guests · {r.roomQuantity} rooms
 								</small>
 							</div>
-							<Status value={r.roomStatus} />
+							<StatusMenu
+								value={r.roomStatus}
+								name={r.roomName}
+								options={Object.values(RoomStatus)}
+								disabled={action.busy || r.roomStatus === RoomStatus.DELETE}
+								onChange={(status) =>
+									action.open({
+										title: `Set ${r.roomName} to ${status.toLowerCase()}?`,
+										description:
+											status === RoomStatus.DELETE
+												? 'Archive this room. Active reservations must be resolved first. Deleted records cannot be reactivated.'
+												: status === RoomStatus.PAUSED
+												? 'Stop new bookings. Existing reservations remain available.'
+												: 'Allow available booking requests again.',
+										variables: { input: { _id: r._id, roomStatus: status } },
+									})
+								}
+							/>
 							<div className="h-admin-actions">
 								<Link href={{ pathname: '/_admin/bookings', query: { hotelId: r.hotelId } }}>Hotel reservations ↗</Link>
-								{r.roomStatus !== RoomStatus.DELETE && (
-									<Button
-										variant="outlined"
-										disabled={action.busy}
-										onClick={() => {
-											const status = r.roomStatus === RoomStatus.ACTIVE ? RoomStatus.PAUSED : RoomStatus.ACTIVE;
-											action.open({
-												title: `${status === RoomStatus.PAUSED ? 'Pause' : 'Activate'} ${r.roomName}?`,
-												description:
-													status === RoomStatus.PAUSED
-														? 'This room will stop accepting new booking requests.'
-														: 'This room can accept available booking requests again.',
-												variables: { input: { _id: r._id, roomStatus: status } },
-											});
-										}}
-									>
-										{r.roomStatus === RoomStatus.ACTIVE ? 'Pause room' : 'Activate room'}
-									</Button>
-								)}
 							</div>
 						</article>
 					))}

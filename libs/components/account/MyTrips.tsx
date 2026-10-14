@@ -3,7 +3,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Alert, Dialog, DialogContent, DialogTitle, IconButton, MenuItem, Skeleton } from '@mui/material';
 import Head from 'next/head';
 import { useReadyRouter as useRouter } from '../../hooks/useReadyRouter';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { userVar } from '../../../apollo/store';
 import { CANCEL_STAY_BOOKING, GET_MY_TRIPS, GET_TRIP_DETAIL } from '../../../apollo/user/bookings';
 import { bookingError, canCancelTrip, parseTripsQuery } from '../../booking/booking-request';
@@ -11,7 +11,7 @@ import type { Booking, Bookings } from '../../types/contracts';
 import { BookingStatus } from '../../enums';
 import StayReviewDialog from '../booking/StayReviewDialog';
 import TripCard, { TripFacts, TripStatus } from '../booking/TripCard';
-import { Button, EmptyState, Field, Pagination } from '../common/ui';
+import { Button, EmptyState, Field, Pagination, formatUsd } from '../common/ui';
 
 function TripDialog({
 	bookingId,
@@ -29,12 +29,25 @@ function TripDialog({
 	const { data, loading, error, refetch } = useQuery<{ getBooking: Booking }>(GET_TRIP_DETAIL, {
 		variables: { bookingId },
 		fetchPolicy: 'network-only',
+		pollInterval: 15000,
 		notifyOnNetworkStatusChange: true,
 	});
 	const [pending, setPending] = useState(false),
 		[message, setMessage] = useState(''),
-		[done, setDone] = useState(false);
+		[done, setDone] = useState(false),
+		[cancellation, setCancellation] = useState<Booking>(),
+		[now, setNow] = useState(Date.now());
 	const booking = data?.getBooking;
+	useEffect(() => {
+		const timer = setInterval(() => setNow(Date.now()), 1000);
+		return () => clearInterval(timer);
+	}, []);
+	const deadline = booking?.freeCancellationUntil ? Date.parse(booking.freeCancellationUntil) : undefined;
+	const hasFeePolicy = booking?.cancellationFeeRate === 0.05 && deadline !== undefined;
+	const feeEstimate =
+		booking && hasFeePolicy
+			? Number((BigInt(Math.round(booking.totalPrice * 100)) * BigInt(5) + BigInt(50)) / BigInt(100)) / 100
+			: 0;
 	const guard = useRef(false);
 	const submit = async () => {
 		if (guard.current || !booking || !canCancelTrip(booking, user._id)) return;
@@ -47,6 +60,7 @@ function TripDialog({
 				variables: { bookingId },
 			});
 			if (!result.data?.cancelBooking) throw Error('No cancellation response');
+			setCancellation(result.data.cancelBooking);
 			setDone(true);
 			onCancelled();
 		} catch (failure) {
@@ -75,7 +89,7 @@ function TripDialog({
 			</DialogTitle>
 			<DialogContent>
 				<div className="h-trip-dialog">
-					{loading ? (
+					{loading && !booking ? (
 						<Skeleton height={180} />
 					) : error || !booking ? (
 						<EmptyState
@@ -90,14 +104,38 @@ function TripDialog({
 							<p>{booking.roomData?.roomName || 'Reserved accommodation'}</p>
 							<TripFacts booking={booking} />
 							{booking.hotelData && <p>{booking.hotelData.hotelAddress}</p>}
-							{booking.bookingStatus === BookingStatus.PENDING && booking.expiresAt && (
-								<p className="h-booking-note">Hold until {new Date(booking.expiresAt).toLocaleString()}</p>
+							{booking.bookingStatus === BookingStatus.PENDING && booking.freeCancellationUntil && (
+								<p className="h-booking-note">Automatically confirms after the 15-minute free cancellation period.</p>
+							)}
+							{booking.bookingStatus === BookingStatus.CANCELLED && booking.cancellationFee != null && !done && (
+								<Alert severity="info">
+									Cancellation fee: {formatUsd(booking.cancellationFee)}. Refund amount:{' '}
+									{formatUsd(booking.refundAmount ?? 0)}.
+								</Alert>
 							)}
 							{done ? (
-								<Alert severity="success">Your request was cancelled.</Alert>
+								<Alert severity="success">
+									Your request was cancelled. Cancellation fee: {formatUsd(cancellation?.cancellationFee ?? 0)}. Refund
+									amount: {formatUsd(cancellation?.refundAmount ?? 0)}.
+								</Alert>
 							) : cancel && canCancelTrip(booking, user._id) ? (
 								<>
 									<p>Cancel this stay request? Your host will see the updated status.</p>
+									<Alert severity={hasFeePolicy && now >= deadline! ? 'warning' : 'info'}>
+										{hasFeePolicy ? (
+											<>
+												{now < deadline!
+													? 'You are within the free cancellation period.'
+													: `The free cancellation period has ended. A 5% fee (${formatUsd(feeEstimate)}) applies.`}
+												<br />
+												Free cancellation until {new Date(deadline!).toLocaleString()}. After that, 5% (
+												{formatUsd(feeEstimate)}) is retained and 95% is refundable. The applicable fee is calculated
+												when cancellation is processed.
+											</>
+										) : (
+											'This booking has no cancellation fee.'
+										)}
+									</Alert>
 									<Button color="secondary" disabled={pending} onClick={submit}>
 										{pending ? 'Cancelling…' : 'Confirm cancellation'}
 									</Button>
@@ -119,6 +157,7 @@ export default function MyTrips() {
 		user = useReactiveVar(userVar);
 	const parsed = useMemo(() => parseTripsQuery(router.query), [router.query]);
 	const { data, loading, error, refetch } = useQuery<{ getMyBookings: Bookings }>(GET_MY_TRIPS, {
+		pollInterval: 15000,
 		variables: { input: parsed.input },
 		skip: !router.isReady || !user._id || !!parsed.error,
 		fetchPolicy: 'cache-and-network',
@@ -154,7 +193,9 @@ export default function MyTrips() {
 				</Button>
 			</div>
 			<div className="h-trips-toolbar">
-				<p aria-live="polite">{loading ? 'Opening your trips…' : `${total} ${total === 1 ? 'trip' : 'trips'}`}</p>
+				<p aria-live="polite">
+					{loading && !data ? 'Opening your trips…' : `${total} ${total === 1 ? 'trip' : 'trips'}`}
+				</p>
 				<Field
 					select
 					label="Trip status"
@@ -184,7 +225,7 @@ export default function MyTrips() {
 					description={parsed.error}
 					action={<Button onClick={() => navigate({ bookingStatus: '', tripPage: '1' })}>Start fresh</Button>}
 				/>
-			) : loading || !router.isReady ? (
+			) : (loading && !data) || !router.isReady ? (
 				<div aria-label="Loading trips" aria-busy="true">
 					<Skeleton variant="rectangular" height={230} />
 					<Skeleton height={240} />
@@ -216,7 +257,7 @@ export default function MyTrips() {
 					))}
 				</div>
 			)}
-			{!loading && !error && !parsed.error && (
+			{data && !error && !parsed.error && (
 				<Pagination
 					page={parsed.input.page}
 					limit={parsed.input.limit}
@@ -224,7 +265,7 @@ export default function MyTrips() {
 					onChange={(page) => navigate({ tripPage: String(page) })}
 				/>
 			)}
-			{!loading && !error && !parsed.error && parsed.input.page > 1 && !list.length && (
+			{data && !error && !parsed.error && parsed.input.page > 1 && !list.length && (
 				<Button onClick={() => navigate({ tripPage: '1' })}>First trip page</Button>
 			)}
 			{active && (

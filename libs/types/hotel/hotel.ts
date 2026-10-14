@@ -3,6 +3,12 @@ import { HotelType, HotelStatus, HotelAmenity } from '../../enums/index';
 import type { TotalCounter, MemberPublic } from '../contracts';
 
 // Backend: dto/hotel/hotel.ts
+export interface HotelLocation {
+	city: string;
+	country: string;
+}
+
+// Backend: dto/hotel/hotel.ts
 export interface Hotel {
 	startingPrice?: number | null;
 	isFavorite?: boolean | null;

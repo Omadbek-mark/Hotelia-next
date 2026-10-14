@@ -24,10 +24,12 @@ import { searchLabels } from '../../search/hotel-search';
 import type { AvailableRoom, AvailableRooms, Comments, Hotel, Room, Rooms, StayInput } from '../../types/contracts';
 import { CommentGroup, Direction, RoomSort, RoomType } from '../../enums';
 import BookingRequestDialog from '../booking/BookingRequestDialog';
+import PaymentMethodChoice from '../payment/PaymentMethodChoice';
 import PhotoGallery from '../common/PhotoGallery';
 import HotelMetrics from '../common/HotelMetrics';
 import { Button, Chip, EmptyState, Field, formatUsd, Pagination, SiteImage } from '../common/ui';
 import PublicLayout from '../layout/PublicLayout';
+import HotelComments from './HotelComments';
 import StayAvailabilityForm from './StayAvailabilityForm';
 
 const labels: Record<string, string> = {
@@ -295,13 +297,10 @@ export default function HotelDetail() {
 						</section>
 						{hotel.memberData && (
 							<section className="h-detail-host">
-								{hotel.memberData.memberImage ? (
-									<SiteImage src={hotel.memberData.memberImage} alt={hotel.memberData.memberNick} />
-								) : (
-									<span className="h-host-initial" aria-hidden="true">
-										{hotel.memberData.memberNick.slice(0, 1)}
-									</span>
-								)}
+								<SiteImage
+									src={hotel.memberData.memberImage || '/img/profile/defaultUser.svg'}
+									alt={hotel.memberData.memberNick}
+								/>
 								<div>
 									<span className="h-eyebrow">Your host</span>
 									<h3>{hotel.memberData.memberNick}</h3>
@@ -466,49 +465,25 @@ export default function HotelDetail() {
 								(parsed.roomInput.page || 1) > 1 &&
 								!rooms.length && <Button onClick={() => navigate({ roomPage: '1' }, false)}>First room page</Button>}
 						</section>
-						<section className="h-detail-section" id="guest-reviews">
-							<div className="h-detail-section-title">
-								<h2>Guest reviews</h2>
-								<span className="h-eyebrow">Completed stays</span>
-							</div>
-							{reviews.loading ? (
-								<Skeleton height={130} />
-							) : reviews.error ? (
-								<EmptyState
-									error
-									title="Reviews could not load"
-									action={<Button onClick={() => reviews.refetch().catch(() => {})}>Try again</Button>}
-								/>
-							) : !reviews.data?.getComments.list.length ? (
-								<EmptyState title="Your story could be the first" description="Reviews appear after completed stays." />
-							) : (
-								<div className="h-review-list">
-									{reviews.data.getComments.list.map((review) => (
-										<article key={review._id} className="h-review">
-											<div>
-												<strong>{review.memberData?.memberNick || 'Hotelia guest'}</strong>
-												{review.rating != null && (
-													<span className="h-rating">
-														<StarRoundedIcon fontSize="small" />
-														{review.rating.toFixed(1)}
-													</span>
-												)}
-											</div>
-											<p>“{review.commentContent}”</p>
-											{review.bookingId && <span className="h-eyebrow">Verified stay</span>}
-										</article>
-									))}
-								</div>
-							)}
-							{!reviews.loading && !reviews.error && (
-								<Pagination
-									page={reviewPage}
-									total={reviews.data?.getComments.metaCounter?.[0]?.total || 0}
-									limit={4}
-									onChange={setReviewPage}
-								/>
-							)}
-						</section>
+						<HotelComments
+							hotelId={hotelId}
+							data={reviews.data?.getComments}
+							loading={reviews.loading}
+							failed={!!reviews.error}
+							page={reviewPage}
+							setPage={setReviewPage}
+							refresh={(firstPage) =>
+								reviews.refetch({
+									input: {
+										page: firstPage ? 1 : reviewPage,
+										limit: 4,
+										sort: 'createdAt',
+										direction: Direction.DESC,
+										search: { commentRefId: hotelId, commentGroup: CommentGroup.HOTEL },
+									},
+								})
+							}
+						/>
 						<section className="h-detail-section h-detail-address">
 							<span className="h-eyebrow">The neighborhood</span>
 							<h2>{hotel.hotelCity}</h2>
@@ -565,6 +540,7 @@ export default function HotelDetail() {
 											</div>
 										)}
 										<p className="h-stay-note">Final price is confirmed when you request your stay.</p>
+										<PaymentMethodChoice />
 										<Button fullWidth color="secondary" onClick={() => setBookingOpen(true)}>
 											Request booking
 										</Button>

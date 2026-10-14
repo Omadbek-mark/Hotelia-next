@@ -1,10 +1,12 @@
+import LanguageIcon from '@mui/icons-material/Language';
+import { useHoteliaTranslation } from '../../hooks/useHoteliaTranslation';
 import NotificationLink from '../common/NotificationLink';
 import PublicFooter from './PublicFooter';
 import { useReactiveVar } from '@apollo/client';
 import CloseIcon from '@mui/icons-material/Close';
 import MenuIcon from '@mui/icons-material/Menu';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
-import { Drawer, IconButton } from '@mui/material';
+import { Drawer, IconButton, Menu, MenuItem } from '@mui/material';
 import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -19,8 +21,7 @@ const links = [
 	{ label: 'Stays', href: '/hotel' },
 	{ label: 'Hosts', href: '/hotel-owner' },
 	{ label: 'Journal', href: '/journal' },
-	{ label: 'Saved', href: '/account?category=myFavorites' },
-	{ label: 'Trips', href: '/account?category=myBookings' },
+	{ label: 'About us', href: '/about' },
 ];
 
 export function Brand() {
@@ -44,6 +45,11 @@ export function Brand() {
 
 export default function PublicLayout({ children, title = 'Open Horizons' }: { children: ReactNode; title?: string }) {
 	const router = useRouter();
+	const tr = useHoteliaTranslation();
+	const [accountAnchor, setAccountAnchor] = useState<HTMLElement | null>(null);
+	const [languageAnchor, setLanguageAnchor] = useState<HTMLElement | null>(null);
+	const [changingLanguage, setChangingLanguage] = useState(false);
+	const [languageError, setLanguageError] = useState('');
 	const user = useReactiveVar(userVar);
 	const [open, setOpen] = useState(false);
 	const [scrolled, setScrolled] = useState(false);
@@ -55,7 +61,9 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 	}, []);
 	useEffect(() => {
 		setOpen(false);
-	}, [router.asPath]);
+		setAccountAnchor(null);
+		setLanguageAnchor(null);
+	}, [router.asPath, router.locale, user._id, user.memberType]);
 	const navigation = (
 		<>
 			{links.map(({ label, href }) => (
@@ -74,7 +82,7 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 							: undefined
 					}
 				>
-					{label}
+					{tr(label)}
 				</Link>
 			))}
 		</>
@@ -99,24 +107,42 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 					</nav>
 					<div className="h-header-actions">
 						<NotificationLink />
-						{user.memberType === MemberType.HOTEL_OWNER && (
-							<Link className="h-owner-link" href="/owner">
-								Host dashboard
-							</Link>
-						)}
-						{user.memberType === MemberType.ADMIN && (
-							<Link className="h-owner-link" href="/_admin">
-								Admin
-							</Link>
-						)}
-						<Link
-							className="h-account-link"
-							aria-label={user._id ? user.memberNick : 'Account'}
-							href={user._id ? '/account?category=myProfile' : '/account/join'}
+						<button
+							className="h-language-button"
+							type="button"
+							aria-label={tr('Choose language')}
+							aria-haspopup="menu"
+							aria-expanded={!!languageAnchor}
+							aria-controls={languageAnchor ? 'hotelia-language-menu' : undefined}
+							onClick={(event) => setLanguageAnchor(event.currentTarget)}
+							disabled={changingLanguage}
 						>
-							<span>{user._id ? user.memberNick : 'Account'}</span>
-							<PersonOutlineIcon fontSize="small" />
-						</Link>
+							<LanguageIcon fontSize="small" />
+							<span>{(router.locale || 'en').toUpperCase()}</span>
+						</button>
+						{user._id ? (
+							<button
+								type="button"
+								className="h-account-link"
+								aria-label={user.memberNick}
+								aria-haspopup="menu"
+								aria-expanded={!!accountAnchor}
+								aria-controls={accountAnchor ? 'hotelia-account-menu' : undefined}
+								onClick={(event) => setAccountAnchor(event.currentTarget)}
+							>
+								<span>{user.memberNick}</span>
+								<PersonOutlineIcon fontSize="small" />
+							</button>
+						) : (
+							<Link
+								className="h-account-link"
+								aria-label={user._id ? user.memberNick : tr('Account')}
+								href={user._id ? '/account?category=myProfile' : '/account/join'}
+							>
+								<span>{user._id ? user.memberNick : tr('Account')}</span>
+								<PersonOutlineIcon fontSize="small" />
+							</Link>
+						)}
 						<IconButton
 							className="h-mobile-menu"
 							aria-label="Open menu"
@@ -129,6 +155,77 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 					</div>
 				</div>
 			</header>
+			<Menu
+				id="hotelia-account-menu"
+				anchorEl={accountAnchor}
+				open={!!accountAnchor && !!user._id}
+				onClose={() => setAccountAnchor(null)}
+				PaperProps={{ className: 'h-navbar-menu' }}
+			>
+				<MenuItem component={Link} href="/account?category=myProfile" onClick={() => setAccountAnchor(null)}>
+					{tr('My profile')}
+				</MenuItem>
+				{(user.memberType === MemberType.HOTEL_OWNER || user.memberType === MemberType.ADMIN) && (
+					<MenuItem
+						component={Link}
+						href={user.memberType === MemberType.ADMIN ? '/_admin' : '/owner'}
+						onClick={() => setAccountAnchor(null)}
+					>
+						{tr('Dashboard')}
+					</MenuItem>
+				)}
+				<MenuItem
+					onClick={() => {
+						setAccountAnchor(null);
+						void logOut();
+					}}
+					divider
+				>
+					{tr('Log out')}
+				</MenuItem>
+			</Menu>
+			<Menu
+				id="hotelia-language-menu"
+				anchorEl={languageAnchor}
+				open={!!languageAnchor}
+				onClose={() => setLanguageAnchor(null)}
+				PaperProps={{ className: 'h-navbar-menu' }}
+			>
+				{[
+					{ code: 'en', label: 'EN · English' },
+					{ code: 'ru', label: 'RU · Русский' },
+					{ code: 'uz', label: 'UZ · O‘zbekcha' },
+				].map(({ code, label }) => (
+					<MenuItem
+						key={code}
+						selected={(router.locale || 'en') === code}
+						disabled={changingLanguage}
+						onClick={async () => {
+							setChangingLanguage(true);
+							setLanguageError('');
+							try {
+								await router.push({ pathname: router.pathname, query: router.query }, router.asPath, {
+									locale: code,
+									scroll: false,
+								});
+								document.cookie = `NEXT_LOCALE=${code}; Path=/; Max-Age=31536000; SameSite=Lax`;
+								setLanguageAnchor(null);
+							} catch {
+								setLanguageError(tr('Could not change language. Try again.'));
+							} finally {
+								setChangingLanguage(false);
+							}
+						}}
+					>
+						{label}
+					</MenuItem>
+				))}
+				{languageError && (
+					<p role="alert" className="h-language-error">
+						{languageError}
+					</p>
+				)}
+			</Menu>
 			<Drawer open={open} anchor="right" onClose={() => setOpen(false)}>
 				<div className="h-mobile-drawer">
 					<div className="h-drawer-top">
@@ -140,8 +237,6 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 					<nav id="hotelia-mobile-navigation" aria-label="Mobile navigation">
 						{navigation}
 						<Link href="/support">Help</Link>
-						{user.memberType === MemberType.HOTEL_OWNER && <Link href="/owner">Host dashboard</Link>}
-						{user.memberType === MemberType.ADMIN && <Link href="/_admin">Admin dashboard</Link>}
 					</nav>
 					{user._id && (
 						<button
@@ -151,7 +246,7 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 								setOpen(false);
 							}}
 						>
-							Sign out
+							Log out
 						</button>
 					)}
 				</div>

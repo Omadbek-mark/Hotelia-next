@@ -38,7 +38,7 @@ test('concurrent submit shares one operation and sends only server-supported inp
 	assert.equal(first, second);
 	await Promise.resolve();
 	assert.equal(calls, 1);
-	assert.deepEqual(input, { ...details, requestId: uuid1 });
+	assert.deepEqual(input, { ...details, requestId: uuid1, paymentMethod: 'CEO_BANK_ACCOUNT' });
 	finish({ _id: 'booking', totalPrice: 750, bookingStatus: 'PENDING' });
 	assert.equal((await first).totalPrice, 750);
 });

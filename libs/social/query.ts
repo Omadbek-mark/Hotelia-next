@@ -25,7 +25,7 @@ export function parseHostQuery(query: SearchQuery) {
 		text = query.text ?? '';
 	const input: HotelOwnersInquiry = {
 		page: page || 1,
-		limit: 6,
+		limit: 8,
 		sort: 'memberRank',
 		direction: Direction.DESC,
 		search: {},

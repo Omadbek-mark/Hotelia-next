@@ -58,6 +58,8 @@ export const GET_NOTIFICATIONS = gql`
 				notificationDesc
 				hotelId
 				bookingId
+				roomId
+				inquiryId
 				createdAt
 				updatedAt
 			}
@@ -70,6 +72,14 @@ export const GET_NOTIFICATIONS = gql`
 export const GET_UNREAD_COUNT = gql`
 	query SupportUnreadCount {
 		getUnreadNotificationCount
+	}
+`;
+export const GET_UNREAD_COUNTS = gql`
+	query SupportUnreadCounts {
+		getUnreadNotificationCounts {
+			notificationType
+			total
+		}
 	}
 `;
 export const MARK_NOTIFICATION_READ = gql`

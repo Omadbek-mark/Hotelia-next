@@ -10,8 +10,6 @@ const navigation = [
 	['Recently viewed', 'recentlyVisited'],
 	['My profile', 'myProfile'],
 	['My journal', 'myArticles'],
-	['Followers', 'followers'],
-	['Following', 'followings'],
 ];
 
 export default function AccountLayout({ children }: { children: ReactNode }) {
@@ -37,7 +35,7 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
 						void logOut();
 					}}
 				>
-					Sign out
+					Log out
 				</Button>
 			</aside>
 			<div className="h-account-content">{children}</div>

@@ -1,5 +1,7 @@
 import { DocumentNode, useMutation, useQuery, useReactiveVar } from '@apollo/client';
-import { Alert } from '@mui/material';
+import { Alert, Menu, MenuItem } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CheckIcon from '@mui/icons-material/Check';
 import { useReadyRouter as useRouter } from '../../hooks/useReadyRouter';
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { userVar } from '../../../apollo/store';
@@ -142,6 +144,63 @@ export const statusTone = (status: string) =>
 export function Status({ value }: { value: string }) {
 	return <Chip tone={statusTone(value)}>{label(value)}</Chip>;
 }
+export function StatusMenu({
+	value,
+	name,
+	options,
+	disabled = false,
+	onChange,
+}: {
+	value: string;
+	name: string;
+	options: string[];
+	disabled?: boolean;
+	onChange: (status: string) => void;
+}) {
+	const menuLabel = (status: string) => (status === 'DELETE' ? 'Delete' : status === 'BLOCK' ? 'Block' : label(status));
+	const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
+	return (
+		<>
+			<button
+				type="button"
+				className={`h-admin-status h-admin-status--${statusTone(value)}`}
+				aria-label={`Change status for ${name}: ${menuLabel(value)}`}
+				aria-haspopup="menu"
+				aria-expanded={!!anchor}
+				disabled={disabled}
+				onClick={(event) => setAnchor(event.currentTarget)}
+			>
+				<span className="h-admin-status-dot" />
+				{menuLabel(value)}
+				<ExpandMoreIcon fontSize="small" />
+			</button>
+			<Menu
+				anchorEl={anchor}
+				open={!!anchor && !disabled}
+				onClose={() => setAnchor(null)}
+				PaperProps={{ className: 'h-admin-status-menu' }}
+			>
+				{options.map((status) => (
+					<MenuItem
+						key={status}
+						selected={value === status}
+						disabled={value === status}
+						onClick={() => {
+							setAnchor(null);
+							onChange(status);
+						}}
+					>
+						<span className={`h-admin-status-option h-admin-status--${statusTone(status)}`}>
+							<span className="h-admin-status-dot" />
+							{menuLabel(status)}
+						</span>
+						{value === status && <CheckIcon fontSize="small" />}
+					</MenuItem>
+				))}
+			</Menu>
+		</>
+	);
+}
 export const shortDate = (value: string) =>
 	new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(
 		new Date(value),
@@ -173,11 +232,16 @@ export function useAdminAction(document: DocumentNode, refresh: () => Promise<un
 			await refresh().catch(() => {
 				setFeedback('Change saved. Refresh to see the latest records.');
 			});
-		} catch {
+		} catch (error) {
 			if (userVar()._id === actor) {
 				setAction(null);
 				setFailed(true);
-				setFeedback('The change could not be confirmed. Refresh and check the current record before trying again.');
+				const reason = (error as { graphQLErrors?: { message: string }[] }).graphQLErrors?.[0]?.message;
+				setFeedback(
+					reason === 'Hotel has active bookings' || reason === 'Room has active bookings'
+						? `${reason}. Resolve those reservations before deleting.`
+						: 'The change could not be confirmed. Refresh and check the current record before trying again.',
+				);
 				await refresh().catch(() => {});
 			}
 		} finally {

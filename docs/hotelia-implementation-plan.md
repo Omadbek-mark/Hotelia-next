@@ -201,3 +201,139 @@ Replaced the opaque ivory/sage navbar gradient with a restrained dark forest gla
 Generated a new transparent Hotelia emblem using imagegen: a terracotta badge combines an ivory H, a welcoming arch/doorway and a rising sun/horizon. Saved the project asset as public/img/hotelia/hotelia-logo-v1.png and integrated it to the left of the wordmark through the shared Brand component, including navbar, mobile drawer and footer. Next Image delivers optimized sizes; decorative image has empty alt while the brand link retains its accessible name. Desktop logo is 48px and mobile 40px. Brand wordmark now uses weight 600; navigation, dashboard and account text use weight 700.
 
 101 frontend tests and production build passed. Browser verified the logo loads in header/footer/mobile drawer, font weights resolve correctly, and widths 390/320px do not overflow or overlap actions. Preview: hotelia-stitch/hotelia-logo-navbar.png. App on 3015; stop for user review, no push.
+
+### Design refinement 09 — 2026-10-11
+
+Added a 64x64 transparent PNG favicon derived from the new Hotelia logo at public/img/hotelia/favicon-v1.png. The shared document head now references this PNG instead of the older SVG, covering every route. Versioned URL avoids stale old-icon caching. Production build passed; browser opened the new favicon and verified the image loads at 64x64. Preview: hotelia-stitch/hotelia-favicon-preview.png. Stop for review, no push.
+
+### Design refinement 10 — 2026-10-11
+
+Public desktop/mobile navigation replaces Saved/Trips with About us. Footer collection links are also removed; My trips and Saved stays remain in the account sidebar. Following/Followers sidebar links are removed. Existing contextual booking/notification actions remain tied to their records. The existing /about route reuses its truthful Hotelia content in a new editorial layout: architectural image, value cards, four-step discovery/booking/community journey and host/support actions.
+
+New shared ProfileCard matches the supplied cover/overlapping avatar/three-count reference and is used in home host cards, host directory, public member/host detail and My profile. It shows backend memberLikes, memberFollowings and memberFollowers in that order. Counts are requested by the social fragment and preserved in authenticated session state. Following/followers open compact ConnectionsDialog, reusing existing list queries/follow mutations with dialog-local pagination and no URL changes. Profile cards remain mounted during background follow refetches. Existing legacy connection URLs still resolve.
+
+My profile shows the shared card with Edit profile instead of Follow. Its existing upload/update form opens in a dialog, retains validation/upload/save error handling, blocks duplicate saves, updates the session/card on confirmed success and closes. No live profile/follow writes were performed; backend files remain unchanged.
+
+103 frontend tests and final production build passed. New regression checks cover global/sidebar navigation, both circle query directions/local paging, editor opening and exactly one save with refreshed card/session. Browser verified desktop cards/real server counts, populated follower dialog, preserved editor fields, About us and 390px mobile layout/dialogs without overflow. Corrected Follow button contrast against its ivory pill and verified computed forest text. Previews: hotelia-stitch/profile-card-live.png, host-profile-cards.png, profile-circle-live.png and about-us-live.png; populated sample editor in profile-editor-ui-test.html. Previous uncommitted favicon changes were preserved. App is on 3015; stop for user review.
+
+### Refinement 11 — Compact discovery, account menus and languages (2026-10-11)
+
+- Navbar owner/admin dashboard links moved into role-aware account menus with Profile and Dashboard. Ordinary members retain the profile link.
+- Added Next/i18next EN/RU/UZ locale routing, bundled translations for navbar, home discovery, search, filters and hotel card labels. Language selection preserves the active route and query; locale cookie persists the choice.
+- Home discovery queries request four hotels and render four desktop columns; home host previews show only circular portraits, names and owner roles. Full public/profile cards remain available in their pages.
+- Stays search and three-column listing cards are compact; contrasting filter panel uses backend enum chips, rating choices, budget slider plus exact inputs, and amenity checkboxes. Draft validation, destination/date retention and mobile drawer remain intact.
+- Verified role menu destinations, ordinary member navigation, locale/query preservation, invalid budget rejection, enum/amenity submission and reset behavior. Desktop and 320px mobile browser verification. No backend changes.
+
+### Refinement 12 — Profile identity, own content and member likes (2026-10-11)
+
+- Host directory search now has a compact input and button on one line, with sorting alongside on desktop.
+- Shared profile cards use a neutral abstract community cover. Statistics show Views, Following and Followers; a centered footer heart shows member likes and toggles the existing backend likeTargetMember mutation. Backend memberViews/meLiked are selected rather than invented.
+- Own cards outside My profile display inert You and link only the name to My profile; own avatars do not link. My profile retains Edit profile and does not link its own card to a public profile.
+- Reused profile content sections show own stories for every role and own published hotels for owners/admins in My profile. Pagination preserves the account route/category. Other visitors retain public profile behavior.
+- Member like cache updates synchronize duplicate/shared cards after successful mutations, prevent repeated submission, and redirect anonymous visitors to sign-in. No backend files changed.
+
+### Refinement 13 — Auth reference design (2026-10-11)
+
+- Login and registration now match the supplied reference with the form on the left and the existing Korean courtyard image on the right. White form cards, segmented mode controls, cream icon inputs, role cards, password visibility and forest/clay actions share the Hotelia palette.
+- Replaced visible Sign in/Sign out wording with Log in/Log out throughout the frontend and added EN/RU/UZ auth copy. Existing login/signup payloads, role enums, validation and safe return routing are retained; repeated submission is guarded.
+- 116 frontend tests, typecheck and production build passed. Browser verified both desktop modes and 320px mobile modes without horizontal overflow. No live login/signup submissions or backend changes. Preview remains on localhost:3015; stopped for user review.
+
+### Refinement 14 — Framed glass hero (2026-10-11)
+
+- Home hero adopts the supplied reference composition: forest frame, rounded lower corners, a broad photograph, compact left-aligned heading with warm accent, an ivory discovery link and a translucent search panel at the bottom.
+- Home's initial navbar has a lighter pill-shaped glass surface. Existing scroll behavior, navigation, language/account controls and search validation, dates, guests/rooms and routing remain intact. Hero styles are scoped away from the stays search form.
+- 116 frontend tests and production build passed; desktop and mobile layouts reviewed in the browser. No backend changes. Stop for user review on localhost:3015.
+
+### Refinement 15 — Compact navbar and hero search (2026-10-11)
+
+- Desktop navbar is centered with a 1120px maximum width, 70px height and smaller brand mark. Hero search is centered at a maximum 1000px with tighter padding, narrowing to 660px on tablets. Existing controls and mobile navigation remain intact.
+- Production build and browser desktop/mobile layout checks passed. Stop for user review on localhost:3015.
+
+### Refinement 16 — Shared hero alignment (2026-10-11)
+
+- Hero introduction and search panel now share the navbar's inner desktop edges (1080px maximum), with a shared 660px content width on tablets. Removed the redundant discovery button beneath the introduction; the existing search submit remains.
+- Production build and browser alignment/mobile checks passed. No search or navigation logic changed. Stop for user review on localhost:3015.
+
+### Refinement 17 — Nestar-style live chat integration (2026-10-11)
+
+- Inspected Nestar's shared WebSocket chat, event handlers and layout mounts. Connected Hotelia's existing public room protocol through a single app-level chat instance so navigation preserves drafts and open state. Existing assistant tab retained.
+- Redesigned the floating lounge in Hotelia's forest/clay/paper palette with rounded tabs, confirmed left/right bubbles, timestamps, presence status and unread badge; EN/RU/UZ labels added.
+- Hardened duplicate submission/packet handling, failed-message restoration, confirmation timeout, reconnect lifecycle and keyboard close. No backend logic or private-message API added; contract and public-room limits documented in `docs/chat-integration.md`.
+- 120 frontend tests, typecheck and production build passed. Real API handshake verified history/presence without broadcasting test messages. Browser verified connected chat, draft/open-state retention on navigation and 320px layout. Stop for review on localhost:3015.
+
+### Refinement 18 — Chat identity and dismissal (2026-10-11)
+
+- Guest/member identity switches renew the WebSocket; known connection IDs are grouped by local identity to preserve own bubbles across reconnects. Current identity messages align right, other identities left. Existing backend remains anonymous and unchanged.
+- Refined forest-gradient header, paper message bubbles and circular icon-only launcher. Outside pointer clicks dismiss the window; Escape and explicit close remain available.
+- Logout now navigates directly to home through the shared auth function. Added regressions for identity transitions, outside dismissal and logout destination.
+- Own connection IDs survive same-tab reload via bounded session storage. 123 tests and final production build passed; browser verified outside dismissal, redesigned panel/icon and 320px overflow. Stop for review on localhost:3015.
+
+### Refinement 19 — Account menu and member update (2026-10-11)
+
+- All authenticated accounts open a My profile / Log out menu; owners and admins additionally retain Dashboard above Log out. Anonymous navigation is unchanged.
+- Traced member update against backend DTO/service: blank phone strings are rejected by profileChanges even though the form permits an empty optional phone. New frontend payload builder omits empty optional phone/email/full-name values, trims inputs and preserves the backend allowlist. Server-confirmed member responses and current session identity are checked before applying updates.
+- Profile conflicts show actionable feedback and permit corrected retries. Regression verifies empty phone omission, conflict feedback, retry and refreshed session; role/menu tests verify ordinary and owner/admin choices. 124 tests and production build passed.
+- User clarified that hotels were not tested yet and requested member errors first. Hotel create/update investigation is deferred to the next review stage. No backend changes or live profile writes performed.
+
+### Refinement 20 — Image formats and upload size (2026-10-11)
+
+- Removed the 15 MB restriction from frontend validation, GraphQL multipart middleware and backend streaming validation. Shared profile, hotel/room and story uploads accept JPG/JPEG, PNG and WebP; picker hints and helper text match.
+- Added WebP RIFF/WEBP signature validation, retaining empty-file/type checks, upload count limits and partial-file cleanup. Profile photo failures now display the actual upload error.
+- Seven backend upload tests passed, including split WebP headers, mismatched content and an image over 15 MB. All 124 frontend tests and both production builds passed. Backend watch reload and frontend localhost:3015 are active. No live member data changed. Stop for review.
+
+### Refinement 21 — Upload argument validation fix (2026-10-11)
+
+- Reproduced “Promise resolver undefined is not a function” in Nest ValidationPipe with upload Promise metadata. GraphQLUpload handles parsing, but class-transformer tried to instantiate Promise without an executor.
+- Single-upload argument now has Object runtime metadata through a FileUpload/Promise union, preserving awaited uploads and all DTO validation. Added regression through the actual global ValidationPipe and resolver. Eight backend upload tests and backend build passed; watch reload applies the fix. No live profile changes performed. Stop for review.
+
+### Refinement 22 — Compact host directory and profile location (2026-10-11)
+
+- Host directory uses four compact cards per desktop row, two on tablets and one on phones; pagination now loads eight hosts for two desktop rows. Reduced cover/avatar dimensions and card spacing.
+- Shared SocialProfile query includes existing memberAddress; the shared ProfileCard renders a forest-tinted location row only for nonblank addresses, covering travelers, owners, admins and My profile. No backend changes.
+- Home ordering verified: ACTIVE HOTEL_OWNER only, memberRank descending, then _id descending, first four. Batch formula is hotels×4 + articles×3 + likes×2 + views; scheduled daily at 01:00:40 Asia/Tashkent when the batch service runs.
+- Production build passed. Initial frontend run passed 123 of 124 tests; the sole failure was the old six-item pagination expectation. Updated expectation to eight and the affected two tests passed. Browser verified four columns and eight visible host cards; screenshot saved. Stop for review.
+
+### Refinement 23 — Hero action color and opt-in portrait card (2026-10-11)
+
+- Hero Search stays uses the same clay background and darker hover as the navbar Account button.
+- Added an opt-in portrait variant to the shared ProfileCard, enabled only for the first host card when cardPreview=portrait. Normal cards remain unchanged pending user design review. Real member photo, gradient overlay and all existing follow/edit/You, profile links, address, views/connections and like controls are retained.
+- Preview: /hotel-owner?cardPreview=portrait&text=David. Production build, social query tests and diff check passed. Browser inspected actual member photo, address and stats. Stop for review before applying broadly.
+
+### Refinement 24 — Approved portrait cards (2026-10-11)
+
+- Applied the approved portrait style to all shared profile cards. Removed the directory preview gate. Role badge now shares the address row; absent addresses still leave the role visible. Removed @nickname and repositioned the heading lower over the portrait. Full name takes precedence, falling back to nickname after trimming.
+- Existing profile navigation, own You/edit controls, connections, views and likes retained. All 124 frontend tests, production build and diff check passed. Browser verified David card with England/Hotel owner on one row and no handle; screenshot saved. Stop for review.
+
+### Refinement 25 — Filter reset and hotel comments (2026-10-11)
+
+- Verified live Resort filtering through Show stays: 20 hotels reduced to three. Reset filters previously only cleared the draft form; it now applies cleared filters immediately, preserving destination/date/occupancy and resetting page one. Browser confirmed return to 20 stays without a second submit.
+- Replaced the detail guest-review block with compact avatar/name/date comment rows, verified-stay badges, pagination and an inline composer below the list. Login required, guest login referrer retained; submission uses server identity, trims content, retains existing 100-character limit, guards duplicate sends and refreshes page one after confirmed creation.
+- User explicitly authorized backend support for comments from every authenticated role. HOTEL comments without booking/rating now save against ACTIVE hotels. Booking/rating remain paired and verified for rated reviews; ordinary comments cannot acquire ratings later. Rating aggregates and owner review lists include only verified bookings, preserving hotel scores and review counts.
+- 125 frontend tests and 10 backend comment tests passed; both production builds and diff checks passed. Browser verified composer and filter reset; backend watch reload and localhost:3015 active. No live comments posted. Stop for review.
+
+### Refinement 26 — Central Asian destinations (2026-10-11)
+
+- Inspected Nestar property Filter.tsx location selection/expansion. Removed the guest-rating control and placed a multi-city location section first: five visible cities, four additional cities on hover, collapsed on pointer exit; More/Fewer cities supports touch and keyboard. Selected cities remain summarized when hidden.
+- Shared canonical destinations cover Uzbekistan, Kazakhstan and Kyrgyzstan. Homepage/catalog search offers nine city suggestions, with new Central Asia placeholder and EN/RU/UZ labels. Search destination and checkbox cities replace one another to avoid conflicting location constraints.
+- Added bounded cities array to backend inquiry and generated frontend contracts. Catalog matches selected cities with escaped, exact, case-insensitive OR patterns, combined with existing price/type/amenity/availability constraints. URL parser validates/deduplicates/round-trips city lists.
+- Reworked A change of scenery with Tashkent/Almaty/Bishkek city links and original vector illustrations in the project palette; country labels, short copy and hero description reflect Central Asia. User clarified the initially truncated request.
+- 126 frontend tests, 76 backend hotel tests, targeted filter regression, both production builds and diff checks passed. Browser confirmed 5→9→5 expansion and Tashkent+Almaty results (three actual stays), plus destination cards. No data mutations. Stop for review.
+
+### Refinement 27 — City photography and database locations
+
+Home destination cards now use locally hosted photographs of Tashkent, Almaty and Bishkek, with expandable source/author/license credits. The public getHotelLocations query aggregates distinct nonblank cities from active hotels in Uzbekistan, Kazakhstan and Kyrgyzstan, without hotel details or user data. Both Location checkboxes and search suggestions use that query; failures show a retry action in the filter. Hotel name search comes before Location. Five cities remain visible and the remaining database cities expand on hover or the toggle. City selection permits up to 100 cities, matching backend validation. Existing stay dates, occupancy, price and amenity logic is preserved.
+
+Validation: frontend tests and backend hotel API tests, production builds, and live browser checks for image loading, database city options and filter order.
+
+### Refinement 28 — Admin status menus
+
+Members use Active/Block/Delete status menus; hotels and rooms use Active/Paused/Delete. Existing confirmation, mutation locking and server refetch are preserved; admin/self protection and archived terminal states remain. Admin hotel/room Delete now runs the existing transactional soft-delete path with active booking checks. Hotel owner counts update in the same transaction, including blocked or archived owners. Admin room deletion locks parent inventory even if the parent hotel was paused or archived. Booking conflicts show a specific explanation. No live statuses were changed during verification.
+
+Validation: frontend admin interaction tests (including Delete payloads and current-option disabling), backend hotel/room GraphQL tests for admin authorization, transactional deletion, inventory locks and active-booking rejection; production builds.
+
+
+### Refinement 29 — Views and engagement discovery (2026-10-12)
+
+Worth discovering now requests MOST_VIEWED (hotelViews descending). Popular places retains MOST_POPULAR and reuses hotelRank with the revised formula: hotelLikes + all ACTIVE HOTEL comments, including plain comments and verified reviews. Deleted comments and other comment groups are excluded. Equal ranks break ties by likes, then ID; views break ties by ID. Both sorts apply before pagination, with four cards per homepage section. The popularity query calculates current hotelRank from existing comment records so legacy stored ranks do not distort discovery. Like/unlike and comment create/update/delete persist the new rank in their existing transactions; the scheduled hotel rank batch uses the same formula and serializes writes with those transactions. Owner rank and verified rating formulas are preserved. Added MOST_VIEWED labels in EN/RU/UZ and synchronized generated contracts.
+
+Validation: hotel/comment GraphQL tests, hotel-search parser tests, frontend typecheck and production builds, plus isolated real MongoDB tests for rank updates, idempotent favorites, soft-deleted comments, batch recalculation and sorting before the top-four limit. The existing review-notification integration assertion was aligned with its current hotel-scoped payload (booking identity is omitted). No live application records were created or changed.

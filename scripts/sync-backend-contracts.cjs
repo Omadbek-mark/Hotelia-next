@@ -26,6 +26,7 @@ for (const name of [
 	'board-article',
 	'notice',
 	'notification',
+	'payment',
 ]) {
 	const file = path.join(source, 'enums', `${name}.enum.ts`);
 	const tree = parse(file);
@@ -73,7 +74,7 @@ const files = [
 	'like/favorites.inquiry.ts',
 	'view/visited.inquiry.ts',
 ];
-for (const folder of ['hotel', 'room', 'booking', 'comment', 'board-article', 'support', 'notification']) {
+for (const folder of ['hotel', 'room', 'booking', 'comment', 'board-article', 'support', 'notification', 'payment']) {
 	for (const file of fs.readdirSync(path.join(source, 'dto', folder)).sort()) {
 		if (file.endsWith('.ts')) files.push(`${folder}/${file}`);
 	}

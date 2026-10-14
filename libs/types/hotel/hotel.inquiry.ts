@@ -3,6 +3,7 @@ import { HotelType, HotelStatus, HotelAmenity, HotelSort, RoomType } from '../..
 
 // Backend: dto/hotel/hotel.inquiry.ts
 export interface HotelSearch {
+	cities?: string[];
 	ownerId?: string;
 	checkIn?: string;
 	checkOut?: string;

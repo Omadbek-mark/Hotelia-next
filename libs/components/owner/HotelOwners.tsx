@@ -1,86 +1,13 @@
-import { useQuery, useReactiveVar } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { MenuItem, Skeleton } from '@mui/material';
 import Head from 'next/head';
-import Link from 'next/link';
+import ProfileCard from '../common/ProfileCard';
 import { useReadyRouter as useRouter } from '../../hooks/useReadyRouter';
 import { FormEvent } from 'react';
-import { userVar } from '../../../apollo/store';
-import { GET_DISCOVERY_HOTELS, HotelCollection } from '../../../apollo/user/discovery';
 import { GET_HOST_DIRECTORY, PublicProfile } from '../../../apollo/user/social';
 import { useViewerRefresh } from '../../hooks/useViewerRefresh';
 import { hostSorts, isFollowing, parseHostQuery } from '../../social/query';
-import { HotelSort } from '../../enums';
-import FollowButton from '../common/FollowButton';
-import HotelMetrics from '../common/HotelMetrics';
-import { Button, EmptyState, Field, Pagination, SiteImage } from '../common/ui';
-
-function HostFeature({ host, index }: { host: PublicProfile; index: number }) {
-	const user = useReactiveVar(userVar);
-	const { data, loading, error, refetch } = useQuery<{ getHotels: HotelCollection }>(GET_DISCOVERY_HOTELS, {
-		variables: { input: { page: 1, limit: 1, sort: HotelSort.RATING, search: { ownerId: host._id } } },
-		fetchPolicy: 'cache-and-network',
-	});
-	const hotel = data?.getHotels.list[0];
-	return (
-		<article className="h-host-feature">
-			<div className="h-host-person">
-				<span className="h-eyebrow">No. {String(index).padStart(2, '0')} · Hotel owner</span>
-				<SiteImage
-					className="h-host-portrait"
-					src={host.memberImage || '/img/profile/defaultUser.svg'}
-					alt={host.memberFullName || host.memberNick}
-				/>
-				<h2>
-					<Link href={`/hotel-owner/detail?ownerId=${host._id}`}>{host.memberFullName || host.memberNick}</Link>
-				</h2>
-				{host.memberDesc && <p className="h-clamped-bio">{host.memberDesc}</p>}
-				<div className="h-host-counts">
-					<span>{host.memberHotels} hotels</span>
-					<span>{host.memberFollowers} followers</span>
-				</div>
-				<div className="h-social-actions">
-					<Link className="h-text-link" href={`/hotel-owner/detail?ownerId=${host._id}`}>
-						Meet your host ↗
-					</Link>
-					<FollowButton memberId={host._id} following={isFollowing(host.meFollowed, user._id, host._id)} />
-				</div>
-			</div>
-			<div className="h-host-sanctuary">
-				{loading && !hotel ? (
-					<Skeleton variant="rectangular" height={320} />
-				) : error ? (
-					<EmptyState
-						error
-						title="Stay could not load"
-						action={
-							<Button
-								onClick={() => {
-									void refetch().catch(() => {});
-								}}
-							>
-								Try again
-							</Button>
-						}
-					/>
-				) : hotel ? (
-					<Link href={`/hotel/detail?hotelId=${hotel._id}`}>
-						<SiteImage src={hotel.hotelImages[0]} alt={hotel.hotelName} />
-						<div>
-							<span className="h-eyebrow">
-								{hotel.hotelCity}, {hotel.hotelCountry}
-							</span>
-							<h3>{hotel.hotelName}</h3>
-							<HotelMetrics views={hotel.hotelViews} likes={hotel.hotelLikes} saved={hotel.isFavorite} />
-							<span>Explore this stay ↗</span>
-						</div>
-					</Link>
-				) : (
-					<EmptyState title="New stays on the horizon" />
-				)}
-			</div>
-		</article>
-	);
-}
+import { Button, EmptyState, Field, Pagination } from '../common/ui';
 
 export default function HotelOwners() {
 	const router = useRouter(),
@@ -150,7 +77,7 @@ export default function HotelOwners() {
 			</p>
 			{parsed.error ? (
 				<EmptyState error title="Check your host search" action={<Button href="/hotel-owner">Start fresh</Button>} />
-			) : loading || !router.isReady ? (
+			) : (loading && !data) || !router.isReady ? (
 				<Skeleton variant="rectangular" height={360} />
 			) : error ? (
 				<EmptyState
@@ -173,9 +100,9 @@ export default function HotelOwners() {
 					action={<Button href="/hotel-owner">All hosts</Button>}
 				/>
 			) : (
-				<div className="h-host-features">
-					{data.getHotelOwners.list.map((host, index) => (
-						<HostFeature key={host._id} host={host} index={(input.page - 1) * input.limit + index + 1} />
+				<div className="h-person-grid h-host-directory-grid">
+					{data.getHotelOwners.list.map((host) => (
+						<ProfileCard key={host._id} member={host} />
 					))}
 				</div>
 			)}

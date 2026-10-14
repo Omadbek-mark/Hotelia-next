@@ -30,6 +30,7 @@ export const sortLabels: Record<HotelSort, string> = {
 	RATING: 'Top rated',
 	MOST_POPULAR: 'Most popular',
 	MOST_LIKED: 'Most saved',
+	MOST_VIEWED: 'Most viewed',
 };
 const validDate = (value: string) =>
 	/^\d{4}-\d{2}-\d{2}$/.test(value) && new Date(value).toISOString().slice(0, 10) === value;
@@ -42,7 +43,7 @@ export function parseHotelSearch(query: SearchQuery): { input: HotelsInquiry; er
 		const read = (key: string) => {
 			const raw = query[key];
 			if (Array.isArray(raw)) {
-				if (key === 'amenities') return raw.join(',');
+				if (key === 'amenities' || key === 'cities') return raw.join(',');
 				throw Error(`Choose one ${key}.`);
 			}
 			return raw?.trim() || '';
@@ -101,6 +102,12 @@ export function parseHotelSearch(query: SearchQuery): { input: HotelsInquiry; er
 			if (nights < 1 || nights > 365) throw Error('Choose a stay between 1 and 365 nights.');
 			search.checkIn = checkIn;
 			search.checkOut = checkOut;
+		}
+		const cities = read('cities');
+		if (cities) {
+			const values = Array.from(new Set(cities.split(',').map(city => city.trim())));
+			if (values.length > 100 || values.some(city => !city || city.length > 100)) throw Error('Choose valid cities.');
+			search.cities = values;
 		}
 		const amenities = read('amenities');
 		if (amenities) {

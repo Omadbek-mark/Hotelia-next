@@ -132,10 +132,7 @@ export function reservationActions(booking: Booking, now = new Date()) {
 		};
 	}
 	return {
-		confirm:
-			booking.bookingStatus === BookingStatus.PENDING &&
-			booking.checkIn.slice(0, 10) >= today &&
-			(!booking.expiresAt || Date.parse(booking.expiresAt) > now.getTime()),
+		confirm: booking.bookingStatus === BookingStatus.PENDING && booking.checkIn.slice(0, 10) >= today,
 		complete: booking.bookingStatus === BookingStatus.CONFIRMED && booking.checkOut.slice(0, 10) <= today,
 		cancel: [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.bookingStatus),
 	};

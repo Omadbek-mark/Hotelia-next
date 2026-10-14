@@ -33,3 +33,4 @@ export * from './board-article/board-article.update';
 export * from './support/support-admin';
 export * from './support/support';
 export * from './notification/notification';
+export * from './payment/payment-card';

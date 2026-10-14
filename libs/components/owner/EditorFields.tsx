@@ -64,7 +64,7 @@ export function PhotoField({
 					type="file"
 					hidden
 					multiple
-					accept="image/jpeg,image/png"
+					accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
 					onChange={async (e) => {
 						const files = Array.from(e.target.files || []);
 						e.target.value = '';
@@ -89,7 +89,7 @@ export function PhotoField({
 					}}
 				/>
 			</Button>
-			<small>JPG or PNG · up to 15 MB each · 1–20 photos</small>
+			<small>JPG, JPEG, PNG or WebP · 1–20 photos</small>
 		</div>
 	);
 }

@@ -8,10 +8,14 @@ export type PublicProfile = Pick<
 	| 'memberFullName'
 	| 'memberImage'
 	| 'memberDesc'
+	| 'memberAddress'
 	| 'memberType'
 	| 'memberStatus'
 	| 'memberHotels'
 	| 'memberArticles'
+	| 'memberLikes'
+	| 'memberViews'
+	| 'meLiked'
 	| 'memberFollowers'
 	| 'memberFollowings'
 	| 'createdAt'
@@ -24,10 +28,18 @@ const profile = gql`
 		memberFullName
 		memberImage
 		memberDesc
+		memberAddress
 		memberType
 		memberStatus
 		memberHotels
 		memberArticles
+		memberLikes
+		memberViews
+		meLiked {
+			memberId
+			likeRefId
+			myFavorite
+		}
 		memberFollowers
 		memberFollowings
 		createdAt
@@ -139,6 +151,25 @@ export const GET_PROFILE_ARTICLES = gql`
 			metaCounter {
 				total
 			}
+		}
+	}
+`;
+
+export const LIKE_MEMBER = gql`
+	mutation LikeHoteliaMember($memberId: String!) {
+		likeTargetMember(memberId: $memberId) {
+			_id
+			memberLikes
+		}
+	}
+`;
+export const MEMBER_LIKE_STATE = gql`
+	fragment MemberLikeState on Member {
+		memberLikes
+		meLiked {
+			memberId
+			likeRefId
+			myFavorite
 		}
 	}
 `;

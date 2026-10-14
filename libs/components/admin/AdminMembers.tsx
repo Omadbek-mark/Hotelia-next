@@ -9,7 +9,7 @@ import {
 	AdminFilters,
 	AdminHeading,
 	AdminState,
-	Status,
+	StatusMenu,
 	useAdminAction,
 	useAdminFilters,
 	useAdminList,
@@ -72,7 +72,7 @@ export default function AdminMembers() {
 							m._id === user._id || m.memberType === MemberType.ADMIN || m.memberStatus === MemberStatus.DELETE;
 						return (
 							<article className="h-admin-row" key={m._id}>
-								<SiteImage src={m.memberImage} alt={m.memberNick} className="h-admin-avatar" />
+								<SiteImage src={m.memberImage || '/img/profile/defaultUser.svg'} alt={m.memberNick} className="h-admin-avatar" />
 								<div className="h-admin-record">
 									<h2>{m.memberNick}</h2>
 									<p>{m.memberFullName || label(m.memberType)}</p>
@@ -80,7 +80,24 @@ export default function AdminMembers() {
 										{label(m.memberType)} · {m.memberHotels} hotels
 									</small>
 								</div>
-								<Status value={m.memberStatus} />
+								<StatusMenu
+									value={m.memberStatus}
+									name={m.memberNick}
+									options={Object.values(MemberStatus)}
+									disabled={guarded || action.busy}
+									onChange={(status) =>
+										action.open({
+											title: `Set ${m.memberNick} to ${status.toLowerCase()}?`,
+											description:
+												status === MemberStatus.DELETE
+													? 'Archive this account and remove access to signed-in features.'
+													: status === MemberStatus.BLOCK
+													? 'This account will lose access to signed-in features.'
+													: 'This account can log in again.',
+											variables: { input: { _id: m._id, memberStatus: status } },
+										})
+									}
+								/>
 								<div className="h-admin-actions">
 									{guarded ? (
 										<small>{m.memberType === MemberType.ADMIN ? 'Protected administrator' : 'Archived account'}</small>
@@ -106,24 +123,6 @@ export default function AdminMembers() {
 												}}
 											>
 												Change role
-											</Button>
-											<Button
-												variant="outlined"
-												disabled={action.busy}
-												onClick={() => {
-													const status =
-														m.memberStatus === MemberStatus.BLOCK ? MemberStatus.ACTIVE : MemberStatus.BLOCK;
-													action.open({
-														title: `${status === MemberStatus.BLOCK ? 'Block' : 'Restore'} ${m.memberNick}?`,
-														description:
-															status === MemberStatus.BLOCK
-																? 'This account will lose access to signed-in features.'
-																: 'This account can sign in again.',
-														variables: { input: { _id: m._id, memberStatus: status } },
-													});
-												}}
-											>
-												{m.memberStatus === MemberStatus.BLOCK ? 'Restore access' : 'Block access'}
 											</Button>
 										</>
 									)}

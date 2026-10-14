@@ -1,3 +1,4 @@
+import { useHoteliaTranslation } from '../../hooks/useHoteliaTranslation';
 import { FAVORITE, UNFAVORITE } from '../../../apollo/user/hotel-catalog';
 import { useApolloClient, useQuery, useReactiveVar } from '@apollo/client';
 import CloseIcon from '@mui/icons-material/Close';
@@ -19,6 +20,7 @@ import Filters from './CatalogFilters';
 import SearchBar from './SearchBar';
 
 export default function HotelCatalog() {
+	const tr = useHoteliaTranslation();
 	const router = useRouter(),
 		client = useApolloClient(),
 		user = useReactiveVar(userVar);
@@ -46,6 +48,7 @@ export default function HotelCatalog() {
 		router.push({ pathname: '/hotel', query: hotelSearchQuery(next) }, undefined, { scroll: false });
 	const changeSearch = (search: HotelSearch) => {
 		const next = { ...input.search };
+		if (search.destination?.trim()) delete next.cities;
 		['destination', 'checkIn', 'checkOut', 'guests', 'rooms'].forEach((key) => delete next[key as keyof HotelSearch]);
 		return apply({ ...input, page: 1, search: { ...next, ...search } });
 	};
@@ -99,9 +102,9 @@ export default function HotelCatalog() {
 			</Head>
 			<section className="h-catalog-intro">
 				<div className="h-container">
-					<span className="h-eyebrow">A place for every journey</span>
+					<span className="h-eyebrow">{tr('A place for every journey')}</span>
 					<h1>
-						Available <em>stays.</em>
+						{tr('Available')} <em>{tr('stays.')}</em>
 					</h1>
 					<SearchBar initialSearch={input.search} onSearch={changeSearch} />
 				</div>
@@ -113,9 +116,9 @@ export default function HotelCatalog() {
 				<div className="h-catalog-results">
 					<div className="h-catalog-toolbar">
 						<div>
-							<span className="h-eyebrow">Find your kind of escape</span>
+							<span className="h-eyebrow">{tr('Find your kind of escape')}</span>
 							<p aria-live="polite">
-								{loading || !router.isReady ? 'Finding stays…' : `${total} ${total === 1 ? 'stay' : 'stays'}`}
+								{loading || !router.isReady ? tr('Finding stays…') : `${total} ${tr(total === 1 ? 'stay' : 'stays')}`}
 							</p>
 						</div>
 						<Button
@@ -124,17 +127,17 @@ export default function HotelCatalog() {
 							startIcon={<TuneIcon />}
 							onClick={() => setDrawer(true)}
 						>
-							Filters
+							{tr('Filters')}
 						</Button>
 						<Field
 							select
-							label="Sort by"
+							label={tr('Sort by')}
 							value={input.sort}
 							onChange={(event) => navigate({ ...input, page: 1, sort: event.target.value as HotelSort })}
 						>
 							{Object.values(HotelSort).map((sort) => (
 								<MenuItem key={sort} value={sort}>
-									{sortLabels[sort]}
+									{tr(sortLabels[sort])}
 								</MenuItem>
 							))}
 						</Field>

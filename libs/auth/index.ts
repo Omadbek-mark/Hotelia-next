@@ -3,6 +3,7 @@ import { anonymousUser, userVar } from '../../apollo/store';
 import { GET_SESSION_MEMBER, LOGIN, LOGOUT, SIGN_UP } from '../../apollo/user/auth';
 import type { Member, MemberInput } from '../types/contracts';
 import { clearSession, getJwtToken, getValidAccessToken, readAccessClaims, saveSession } from './session';
+import Router from 'next/router';
 
 export { getJwtToken } from './session';
 
@@ -25,6 +26,8 @@ export function applySessionMember(member: Member): void {
 		memberArticles: member.memberArticles,
 		memberPoints: member.memberPoints,
 		memberLikes: member.memberLikes,
+		memberFollowers: member.memberFollowers,
+		memberFollowings: member.memberFollowings,
 		memberViews: member.memberViews,
 		memberWarnings: member.memberWarnings,
 		memberBlocks: member.memberBlocks,
@@ -32,7 +35,7 @@ export function applySessionMember(member: Member): void {
 }
 
 async function acceptSession(member?: Member | null): Promise<void> {
-	if (!member?.accessToken || !member.refreshToken) throw new Error('Unable to sign in. Please try again.');
+	if (!member?.accessToken || !member.refreshToken) throw new Error('Unable to log in. Please try again.');
 	saveSession({ accessToken: member.accessToken, refreshToken: member.refreshToken });
 	await initializeApollo().clearStore();
 	if (getJwtToken() !== member.accessToken) return;
@@ -101,6 +104,7 @@ export async function logOut(): Promise<void> {
 	}
 	clearSession();
 	userVar({ ...anonymousUser });
+	if (typeof window !== 'undefined') void Router.replace('/');
 	const client = initializeApollo();
 	await client.clearStore();
 	if (token) {

@@ -69,12 +69,33 @@
 }
 .h-amenity-options {
 	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 6px;
 	.MuiFormControlLabel-label {
 		font-size: 13px;
 	}
 	.MuiFormControlLabel-root {
-		margin-left: -9px;
-		margin-right: 0;
+		margin: 0;
+		min-width: 0;
+		min-height: 32px;
+		padding: 4px;
+		gap: 4px;
+		border: 1px solid #19352a12;
+		border-radius: 8px;
+		background: #ffffff80;
+		transition: background 0.18s, border-color 0.18s;
+		&:hover {
+			background: #ffffff;
+			border-color: #19352a40;
+		}
+		&:has(.Mui-checked) {
+			background: #e1e9df;
+			border-color: #19352a45;
+		}
+		&:focus-within {
+			outline: 2px solid var(--h-clay);
+			outline-offset: 1px;
+		}
 	}
 }
 .h-catalog-results {
@@ -182,4 +203,234 @@
 			flex: 1;
 		}
 	}
+}
+
+// Search and filters retain the existing URL contract in a smaller layout.
+.h-catalog-intro {
+	padding: 38px 0 28px;
+	h1 {
+		font-size: 52px;
+		margin: 10px 0 24px;
+	}
+	.h-search {
+		max-width: 1050px;
+		border-radius: 16px;
+		padding: 5px;
+		gap: 3px;
+		box-shadow: 0 6px 24px #19352a08;
+		> div,
+		> fieldset {
+			padding: 6px 12px;
+		}
+		input,
+		.h-search-occupancy > button {
+			font-size: 12px;
+		}
+		.h-search-submit {
+			height: 48px;
+			padding: 10px 16px;
+			border-radius: 12px;
+			font-size: 12px;
+		}
+	}
+}
+.h-catalog-body {
+	grid-template-columns: 250px minmax(0, 1fr);
+	gap: 28px;
+	padding-top: 28px;
+}
+.h-catalog-sidebar {
+	padding: 0;
+	border: 0;
+	align-self: start;
+	position: sticky;
+	top: 116px;
+	max-height: calc(100vh - 136px);
+	overflow-y: auto;
+	border-radius: 16px;
+	scrollbar-width: thin;
+}
+.h-catalog-filters {
+	padding: 22px 20px;
+	border-radius: 16px;
+	background: #f3f1eb;
+	color: #19352a;
+	gap: 22px;
+	legend {
+		font-size: 10px;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		margin-bottom: 10px;
+	}
+	legend small {
+		font-size: 10px;
+		text-transform: none;
+		letter-spacing: 0;
+		color: #19352a;
+	}
+	.h-field .MuiInputBase-root {
+		background: #ffffff75;
+		font-size: 12px;
+	}
+	.h-field .MuiInputBase-input {
+		padding: 10px 12px;
+	}
+	.MuiInputLabel-root {
+		font-size: 12px;
+	}
+	.MuiSlider-root {
+		color: #19352a;
+		padding: 10px 0;
+		width: calc(100% - 12px);
+		margin: 0 6px 8px;
+	}
+	.MuiSlider-thumb {
+		width: 14px;
+		height: 14px;
+	}
+	.MuiSlider-rail {
+		background: #c9cfc5;
+	}
+	.MuiSlider-track {
+		border: none;
+	}
+	.h-amenity-options .MuiCheckbox-root {
+		padding: 0;
+		.MuiSvgIcon-root { font-size: 16px; }
+		color: #607067;
+		&.Mui-checked {
+			color: #19352a;
+		}
+	}
+	.h-amenity-options .MuiFormControlLabel-label {
+		font-size: 10.5px;
+		line-height: 1.3;
+		overflow-wrap: anywhere;
+	}
+	.h-filter-heading {
+		gap: 6px;
+		h2 {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			font-size: 22px;
+		}
+		.MuiIconButton-root {
+			padding: 3px;
+		}
+	}
+}
+.h-filter-reset {
+	border: 0;
+	background: transparent;
+	color: #a33e26;
+	font-family: inherit;
+	font-weight: 600;
+	font-size: 10px;
+	padding: 5px 0;
+	cursor: pointer;
+	margin-left: auto;
+}
+.h-filter-choices {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 5px;
+	button {
+		border: 0;
+		border-radius: 20px;
+		background: #e9e7e1;
+		color: #263b30;
+		font: inherit;
+		font-size: 11px;
+		padding: 5px 10px;
+		cursor: pointer;
+		line-height: 1.3;
+		&[aria-pressed='true'] {
+			background: #19352a;
+			color: #fff;
+		}
+		&:hover {
+			box-shadow: inset 0 0 0 1px #728278;
+		}
+		&:focus-visible {
+			outline: 2px solid #a33e26;
+			outline-offset: 2px;
+		}
+	}
+}
+.h-catalog-results .h-card-grid {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px;
+}
+.h-filter-drawer {
+	padding: 16px;
+}
+@media (max-width: 1100px) {
+	.h-catalog-results .h-card-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+@media (max-width: 800px) {
+	.h-catalog-body {
+		display: block;
+	}
+	.h-catalog-intro .h-search {
+		grid-template-columns: 1fr 1.4fr;
+		.h-search-occupancy {
+			border-left: 0;
+		}
+	}
+}
+@media (max-width: 600px) {
+	.h-catalog-intro {
+		padding-top: 24px;
+		h1 {
+			font-size: 42px;
+		}
+		.h-search {
+			grid-template-columns: 1fr 1fr;
+			.h-search-destination,
+			.h-search-dates {
+				grid-column: 1 / -1;
+				border-left: 0;
+			}
+			.h-search-dates {
+				border-top: 1px solid var(--h-line);
+			}
+			.h-search-submit {
+				width: 100%;
+				padding: 8px;
+			}
+		}
+	}
+	.h-catalog-results .h-card-grid {
+		grid-template-columns: 1fr;
+	}
+}
+@media (max-width: 400px) {
+	.h-catalog-intro .h-search {
+		.h-search-occupancy > button {
+			font-size: 11px;
+			svg {
+				display: none;
+			}
+		}
+		.h-search-submit {
+			font-size: 11px;
+			.MuiButton-endIcon {
+				display: none;
+			}
+		}
+	}
+}
+
+.h-city-filter {
+	.h-cities-toggle { float: right; border: 0; background: transparent; color: var(--h-clay); font: 600 10px var(--h-body); cursor: pointer; padding: 0 0 0 8px; text-transform: none; }
+	.h-city-options { display: grid; gap: 0; }
+	.MuiFormControlLabel-root { margin: 0; min-height: 32px; }
+	.MuiCheckbox-root { padding: 5px 7px 5px 0; color: #6b7e70; }
+	.Mui-checked { color: var(--h-forest); }
+	.MuiFormControlLabel-label { flex: 1; font-size: 12px; span { display: flex; justify-content: space-between; align-items: center; gap: 5px; } small { color: var(--h-muted); font-size: 9px; } }
+	.h-city-hidden { display: none; }
+	.h-city-selection { display: block; font-size: 10px; line-height: 1.5; color: var(--h-clay); margin-top: 8px; }
 }

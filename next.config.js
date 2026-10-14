@@ -38,6 +38,7 @@ const nextConfig = {
 		];
 	},
 	env: {
+  REACT_APP_API_WS: process.env.REACT_APP_API_WS,
 		REACT_APP_API_URL: process.env.REACT_APP_API_URL,
 		REACT_APP_API_GRAPHQL_URL: process.env.REACT_APP_API_GRAPHQL_URL,
 	},
@@ -46,4 +47,8 @@ const nextConfig = {
 const { i18n } = require('./next-i18next.config');
 nextConfig.i18n = i18n;
 
-module.exports = nextConfig;
+// Keep production builds from replacing files used by the running dev server.
+module.exports = (phase) => ({
+	...nextConfig,
+	distDir: phase === 'phase-development-server' ? '.next-dev' : '.next',
+});

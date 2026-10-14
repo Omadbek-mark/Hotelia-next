@@ -69,7 +69,7 @@ export default function FollowButton({
 				aria-pressed={following}
 				disabled={disabled || pending}
 				onClick={() => {
-					void toggle().catch(() => setError('Sign in could not open. Try again.'));
+					void toggle().catch(() => setError('Log in could not open. Try again.'));
 				}}
 			>
 				{pending ? 'Updating…' : following ? 'Following' : 'Follow'}

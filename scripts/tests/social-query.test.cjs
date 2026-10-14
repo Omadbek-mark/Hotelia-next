@@ -22,7 +22,7 @@ test('host URLs allow only supported sorting, scalar nickname and bounded intege
 	])
 		assert.ok(parseHostQuery(query).error);
 	const input = parseHostQuery({ page: '2', sort: 'memberFollowers', text: '  matt  ' }).input;
-	assert.deepEqual(input, { page: 2, limit: 6, sort: 'memberFollowers', direction: 'DESC', search: { text: 'matt' } });
+	assert.deepEqual(input, { page: 2, limit: 8, sort: 'memberFollowers', direction: 'DESC', search: { text: 'matt' } });
 	assert.equal(socialPage('1000001'), undefined);
 	assert.equal(socialPage(undefined), 1);
 });
