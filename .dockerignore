@@ -1,0 +1,16 @@
+node_modules
+.git
+.env*
+.next
+.next-dev
+out
+build
+coverage
+.codex
+.agents
+.idea
+.vscode
+*.log
+*.tsbuildinfo
+.DS_Store
+._*
