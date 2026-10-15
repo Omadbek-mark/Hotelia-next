@@ -13,31 +13,39 @@
 		"contracts:sync": "node scripts/sync-backend-contracts.cjs"
 	},
 	"dependencies": {
+		"@apollo/client": "^3.5.10",
+		"@emotion/react": "^11.8.1",
+		"@emotion/styled": "^11.8.1",
+		"@mui/icons-material": "^5.4.2",
 		"@mui/material": "^5.10.1",
-		"next": "14.2.0",
+		"apollo-upload-client": "^17.0.0",
+		"graphql": "^16.11.0",
+		"i18next": "^23.4.6",
+		"jwt-decode": "^3.1.2",
+		"next": "15.5.27",
 		"next-i18next": "^14.0.3",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
-		"@emotion/react": "^11.8.1",
-		"@emotion/styled": "^11.8.1",
-		"@apollo/client": "^3.5.10",
-		"@mui/icons-material": "^5.4.2",
-		"apollo-upload-client": "^17.0.0",
-		"i18next": "^21.6.11",
-		"jwt-decode": "^3.1.2",
-		"react-i18next": "^11.15.4",
-		"sass": "^1.49.9",
-		"graphql": "^15.5.0"
+		"react-i18next": "^13.2.1",
+		"sass": "^1.49.9"
 	},
 	"devDependencies": {
-		"@types/react": "18.2.0",
-		"@types/react-dom": "18.2.7",
-		"prettier": "2.7.1",
-		"typescript": "4.6.2",
 		"@types/apollo-upload-client": "^17.0.0",
 		"@types/node": "20.10.0",
-		"eslint": "8.9.0",
-		"eslint-config-next": "12.1.0",
-		"jsdom": "^16.4.0"
+		"@types/react": "18.2.0",
+		"@types/react-dom": "18.2.7",
+		"eslint": "^8.57.1",
+		"eslint-config-next": "15.5.27",
+		"jsdom": "^16.4.0",
+		"prettier": "2.7.1",
+		"typescript": "5.9.3"
+	},
+	"engines": {
+		"node": ">=22.13.0 <23 || >=24.0.0 <25"
+	},
+	"resolutions": {
+		"@apollo/client": "3.14.1",
+		"graphql": "16.14.2",
+		"next/postcss": "8.5.23"
 	}
 }

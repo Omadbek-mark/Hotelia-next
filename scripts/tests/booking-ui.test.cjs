@@ -3,7 +3,7 @@ const { test, afterEach } = require('node:test'),
 const { JSDOM } = require('jsdom'),
 	fs = require('node:fs'),
 	ts = require('typescript');
-const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: 'http://localhost:3015' });
+const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: 'http://localhost:3015', pretendToBeVisual: true });
 Object.assign(global, {
 	window: dom.window,
 	self: dom.window,
@@ -13,6 +13,8 @@ Object.assign(global, {
 	Node: dom.window.Node,
 	MutationObserver: dom.window.MutationObserver,
 	getComputedStyle: dom.window.getComputedStyle,
+	requestAnimationFrame: dom.window.requestAnimationFrame.bind(dom.window),
+	cancelAnimationFrame: dom.window.cancelAnimationFrame.bind(dom.window),
 	IS_REACT_ACT_ENVIRONMENT: true,
 });
 Object.defineProperty(global, 'navigator', { value: dom.window.navigator, configurable: true });

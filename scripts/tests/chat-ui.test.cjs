@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const ts = require('typescript');
 const { JSDOM } = require('jsdom');
-const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: 'http://localhost:3015' });
+const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: 'http://localhost:3015', pretendToBeVisual: true });
 Object.assign(global, {
 	window: dom.window,
 	self: dom.window,
@@ -15,6 +15,8 @@ Object.assign(global, {
 	Event: dom.window.Event,
 	sessionStorage: dom.window.sessionStorage,
 	getComputedStyle: dom.window.getComputedStyle,
+	requestAnimationFrame: dom.window.requestAnimationFrame.bind(dom.window),
+	cancelAnimationFrame: dom.window.cancelAnimationFrame.bind(dom.window),
 	IS_REACT_ACT_ENVIRONMENT: true,
 });
 Object.defineProperty(global, 'navigator', { value: dom.window.navigator, configurable: true });

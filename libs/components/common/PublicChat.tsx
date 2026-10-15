@@ -128,7 +128,10 @@ export default function PublicChat() {
 					connectionId = packet.clientId;
 					const owned = identities.current.get(identity) || new Set<string>();
 					owned.add(packet.clientId);
-					if (owned.size > 64) owned.delete(owned.values().next().value);
+					if (owned.size > 64) {
+						const oldest = owned.values().next();
+						if (!oldest.done) owned.delete(oldest.value);
+					}
 					identities.current.set(identity, owned);
 					try {
 						sessionStorage.setItem(storageKey, JSON.stringify(Array.from(owned)));
@@ -145,7 +148,10 @@ export default function PublicChat() {
 				if (packet.event === 'message' && isMessage(packet)) {
 					if (received.current.has(packet.id)) return;
 					received.current.add(packet.id);
-					if (received.current.size > 200) received.current.delete(received.current.values().next().value);
+					if (received.current.size > 200) {
+						const oldest = received.current.values().next();
+						if (!oldest.done) received.current.delete(oldest.value);
+					}
 					setMessages((list) => [...list, packet].slice(-200));
 					if (!visible.current && packet.clientId !== connectionId) setUnread((count) => Math.min(count + 1, 99));
 					// The server's echo is the confirmation; there is no local duplicate bubble.
