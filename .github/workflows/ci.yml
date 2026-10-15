@@ -1,0 +1,67 @@
+name: Hotelia frontend CI
+
+on:
+  push:
+    branches: [develop, master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - run: yarn install --frozen-lockfile --non-interactive
+      - run: yarn test
+      - run: yarn typecheck
+
+  docker-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build frontend image (test URLs only)
+        run: >-
+          docker build
+          --build-arg REACT_APP_API_URL=http://localhost:3001
+          --build-arg REACT_APP_API_GRAPHQL_URL=http://localhost:3001/graphql
+          --build-arg REACT_APP_API_WS=ws://localhost:3001
+          -t hotelia-next:ci .
+
+  deploy:
+    needs: [validate, docker-build]
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/master' &&
+      vars.COOLIFY_URL != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment:
+      name: production
+      url: ${{ vars.SMOKE_URL }}
+    concurrency:
+      group: frontend-deploy-production
+      cancel-in-progress: false
+    env:
+      COOLIFY_URL: ${{ vars.COOLIFY_URL }}
+      COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+      APP_UUID: ${{ vars.COOLIFY_APP_UUID }}
+      SMOKE_URL: ${{ vars.SMOKE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check public endpoint configuration
+        run: test -n "$SMOKE_URL"
+      - name: Deploy frontend and check public endpoint
+        run: bash .github/scripts/coolify-deploy.sh
