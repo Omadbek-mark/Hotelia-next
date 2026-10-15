@@ -42,4 +42,4 @@ npm run contracts:sync
 
 Contract synchronization reads GraphQL-decorated DTOs and enums from `../Hotelia`. Do not edit generated files manually. The UI tests use fixtures and do not create live backend records.
 
-See [the implementation plan](docs/hotelia-implementation-plan.md) and [architecture notes](docs/frontend-architecture.md).
+See [agent architecture and working rules](AGENTS.md), [implementation history](docs/hotelia-implementation-plan.md), and [chat protocol](docs/chat-integration.md).

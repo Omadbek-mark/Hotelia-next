@@ -1,5 +1,7 @@
 # Hotelia — Open Horizons implementation plan
 
+> Tarixiy reja va ish jurnali. Joriy arxitektura/qoidalar `../AGENTS.md`da; eski pending holatlari hamda test natijalari hozirgi koddan ustun emas.
+
 ## Maqsad
 
 Stitch’da tayyorlangan 30 previewni Hotelia backendiga ulangan, responsive frontendga aylantirish. Katta suratlar, qisqa matnlar, ivory / forest / terracotta ranglari va yagona komponentlar tizimi saqlanadi.
@@ -8,7 +10,7 @@ Boshlang‘ich holat: `develop`, `3e0bc16`, Next.js Pages Router, React, TypeScr
 
 ## Ishlash tartibi
 
-Holat: 1–14-bosqichlar amalga oshirildi. Yakuniy tekshiruv natijalari `docs/final-review.md`da. Foydalanuvchi tekshiruvini kutamiz; push/deploy bajarilmadi. Kontrakt xaritasi: `docs/backend-contract-map.md`.
+Holat: 1–14-bosqichlar amalga oshirildi. Yakuniy tekshiruv natijalari `docs/final-review.md`da. Foydalanuvchi tekshiruvini kutamiz; push/deploy bajarilmadi. Kontrakt xaritasi: `AGENTS.md`.
 
 2-bosqich tekshiruvlari: TypeScript va production build o‘tdi; brauzerda yangi public header/footer, 390px mobil menu drawer va anonymous admin access holati tekshirildi. Eski sahifa kontenti keyingi feature bosqichlarida almashtiriladi. Owner shell shu bosqichda komponent sifatida tayyorlandi, inventory sahifalariga 11-bosqichda ulanadi.
 
@@ -116,7 +118,7 @@ Birinchi asosiy foydalanuvchi oqimi 7-bosqich yakunida tayyor bo‘ladi: Home �
 
 ### Architecture refactor — 2026-10-10
 
-User-requested cleanup between stages 11 and 12. Studied `nestar-next` folder boundaries and reorganized Hotelia into page/domain component folders, shared layouts/UI/hooks, domain-generated types/enums, user/owner Apollo operations and feature SCSS. Removed unused Nestar real-estate source, demo assets/styles and dependency declarations. Existing Hotelia routes and completed functionality remain compatible. Support/admin routes now explicitly await their respective implementation stages rather than calling legacy template APIs. See `docs/frontend-architecture.md` for the directory map. Stage 12 has not started.
+User-requested cleanup between stages 11 and 12. Studied `nestar-next` folder boundaries and reorganized Hotelia into page/domain component folders, shared layouts/UI/hooks, domain-generated types/enums, user/owner Apollo operations and feature SCSS. Removed unused Nestar real-estate source, demo assets/styles and dependency declarations. Existing Hotelia routes and completed functionality remain compatible. Support/admin routes now explicitly await their respective implementation stages rather than calling legacy template APIs. See `AGENTS.md` for the directory map. Stage 12 has not started.
 
 ### Hotelia domain naming — 2026-10-10
 
