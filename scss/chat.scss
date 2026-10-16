@@ -370,3 +370,71 @@
 		padding-top: 6px;
 	}
 }
+
+// Use the visible screen, including keyboard-driven viewport changes on phones.
+@media (max-width: 600px) {
+	.h-chat .h-chat-panel {
+		position: fixed;
+		top: calc(var(--chat-viewport-top, 0px) + 12px);
+		left: calc(var(--chat-viewport-left, 0px) + 12px);
+		right: auto;
+		bottom: auto;
+		width: calc(var(--chat-viewport-width, 100vw) - 24px);
+		max-width: none;
+		height: min(600px, calc(var(--chat-viewport-height, 100dvh) - 24px));
+		max-height: calc(var(--chat-viewport-height, 100dvh) - 24px);
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+		box-sizing: border-box;
+	}
+	.h-chat {
+		header,
+		.h-chat-tabs,
+		.h-chat-intro,
+		.h-chat-error,
+		form {
+			flex-shrink: 0;
+		}
+		[role='tabpanel']:not([hidden]) {
+			display: flex;
+			flex: 1;
+			flex-direction: column;
+			min-height: 0;
+			overflow: hidden;
+		}
+		.h-chat-messages {
+			flex: 1;
+			min-height: 0;
+			height: auto;
+			max-height: none;
+			overscroll-behavior: contain;
+		}
+		&[data-compact='true'] {
+			header {
+				padding: 8px 12px;
+			}
+			header strong {
+				font-size: 16px;
+				margin-top: 3px;
+			}
+			.h-chat-tabs {
+				margin: 6px 10px 0;
+				min-height: 32px;
+			}
+			.h-chat-tabs .MuiTab-root {
+				min-height: 30px;
+				padding: 4px 8px;
+			}
+			.h-chat-intro {
+				display: none;
+			}
+			form {
+				padding: 10px;
+			}
+			.h-chat-toggle {
+				visibility: hidden;
+			}
+		}
+	}
+}

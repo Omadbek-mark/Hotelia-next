@@ -12,3 +12,14 @@
 @import 'admin';
 
 @import 'chat';
+
+// Small text fields trigger automatic focus zoom on iOS, including MUI dialogs.
+// Keep pinch zoom available; fix control typography instead of disabling scaling.
+@media (max-width: 900px), (hover: none) and (pointer: coarse) {
+	input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not([type='reset']):not([type='color']),
+	textarea,
+	select,
+	[contenteditable='true'] {
+		font-size: 16px !important;
+	}
+}
