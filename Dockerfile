@@ -18,6 +18,11 @@ RUN test -n "$REACT_APP_API_URL" \
     && test -n "$REACT_APP_API_GRAPHQL_URL" \
     && test -n "$REACT_APP_API_WS" \
     || (echo "All three public API URL build arguments are required" && exit 1)
+# Optional public analytics settings, embedded at build time.
+ARG NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN
+ARG NEXT_PUBLIC_POSTHOG_HOST
+ENV NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=$NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN
+ENV NEXT_PUBLIC_POSTHOG_HOST=$NEXT_PUBLIC_POSTHOG_HOST
 RUN yarn build
 
 FROM node:22-alpine AS runner
