@@ -2353,7 +2353,8 @@ test('ordinary account opens profile/logout menu and language switch preserves a
 	assert.equal(loggedOut, 1);
 	await act(async () => document.querySelector('button.h-language-button').click());
 	const options = [...document.querySelectorAll('#hotelia-language-menu [role="menuitem"]')];
-	assert.equal(options.length, 3);
+	assert.equal(options.length, 4);
+	assert.ok(options.some((item) => item.textContent.includes('KR · 한국어')));
 	await act(async () => options.find((item) => item.textContent.includes('UZ')).click());
 	assert.deepEqual(pushes[0][0], { pathname: '/hotel', query });
 	assert.equal(pushes[0][2].locale, 'uz');
@@ -2826,3 +2827,50 @@ test('demo payment card saves metadata once without submitting the surrounding p
  assert.match(document.body.textContent,/Saved as a pending demo card/);
  assert.doesNotMatch(document.body.textContent,/4242 4242 4242 4242/);
 });
+
+for (const mobile of [true, false]) {
+	test(`${mobile ? 'mobile' : 'desktop'} room selection exposes the expected booking review without submitting`, async () => {
+		const HotelDetail = require('../../libs/components/hotel/HotelDetail.tsx').default;
+		const previousMatchMedia = window.matchMedia;
+		window.matchMedia = () => ({ matches: mobile, addListener() {}, removeListener() {} });
+		try {
+			const operations = await mount(
+				React.createElement(HotelDetail),
+				(operation) => {
+					switch (operation.operationName) {
+						case 'HotelDetail': return { getHotel: {
+							...hotel, ownerId: member, hotelDescription: 'Quiet courtyard', hotelAddress: 'Garden street',
+							hotelType: 'HOTEL', hotelImages: [], hotelAmenities: [], hotelRating: 0, hotelReviews: 0,
+							hotelLikes: 0, hotelViews: 0, isFavorite: false, memberData: null,
+						} };
+						case 'HotelRoomAvailability': return { getAvailableRooms: {
+							list: [{ ...room, roomDescription: '', roomType: 'SUITE', roomQuantity: 3, bedType: 'KING',
+								roomSize: 35, roomImages: [], roomAmenities: [] }], metaCounter: [{ total: 1 }],
+						} };
+						case 'HotelGuestReviews': return { getComments: { list: [], metaCounter: [{ total: 0 }] } };
+						default: throw new Error(`Unexpected operation: ${operation.operationName}`);
+					}
+				},
+				{ hotelId, ...stay, guests: '3', rooms: '2' },
+				async () => true,
+				'/hotel/detail',
+			);
+			await settle(); await settle();
+			await click('Select room');
+			assert.ok(host.querySelector('.h-room-card--selected'));
+			assert.equal(!!document.querySelector('[role="dialog"]'), mobile);
+			if (mobile) {
+				assert.match(document.querySelector('[role="dialog"]').textContent, /Request your stay/);
+				assert.match(document.querySelector('[role="dialog"]').textContent, /Garden suite/);
+				await act(async () => document.querySelector('[aria-label="Close booking"]').click());
+				await new Promise((resolve) => setTimeout(resolve, 250));
+				assert.ok(host.querySelector('.h-room-card--selected'));
+			} else {
+				assert.ok([...host.querySelectorAll('button')].some((button) => button.textContent === 'Request booking'));
+			}
+			assert.ok(operations.every((operation) => operation.query.definitions.every((definition) => definition.operation !== 'mutation')));
+		} finally {
+			window.matchMedia = previousMatchMedia;
+		}
+	});
+}

@@ -8,6 +8,7 @@ import { useApollo } from '../apollo/client';
 import { anonymousUser, userVar } from '../apollo/store';
 import { updateUserInfo } from '../libs/auth/index';
 import PublicChat from '../libs/components/common/PublicChat';
+import PostHogAnalytics from '../libs/components/common/PostHogAnalytics';
 import '../scss/app.scss';
 import { hoteliaTheme } from '../scss/MaterialTheme/index';
 
@@ -38,6 +39,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 		<ApolloProvider client={client}>
 			<ThemeProvider theme={hoteliaTheme}>
 				<CssBaseline />
+				<PostHogAnalytics />
 				<Component {...pageProps} />
 				<PublicChat />
 			</ThemeProvider>

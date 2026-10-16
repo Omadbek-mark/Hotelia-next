@@ -90,19 +90,19 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 	return (
 		<div className={`h-site${router.pathname === '/' ? ' h-site--home' : ''}`} id="hotelia-top">
 			<Head>
-				<title>{title} · Hotelia</title>
+				<title>{tr(title)} · Hotelia</title>
 				<meta
 					name="description"
 					content="Find your next stay with Hotelia. Explore hotels, compare rooms and request a booking."
 				/>
 			</Head>
 			<a className="h-skip-link" href="#hotelia-main">
-				Skip to content
+				{tr('Skip to content')}
 			</a>
 			<header className={`h-header${scrolled ? ' h-header--scrolled' : ''}`}>
 				<div className="h-container h-header-inner">
 					<Brand />
-					<nav className="h-desktop-nav" aria-label="Main navigation">
+					<nav className="h-desktop-nav" aria-label={tr('Main navigation')}>
 						{navigation}
 					</nav>
 					<div className="h-header-actions">
@@ -145,7 +145,7 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 						)}
 						<IconButton
 							className="h-mobile-menu"
-							aria-label="Open menu"
+							aria-label={tr('Open menu')}
 							aria-expanded={open}
 							aria-controls={open ? 'hotelia-mobile-navigation' : undefined}
 							onClick={() => setOpen(true)}
@@ -195,6 +195,7 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 					{ code: 'en', label: 'EN · English' },
 					{ code: 'ru', label: 'RU · Русский' },
 					{ code: 'uz', label: 'UZ · O‘zbekcha' },
+					{ code: 'kr', label: 'KR · 한국어' },
 				].map(({ code, label }) => (
 					<MenuItem
 						key={code}
@@ -230,13 +231,13 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 				<div className="h-mobile-drawer">
 					<div className="h-drawer-top">
 						<Brand />
-						<IconButton aria-label="Close menu" onClick={() => setOpen(false)}>
+						<IconButton aria-label={tr('Close menu')} onClick={() => setOpen(false)}>
 							<CloseIcon />
 						</IconButton>
 					</div>
-					<nav id="hotelia-mobile-navigation" aria-label="Mobile navigation">
+					<nav id="hotelia-mobile-navigation" aria-label={tr('Mobile navigation')}>
 						{navigation}
-						<Link href="/support">Help</Link>
+						<Link href="/support">{tr('Help')}</Link>
 					</nav>
 					{user._id && (
 						<button
@@ -246,7 +247,7 @@ export default function PublicLayout({ children, title = 'Open Horizons' }: { ch
 								setOpen(false);
 							}}
 						>
-							Log out
+							{tr('Log out')}
 						</button>
 					)}
 				</div>

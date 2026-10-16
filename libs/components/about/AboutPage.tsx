@@ -1,53 +1,65 @@
 import Image from 'next/image';
+import Link from 'next/link';
+import { useHoteliaTranslation } from '../../hooks/useHoteliaTranslation';
 import assets from '../../config/design-assets.json';
-import { Button, SiteImage } from '../common/ui';
+import { SiteImage } from '../common/ui';
+import Button from '@mui/material/Button';
 import PublicLayout from '../layout/PublicLayout';
 import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 
 export default function AboutPage() {
+	const tr = useHoteliaTranslation();
 	return (
 		<PublicLayout title="About us">
 			<section className="h-container h-about-stage">
 				<div className="h-about-copy">
-					<span className="h-eyebrow">About us · Open Horizons</span>
+					<span className="h-eyebrow">{tr('About us · Open Horizons')}</span>
 					<h1>
-						More than a stay.
+						{tr('More than a stay.')}
 						<br />
-						<em>A sense of place.</em>
+						<em>{tr('A sense of place.')}</em>
 					</h1>
-					<p>Discover hotels, meet their owners and find room for your next chapter.</p>
-					<Button href="/hotel">Find your place ↗</Button>
+					<p>{tr('Hotelia connects travelers with hotels and hosts across Uzbekistan, Kazakhstan and Kyrgyzstan.')}</p>
+					<p>
+						{tr(
+							'Our goal is to make planning a stay clearer: discover destinations, compare rooms and availability, and keep track of booking requests in one place.',
+						)}
+					</p>
+					<Button component={Link} variant="contained" className="h-button" href="/hotel">
+						{tr('Find your place ↗')}
+					</Button>
 					<div className="h-about-signature">
 						<Image src="/img/hotelia/hotelia-logo-v1.png" alt="" width="40" height="40" />
 						<span>
-							Thoughtful places.
+							{tr('Thoughtful places.')}
 							<br />
-							Personal connections.
+							{tr('Personal connections.')}
 						</span>
 					</div>
 				</div>
 				<div className="h-about-image">
-					<SiteImage src={assets.account} alt="A quiet architectural retreat" eager />
+					<SiteImage src={assets.account} alt={tr('A quiet architectural retreat')} eager />
 					<span className="h-about-image-tag">
-						A little farther.
-						<br />A little closer.
+						{tr('A little farther.')}
+						<br />
+						{tr('A little closer.')}
 					</span>
-					<span className="h-about-image-caption">The Hotelia way</span>
+					<span className="h-about-image-caption">{tr('The Hotelia way')}</span>
 				</div>
 			</section>
 			<section className="h-about-values">
 				<div className="h-container">
 					<div className="h-section-heading">
 						<div>
-							<span className="h-eyebrow">A considered journey</span>
-							<h2>Stay a little closer.</h2>
+							<span className="h-eyebrow">{tr('A considered journey')}</span>
+							<h2>{tr('Stay a little closer.')}</h2>
 						</div>
 						<p>
-							Hotels with character.
+							{tr('Hotels with character.')}
 							<br />
-							People worth meeting.
+							{tr('People worth meeting.')}
 						</p>
 					</div>
 					<div className="h-about-value-grid">
@@ -78,8 +90,8 @@ export default function AboutPage() {
 										<Symbol />
 										<span>{String(number)}</span>
 									</div>
-									<h3>{String(title)}</h3>
-									<p>{String(copy)}</p>
+									<h3>{tr(String(title))}</h3>
+									<p>{tr(String(copy))}</p>
 								</article>
 							);
 						})}
@@ -88,13 +100,13 @@ export default function AboutPage() {
 			</section>
 			<section className="h-container h-about-journey">
 				<div>
-					<span className="h-eyebrow">From inspiration to arrival</span>
+					<span className="h-eyebrow">{tr('From inspiration to arrival')}</span>
 					<h2>
-						Your next chapter,
+						{tr('Your next chapter,')}
 						<br />
-						one step at a time.
+						{tr('one step at a time.')}
 					</h2>
-					<p>A clear path to a stay that feels like you.</p>
+					<p>{tr('A clear path to a stay that feels like you.')}</p>
 				</div>
 				<ol>
 					{[
@@ -106,8 +118,8 @@ export default function AboutPage() {
 						<li key={title}>
 							<span>0{index + 1}</span>
 							<div>
-								<h3>{title}</h3>
-								<p>{text}</p>
+								<h3>{tr(title)}</h3>
+								<p>{tr(text)}</p>
 							</div>
 						</li>
 					))}
@@ -115,19 +127,21 @@ export default function AboutPage() {
 			</section>
 			<section className="h-container h-about-invitation">
 				<div>
-					<span className="h-eyebrow">Open your horizons</span>
+					<span className="h-eyebrow">{tr('Open your horizons')}</span>
 					<h2>
-						Some places
+						{tr('Some places')}
 						<br />
-						stay with you.
+						{tr('stay with you.')}
 					</h2>
 				</div>
 				<div>
-					<p>Your next journey starts with a place — and the people behind it.</p>
-					<Button href="/hotel-owner">Meet our hosts ↗</Button>
-					<a href="/support" className="h-text-link">
-						Here to help ↗
-					</a>
+					<p>{tr('Your next journey starts with a place — and the people behind it.')}</p>
+					<Button component={Link} variant="contained" className="h-button" href="/hotel-owner">
+						{tr('Meet our hosts ↗')}
+					</Button>
+					<Link href="/support" className="h-text-link">
+						{tr('Here to help ↗')}
+					</Link>
 				</div>
 			</section>
 		</PublicLayout>

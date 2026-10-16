@@ -435,7 +435,12 @@ export default function HotelDetail() {
 																variant={selected?._id === room._id ? 'outlined' : 'contained'}
 																disabled={!eligible}
 																aria-pressed={selected?._id === room._id}
-																onClick={() => setSelectedId(room._id)}
+																onClick={() => {
+																	setSelectedId(room._id);
+																	// The mobile summary sits above the room list; show the
+																	// review dialog here instead of making guests find it.
+																	if (window.matchMedia('(max-width: 800px)').matches) setBookingOpen(true);
+																}}
 															>
 																{selected?._id === room._id ? 'Selected' : 'Select room'}
 															</Button>
