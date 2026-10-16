@@ -217,10 +217,39 @@ export default function PublicChat() {
 		return () => document.removeEventListener('pointerdown', closeOutside);
 	}, [open]);
 	useEffect(() => {
+		if (!open) return;
+		const viewport = window.visualViewport;
+		const fitVisibleScreen = () => {
+			const element = outside.current;
+			if (!element) return;
+			const height = viewport?.height ?? window.innerHeight;
+			element.style.setProperty('--chat-viewport-height', `${height}px`);
+			element.style.setProperty('--chat-viewport-width', `${viewport?.width ?? window.innerWidth}px`);
+			element.style.setProperty('--chat-viewport-top', `${viewport?.offsetTop ?? 0}px`);
+			element.style.setProperty('--chat-viewport-left', `${viewport?.offsetLeft ?? 0}px`);
+			element.dataset.compact = String(height < 450);
+		};
+		fitVisibleScreen();
+		viewport?.addEventListener('resize', fitVisibleScreen);
+		viewport?.addEventListener('scroll', fitVisibleScreen);
+		window.addEventListener('resize', fitVisibleScreen);
+		return () => {
+			viewport?.removeEventListener('resize', fitVisibleScreen);
+			viewport?.removeEventListener('scroll', fitVisibleScreen);
+			window.removeEventListener('resize', fitVisibleScreen);
+		};
+	}, [open]);
+	useEffect(() => {
 		visible.current = open;
 		if (open) {
 			setUnread(0);
-			panel.current?.querySelector<HTMLInputElement>('input:not(:disabled)')?.focus();
+			// Opening a mobile chat must not summon the keyboard or change page zoom.
+			const touchScreen = window.matchMedia?.('(pointer: coarse)').matches || window.innerWidth <= 600;
+			if (!touchScreen) {
+				panel.current
+					?.querySelector<HTMLInputElement>('[role="tabpanel"]:not([hidden]) input:not(:disabled)')
+					?.focus({ preventScroll: true });
+			}
 		}
 	}, [open, mode]);
 

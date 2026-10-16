@@ -3,7 +3,10 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const ts = require('typescript');
 const { JSDOM } = require('jsdom');
-const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: 'http://localhost:3015', pretendToBeVisual: true });
+const dom = new JSDOM('<!doctype html><html><body></body></html>', {
+	url: 'http://localhost:3015',
+	pretendToBeVisual: true,
+});
 Object.assign(global, {
 	window: dom.window,
 	self: dom.window,
@@ -269,4 +272,59 @@ test('own connection attribution survives a reload within the same tab', () => {
 	);
 	assert.equal(host.querySelector('.h-chat-message--mine p').textContent, 'My earlier message');
 	assert.equal(host.querySelectorAll('.h-chat-message--mine').length, 1);
+});
+
+test('opening mobile chat and changing tabs does not focus an input or open the keyboard', () => {
+	const originalWidth = window.innerWidth;
+	window.innerWidth = 390;
+	try {
+		mount();
+		click('.h-chat-toggle');
+		assert.equal(host.querySelector('.h-chat-panel').hidden, false);
+		assert.notEqual(document.activeElement?.tagName, 'INPUT');
+		click('#assistant-chat-tab');
+		assert.notEqual(document.activeElement?.tagName, 'INPUT');
+	} finally {
+		window.innerWidth = originalWidth;
+	}
+});
+
+test('open chat follows the visible viewport and detaches listeners when closed', () => {
+	const viewport = Object.assign(new dom.window.EventTarget(), {
+		height: 700,
+		width: 390,
+		offsetTop: 0,
+		offsetLeft: 0,
+	});
+	Object.defineProperty(window, 'visualViewport', { value: viewport, configurable: true });
+	try {
+		mount();
+		click('.h-chat-toggle');
+		const chat = host.querySelector('.h-chat');
+		assert.equal(chat.style.getPropertyValue('--chat-viewport-height'), '700px');
+		assert.equal(chat.dataset.compact, 'false');
+		act(() => {
+			Object.assign(viewport, { height: 300, offsetTop: 120 });
+			viewport.dispatchEvent(new dom.window.Event('resize'));
+		});
+		assert.equal(chat.style.getPropertyValue('--chat-viewport-height'), '300px');
+		assert.equal(chat.style.getPropertyValue('--chat-viewport-top'), '120px');
+		assert.equal(chat.dataset.compact, 'true');
+		click('.h-chat-toggle');
+		act(() => {
+			viewport.height = 700;
+			viewport.dispatchEvent(new dom.window.Event('resize'));
+		});
+		assert.equal(chat.style.getPropertyValue('--chat-viewport-height'), '300px');
+	} finally {
+		delete window.visualViewport;
+	}
+});
+
+test('desktop tab changes focus the visible composer rather than the hidden community input', () => {
+	mount();
+	click('.h-chat-toggle');
+	assert.equal(document.activeElement, host.querySelector('#community-chat-panel input'));
+	click('#assistant-chat-tab');
+	assert.equal(document.activeElement, host.querySelector('#assistant-chat-panel input'));
 });
